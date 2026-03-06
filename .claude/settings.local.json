@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/tyler/.claude/plugins/cache/claude-plugins-official/skill-creator/205b6e0b3036/skills/skill-creator/**)",
+      "Bash(python -m scripts.aggregate_benchmark \"C:\\\\Users\\\\tyler\\\\.claude\\\\plugins\\\\cache\\\\claude-plugins-official\\\\skill-creator\\\\205b6e0b3036\\\\ui-critique-workspace\\\\iteration-1\" --skill-name \"ui-critique\")",
+      "Bash(python3:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npm run:*)"
+    ]
+  }
+}

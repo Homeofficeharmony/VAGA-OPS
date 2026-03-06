@@ -1,0 +1,460 @@
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { useImmersionBreath } from '../hooks/useImmersionBreath'
+import { useCompletionTone } from '../hooks/useCompletionTone'
+
+const BREATH_TIMING = {
+  frozen:  { inhale: 4000, hold: 0,    exhale: 8000 },
+  anxious: { inhale: 4000, hold: 2000, exhale: 8000 },
+  flow:    { inhale: 4000, hold: 0,    exhale: 6000 },
+}
+
+const STABILIZE_DURATION = { frozen: 120, anxious: 180, flow: 120 }
+
+// Per-state welcome copy — brief, instructional, not philosophical
+const WELCOME = {
+  frozen: {
+    headline: 'Lifting you out of shutdown',
+    body: 'Your system is in low activation. This session uses extended exhales to gently wake your nervous system without spiking arousal.',
+    tip: 'Feel your feet on the floor before you begin.',
+  },
+  anxious: {
+    headline: 'Clearing the cortisol loop',
+    body: 'Your nervous system is running hot. A longer exhale activates the vagal brake — your body\'s built-in off switch for the stress response.',
+    tip: 'Drop your shoulders before you begin.',
+  },
+  flow: {
+    headline: 'Deepening your window',
+    body: 'You\'re already regulated. This session sustains and deepens your ventral vagal tone so you can protect the work ahead.',
+    tip: 'Soften your gaze and let your jaw unclench.',
+  },
+}
+
+const GROUNDING_PHRASES = {
+  frozen:  ['Feel the weight of your body in the chair.', 'Gravity is holding you. You need not hold yourself.', 'The floor is solid. The room is still.', 'You are doing enough. This breath is enough.', 'Warmth is returning. Let it spread slowly.'],
+  anxious: ["Each exhale is your nervous system's reset.", 'Soften the jaw. Drop the shoulders. Release the grip.', 'This moment is safe. The next one will be too.', 'Your exhale is twice as long. Your system is listening.', 'The body needs cues, not arguments. Keep breathing.'],
+  flow:    ['You are inside your window of tolerance.', 'Let the gaze soften. Periphery expands.', 'Breath and body are already aligned.', 'You are not preparing to work. You are already working.', 'Sustain this. Protect this window.'],
+}
+
+const BREATH_LABEL = { inhale: 'Breathe in', hold: 'Hold', exhale: 'Breathe out' }
+
+// Shared exit button — always accessible
+function ExitButton({ onClose, accent }) {
+  return (
+    <button
+      onClick={onClose}
+      className="fixed top-5 right-6 font-mono text-[10px] tracking-[0.22em] uppercase transition-colors duration-200 focus:outline-none z-10"
+      style={{ color: accent + '50' }}
+      onMouseEnter={e => e.currentTarget.style.color = accent + 'cc'}
+      onMouseLeave={e => e.currentTarget.style.color = accent + '50'}
+      title="Exit immersion (Esc)"
+    >
+      ✕ exit
+    </button>
+  )
+}
+
+// Shared ambient background
+function AmbientBg({ accent }) {
+  return (
+    <div
+      aria-hidden
+      className="absolute inset-0 pointer-events-none"
+      style={{ background: `radial-gradient(ellipse at 50% 50%, ${accent}0a 0%, transparent 62%)` }}
+    />
+  )
+}
+
+// The breathing orb — used during stabilize
+function BreathOrb({ accent, orbScale, bloomScale, bloomOpacity, timing, isExhale, breathPhase }) {
+  return (
+    <div className="relative flex items-center justify-center" style={{ width: 200, height: 200 }}>
+      {/* Outward bloom on exhale */}
+      <div
+        aria-hidden
+        className="absolute inset-0 rounded-full pointer-events-none"
+        style={{
+          border: `1px solid ${accent}`,
+          transform: `scale(${bloomScale})`,
+          opacity: bloomOpacity,
+        }}
+      />
+      {/* Glow halo */}
+      <div
+        className="absolute inset-0 rounded-full"
+        style={{
+          backgroundColor: accent + '0c',
+          boxShadow: `0 0 ${Math.round(40 + orbScale * 24)}px ${Math.round(10 + orbScale * 14)}px ${accent}16`,
+          transform: `scale(${orbScale})`,
+          transition: `transform ${isExhale ? timing.exhale : (breathPhase === 'hold' ? 100 : timing.inhale)}ms ease-in-out`,
+        }}
+      />
+      {/* Main ring */}
+      <div
+        className="absolute inset-6 rounded-full border"
+        style={{
+          borderColor: accent + (isExhale ? 'bb' : '55'),
+          backgroundColor: accent + (isExhale ? '12' : '06'),
+          transform: `scale(${orbScale})`,
+          transition: `transform ${isExhale ? timing.exhale : (breathPhase === 'hold' ? 100 : timing.inhale)}ms ease-in-out, border-color 0.6s ease, background-color 0.6s ease`,
+        }}
+      />
+      {/* Inner core */}
+      <div
+        className="absolute inset-[35%] rounded-full"
+        style={{
+          background: `radial-gradient(circle, ${accent}50 0%, ${accent}1a 60%, transparent 100%)`,
+          boxShadow: `0 0 10px ${accent}35`,
+        }}
+      />
+    </div>
+  )
+}
+
+export default function ImmersionContainer({ open, stateData, onComplete, onClose }) {
+  // phases: 'welcome' | 'stabilize' | 'integrate'
+  const [phase, setPhase]             = useState('welcome')
+  const [breathElapsed, setBreathElapsed] = useState(0)
+  const [phraseIndex, setPhraseIndex] = useState(0)
+  const [activation, setActivation]   = useState(5)
+  const [integElapsed, setIntegElapsed] = useState(0)
+  const [visible, setVisible]         = useState(false)
+
+  const startedAtRef  = useRef(null)
+  const playToneRef   = useRef(null)
+  const activationRef = useRef(5)
+
+  const playTone = useCompletionTone()
+  playToneRef.current = playTone
+
+  const timing = BREATH_TIMING[stateData?.id] ?? BREATH_TIMING.anxious
+  const { phase: breathPhase, phaseProgress, phaseRemainingSec } =
+    useImmersionBreath(open && phase === 'stabilize', timing)
+
+  // Reset on open
+  useEffect(() => {
+    if (!open) { setVisible(false); return }
+    setPhase('welcome')
+    setBreathElapsed(0)
+    setPhraseIndex(0)
+    setActivation(5)
+    setIntegElapsed(0)
+    activationRef.current = 5
+    startedAtRef.current = new Date().toISOString()
+    setTimeout(() => setVisible(true), 40)
+  }, [open])
+
+  // Stabilize: session countdown + phrase rotation
+  useEffect(() => {
+    if (!open || phase !== 'stabilize') return
+    const total = STABILIZE_DURATION[stateData?.id] ?? 180
+
+    const countId = setInterval(() => {
+      setBreathElapsed(prev => {
+        if (prev + 1 >= total) {
+          clearInterval(countId)
+          playToneRef.current?.()
+          setTimeout(() => setPhase('integrate'), 800)
+          return total
+        }
+        return prev + 1
+      })
+    }, 1000)
+
+    const phraseId = setInterval(() => {
+      setPhraseIndex(prev => (prev + 1) % (GROUNDING_PHRASES[stateData?.id]?.length ?? 1))
+    }, 20000)
+
+    return () => { clearInterval(countId); clearInterval(phraseId) }
+  }, [open, phase, stateData])
+
+  useEffect(() => { activationRef.current = activation }, [activation])
+
+  const handleComplete = useCallback((autoDismissed) => {
+    onComplete({
+      activationAfter: activationRef.current,
+      notes: null,
+      startedAt: startedAtRef.current,
+      resetCompleted: !autoDismissed,
+    })
+  }, [onComplete])
+
+  // Integrate: auto-dismiss after 30s
+  useEffect(() => {
+    if (!open || phase !== 'integrate') return
+    const id = setInterval(() => {
+      setIntegElapsed(prev => {
+        if (prev + 1 >= 30) { clearInterval(id); handleComplete(true); return 30 }
+        return prev + 1
+      })
+    }, 1000)
+    return () => clearInterval(id)
+  }, [open, phase, handleComplete])
+
+  if (!open || !stateData) return null
+
+  const accent = stateData.accentHex
+  const total  = STABILIZE_DURATION[stateData.id] ?? 180
+  const stabilizePct = total > 0 ? breathElapsed / total : 0
+
+  // Orb scale
+  let orbScale = 1.0
+  if (breathPhase === 'inhale')    orbScale = 1.0 + phaseProgress * 0.45
+  else if (breathPhase === 'hold') orbScale = 1.45
+  else                             orbScale = 1.45 - phaseProgress * 0.45
+  orbScale = Math.max(1.0, Math.min(1.45, orbScale))
+
+  const isExhale     = breathPhase === 'exhale'
+  const bloomScale   = isExhale ? 1.45 + phaseProgress * 0.75 : 1.45
+  const bloomOpacity = isExhale ? 0.2 * Math.sin(Math.PI * phaseProgress) : 0
+
+  // Session time remaining display
+  const remainingSec  = Math.max(0, total - breathElapsed)
+  const remMin  = Math.floor(remainingSec / 60)
+  const remSec  = remainingSec % 60
+  const remStr  = `${remMin}:${String(remSec).padStart(2, '0')}`
+
+  // Breath pattern display (for welcome screen)
+  const patternPills = (() => {
+    const t = BREATH_TIMING[stateData.id] ?? BREATH_TIMING.anxious
+    const pills = [{ label: 'Inhale', sec: t.inhale / 1000 }]
+    if (t.hold > 0) pills.push({ label: 'Hold', sec: t.hold / 1000 })
+    pills.push({ label: 'Exhale', sec: t.exhale / 1000 })
+    return pills
+  })()
+
+  const durationMins = (STABILIZE_DURATION[stateData.id] ?? 120) / 60
+
+  // ── SHARED WRAPPER ────────────────────────────────────────────────────
+  const wrapper = (children) => (
+    <div
+      className="fixed inset-0 z-[55] flex flex-col items-center justify-center px-6 select-none"
+      style={{
+        backgroundColor: 'var(--bg-base)',
+        opacity: visible ? 1 : 0,
+        transition: 'opacity 1s ease',
+      }}
+    >
+      <AmbientBg accent={accent} />
+      <ExitButton onClose={onClose} accent={accent} />
+      {children}
+    </div>
+  )
+
+  // ── PHASE: WELCOME ────────────────────────────────────────────────────
+  if (phase === 'welcome') {
+    const w = WELCOME[stateData.id] ?? WELCOME.flow
+    return wrapper(
+      <div
+        className="relative w-full max-w-sm flex flex-col items-center text-center"
+        style={{ animation: 'fadeIn 0.8s ease both' }}
+      >
+        {/* State badge */}
+        <div
+          className="font-mono text-[10px] tracking-[0.28em] uppercase mb-4 px-3 py-1 rounded-full"
+          style={{ color: accent, border: `1px solid ${accent}30`, backgroundColor: `${accent}0c` }}
+        >
+          {stateData.label}
+        </div>
+
+        {/* Headline */}
+        <h2
+          className="font-semibold mb-3 leading-tight"
+          style={{ color: 'var(--text-primary)', fontSize: '20px', letterSpacing: '-0.02em' }}
+        >
+          {w.headline}
+        </h2>
+
+        {/* Body copy */}
+        <p
+          className="text-sm leading-relaxed mb-6 max-w-[280px]"
+          style={{ color: 'var(--text-muted)' }}
+        >
+          {w.body}
+        </p>
+
+        {/* Breathing pattern — clear visual guide */}
+        <div className="flex items-center gap-2 mb-2">
+          {patternPills.map((pill, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <div
+                className="flex flex-col items-center px-3 py-2 rounded-xl"
+                style={{
+                  border: `1px solid ${accent}25`,
+                  backgroundColor: `${accent}0a`,
+                  minWidth: 56,
+                }}
+              >
+                <span
+                  className="font-mono font-semibold leading-none mb-0.5"
+                  style={{ color: accent, fontSize: '18px' }}
+                >
+                  {pill.sec}s
+                </span>
+                <span className="font-mono text-[9px] tracking-wider uppercase" style={{ color: 'var(--text-muted)' }}>
+                  {pill.label}
+                </span>
+              </div>
+              {i < patternPills.length - 1 && (
+                <span className="font-mono text-[10px]" style={{ color: accent + '40' }}>·</span>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Duration */}
+        <p className="font-mono text-[10px] tracking-wider mb-8" style={{ color: 'var(--text-muted)' }}>
+          {durationMins} minute session
+        </p>
+
+        {/* Arrival tip */}
+        <div
+          className="w-full text-center text-[11px] italic leading-relaxed mb-8 px-4 py-3 rounded-xl"
+          style={{
+            color: accent + 'aa',
+            border: `1px solid ${accent}18`,
+            backgroundColor: `${accent}07`,
+          }}
+        >
+          {w.tip}
+        </div>
+
+        {/* Begin */}
+        <button
+          onClick={() => setPhase('stabilize')}
+          className="w-full py-4 rounded-2xl font-mono text-[11px] tracking-[0.25em] uppercase focus:outline-none transition-all duration-300"
+          style={{
+            backgroundColor: accent + '1c',
+            border: `1px solid ${accent}45`,
+            color: accent,
+            boxShadow: `0 0 24px ${accent}12`,
+          }}
+          onMouseEnter={e => { e.currentTarget.style.backgroundColor = accent + '2e'; e.currentTarget.style.boxShadow = `0 0 32px ${accent}22` }}
+          onMouseLeave={e => { e.currentTarget.style.backgroundColor = accent + '1c'; e.currentTarget.style.boxShadow = `0 0 24px ${accent}12` }}
+        >
+          Begin
+        </button>
+      </div>
+    )
+  }
+
+  // ── PHASE: STABILIZE ─────────────────────────────────────────────────
+  if (phase === 'stabilize') {
+    const phrases = GROUNDING_PHRASES[stateData.id] ?? GROUNDING_PHRASES.flow
+    return wrapper(
+      <div className="relative w-full flex flex-col items-center text-center">
+
+        {/* Session timer — top left */}
+        <div
+          className="fixed top-5 left-6 font-mono tabular-nums"
+          style={{ color: accent + '60', fontSize: '11px', letterSpacing: '0.1em' }}
+        >
+          {remStr}
+        </div>
+
+        {/* Breath orb */}
+        <BreathOrb
+          accent={accent}
+          orbScale={orbScale}
+          bloomScale={bloomScale}
+          bloomOpacity={bloomOpacity}
+          timing={timing}
+          isExhale={isExhale}
+          breathPhase={breathPhase}
+        />
+
+        {/* Phase label + countdown */}
+        <div className="mt-8 mb-2 flex flex-col items-center gap-1">
+          <p
+            className="font-mono text-[11px] tracking-[0.28em] uppercase"
+            style={{
+              color: accent,
+              opacity: isExhale ? 1 : 0.55,
+              transition: 'opacity 0.6s ease',
+            }}
+          >
+            {BREATH_LABEL[breathPhase]}
+          </p>
+          {/* Phase countdown number */}
+          <span
+            className="font-mono font-light tabular-nums"
+            style={{
+              color: accent,
+              fontSize: '38px',
+              letterSpacing: '-0.02em',
+              opacity: isExhale ? 0.95 : 0.5,
+              transition: 'opacity 0.5s ease',
+              lineHeight: 1,
+            }}
+          >
+            {phaseRemainingSec}
+          </span>
+        </div>
+
+        {/* Grounding phrase */}
+        <p
+          key={phraseIndex}
+          className="max-w-[240px] text-center text-sm font-light leading-relaxed mt-4"
+          style={{ color: 'var(--text-muted)', animation: 'fadeIn 1.4s ease both' }}
+        >
+          {phrases[phraseIndex]}
+        </p>
+
+        {/* Session progress bar */}
+        <div
+          className="fixed bottom-0 left-0 right-0 h-px"
+          style={{ backgroundColor: accent + '12' }}
+        >
+          <div
+            className="h-full transition-all duration-1000"
+            style={{ width: `${stabilizePct * 100}%`, backgroundColor: accent + '40' }}
+          />
+        </div>
+      </div>
+    )
+  }
+
+  // ── PHASE: INTEGRATE ─────────────────────────────────────────────────
+  return wrapper(
+    <div
+      className="relative w-full max-w-[260px] flex flex-col items-center text-center space-y-5"
+      style={{ animation: 'fadeIn 0.9s ease both' }}
+    >
+      <div>
+        <p className="font-mono text-[9px] tracking-[0.28em] uppercase mb-2" style={{ color: accent + '70' }}>
+          Session complete
+        </p>
+        <p className="text-lg font-light" style={{ color: 'var(--text-primary)' }}>
+          How do you feel now?
+        </p>
+      </div>
+
+      <div className="w-full">
+        <div className="flex justify-between font-mono text-[10px] mb-2" style={{ color: 'var(--text-muted)' }}>
+          <span>calm</span>
+          <span style={{ color: accent, fontWeight: 600 }}>{activation}</span>
+          <span>wired</span>
+        </div>
+        <input
+          type="range" min={1} max={10} value={activation}
+          onChange={e => setActivation(Number(e.target.value))}
+          className="w-full"
+          style={{ accentColor: accent }}
+        />
+      </div>
+
+      <button
+        onClick={() => handleComplete(false)}
+        className="w-full py-3.5 rounded-2xl font-mono text-[11px] tracking-[0.25em] uppercase focus:outline-none transition-all duration-200"
+        style={{ backgroundColor: accent + '1c', border: `1px solid ${accent}40`, color: accent }}
+        onMouseEnter={e => { e.currentTarget.style.backgroundColor = accent + '2c' }}
+        onMouseLeave={e => { e.currentTarget.style.backgroundColor = accent + '1c' }}
+      >
+        Done
+      </button>
+
+      <p className="font-mono text-[9px] tracking-widest uppercase" style={{ color: 'var(--text-muted)' }}>
+        Closes in {30 - integElapsed}s
+      </p>
+    </div>
+  )
+}

@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Regulation Station — Application Summary</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #0f1410;
+      color: #d4ddd6;
+      line-height: 1.6;
+      font-size: 13px;
+      padding: 40px 48px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* Print overrides */
+    @media print {
+      body { background: #fff; color: #111; padding: 24px 32px; }
+      .cover { background: #111 !important; color: #fff !important; }
+      .cover * { color: inherit !important; }
+      .page-break { page-break-before: always; }
+      h1, h2, h3 { page-break-after: avoid; }
+      table, pre { page-break-inside: avoid; }
+    }
+
+    /* ─── Cover ─── */
+    .cover {
+      background: #111;
+      border-radius: 12px;
+      padding: 56px 48px;
+      margin-bottom: 48px;
+      border: 1px solid #263024;
+      position: relative;
+      overflow: hidden;
+    }
+    .cover::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(82,184,126,0.12) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .cover-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #52b87e;
+      margin-bottom: 16px;
+    }
+    .cover h1 {
+      font-size: 36px;
+      font-weight: 700;
+      color: #eaf0eb;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    .cover-sub {
+      font-size: 15px;
+      color: #8a9e90;
+      margin-bottom: 32px;
+    }
+    .cover-meta {
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+    .cover-meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .cover-meta-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #617a6a;
+    }
+    .cover-meta-value {
+      font-size: 13px;
+      color: #d4ddd6;
+      font-weight: 500;
+    }
+    .state-pills {
+      display: flex;
+      gap: 10px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+      border: 1px solid;
+    }
+    .pill-frozen  { border-color: #c4604a44; background: #c4604a18; color: #c4604a; }
+    .pill-anxious { border-color: #c8a04044; background: #c8a04018; color: #c8a040; }
+    .pill-flow    { border-color: #52b87e44; background: #52b87e18; color: #52b87e; }
+    .pill-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    /* ─── Typography ─── */
+    h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #eaf0eb;
+      margin: 36px 0 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #263024;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h2 .section-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      color: #52b87e;
+      text-transform: uppercase;
+      font-weight: 400;
+    }
+    h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #c5d4c7;
+      margin: 20px 0 8px;
+    }
+    h4 {
+      font-size: 12px;
+      font-weight: 600;
+      color: #8a9e90;
+      margin: 14px 0 6px;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.05em;
+    }
+    p { margin-bottom: 10px; color: #9eb0a0; }
+    a { color: #52b87e; }
+
+    /* ─── Overview cards ─── */
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 20px 0;
+    }
+    .overview-card {
+      background: #161d15;
+      border: 1px solid #263024;
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .overview-card-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #52b87e;
+      margin-bottom: 6px;
+    }
+    .overview-card-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: #eaf0eb;
+      margin-bottom: 4px;
+    }
+    .overview-card-desc { font-size: 11px; color: #617a6a; }
+
+    /* ─── State cards ─── */
+    .state-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 20px 0;
+    }
+    .state-card {
+      background: #161d15;
+      border-radius: 10px;
+      padding: 20px;
+      border: 1px solid;
+    }
+    .state-card.frozen  { border-color: #c4604a44; }
+    .state-card.anxious { border-color: #c8a04044; }
+    .state-card.flow    { border-color: #52b87e44; }
+    .state-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+    .state-card-title { font-size: 14px; font-weight: 700; color: #eaf0eb; }
+    .state-card-subtitle { font-size: 11px; color: #617a6a; margin-top: 2px; }
+    .state-hex {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .frozen  .state-hex { background: #c4604a22; color: #c4604a; }
+    .anxious .state-hex { background: #c8a04022; color: #c8a040; }
+    .flow    .state-hex { background: #52b87e22; color: #52b87e; }
+    .state-detail { font-size: 11px; color: #617a6a; margin: 4px 0; }
+    .state-detail strong { color: #8a9e90; font-weight: 500; }
+    .state-theory {
+      margin-top: 12px;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 10px;
+      line-height: 1.5;
+    }
+    .frozen  .state-theory { background: #c4604a10; color: #c4604a; }
+    .anxious .state-theory { background: #c8a04010; color: #c8a040; }
+    .flow    .state-theory { background: #52b87e10; color: #52b87e; }
+
+    /* ─── Code blocks ─── */
+    pre, code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+    }
+    pre {
+      background: #0d1410;
+      border: 1px solid #263024;
+      border-radius: 6px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      margin: 12px 0;
+      color: #8a9e90;
+    }
+    code {
+      background: #263024;
+      color: #8a9e90;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 11px;
+    }
+    pre code { background: none; padding: 0; }
+
+    /* ─── Tables ─── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 11.5px;
+    }
+    th {
+      text-align: left;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #617a6a;
+      border-bottom: 1px solid #263024;
+      padding: 6px 10px 8px;
+    }
+    td {
+      padding: 7px 10px;
+      border-bottom: 1px solid #1e261d;
+      color: #9eb0a0;
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #161d1510; }
+    td code { font-size: 10px; }
+
+    /* ─── Component list ─── */
+    .component-list {
+      display: grid;
+      gap: 10px;
+      margin: 16px 0;
+    }
+    .component-item {
+      background: #161d15;
+      border: 1px solid #263024;
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .component-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #52b87e;
+      font-weight: 500;
+    }
+    .component-path {
+      font-size: 9px;
+      color: #617a6a;
+      margin-top: 3px;
+    }
+    .component-desc { font-size: 11.5px; color: #8a9e90; line-height: 1.5; }
+
+    /* ─── Hook list ─── */
+    .hook-item {
+      background: #161d15;
+      border: 1px solid #263024;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 8px 0;
+    }
+    .hook-sig {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #c8a040;
+      margin-bottom: 6px;
+    }
+    .hook-desc { font-size: 11.5px; color: #8a9e90; line-height: 1.5; }
+
+    /* ─── Feature cards ─── */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin: 16px 0;
+    }
+    .feature-card {
+      background: #161d15;
+      border: 1px solid #263024;
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .feature-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #c5d4c7;
+      margin-bottom: 6px;
+    }
+    .feature-desc { font-size: 11px; color: #617a6a; line-height: 1.5; }
+
+    /* ─── Badges ─── */
+    .badge {
+      display: inline-block;
+      padding: 1px 7px;
+      border-radius: 10px;
+      font-size: 9.5px;
+      font-weight: 500;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .badge-green  { background: #52b87e22; color: #52b87e; }
+    .badge-amber  { background: #c8a04022; color: #c8a040; }
+    .badge-red    { background: #c4604a22; color: #c4604a; }
+    .badge-muted  { background: #263024; color: #8a9e90; }
+
+    /* ─── Section dividers ─── */
+    .section-icon {
+      width: 24px; height: 24px;
+      background: #52b87e22;
+      border: 1px solid #52b87e44;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    /* ─── Key-Value pairs ─── */
+    .kv-list { display: grid; gap: 6px; margin: 10px 0; }
+    .kv-row {
+      display: flex;
+      gap: 12px;
+      font-size: 11.5px;
+    }
+    .kv-key {
+      font-family: 'JetBrains Mono', monospace;
+      color: #617a6a;
+      min-width: 130px;
+      font-size: 10px;
+    }
+    .kv-val { color: #9eb0a0; }
+
+    /* ─── Divider ─── */
+    hr { border: none; border-top: 1px solid #263024; margin: 32px 0; }
+
+    /* ─── Footer ─── */
+    .footer {
+      margin-top: 48px;
+      padding-top: 20px;
+      border-top: 1px solid #263024;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      color: #617a6a;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    ul { padding-left: 18px; color: #9eb0a0; }
+    li { margin-bottom: 4px; font-size: 11.5px; }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Cover ─── -->
+  <div class="cover">
+    <div class="cover-label">Application Summary · v1.0</div>
+    <h1>Regulation Station</h1>
+    <div class="cover-sub">Nervous System Operations Dashboard for WFH Solopreneurs</div>
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Stack</span>
+        <span class="cover-meta-value">React 19 + Vite 7 + Tailwind 3</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Architecture</span>
+        <span class="cover-meta-value">SPA · PWA · Offline-first</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Backend</span>
+        <span class="cover-meta-value">Supabase (optional)</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Theory</span>
+        <span class="cover-meta-value">Polyvagal Theory</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Generated</span>
+        <span class="cover-meta-value">2026-03-05</span>
+      </div>
+    </div>
+    <div class="state-pills">
+      <div class="pill pill-frozen"><div class="pill-dot"></div> Frozen/Shutdown</div>
+      <div class="pill pill-anxious"><div class="pill-dot"></div> Anxious/High-Alert</div>
+      <div class="pill pill-flow"><div class="pill-dot"></div> Safe/Flow</div>
+    </div>
+  </div>
+
+  <!-- ─── 1. Overview ─── -->
+  <h2><span class="section-icon">🧠</span> <span class="section-num">01</span> Overview</h2>
+  <p>
+    Regulation Station is a calm-tech single-page application built on Polyvagal Theory. It helps work-from-home solopreneurs identify their current nervous system state (Frozen, Anxious, or Flow), then apply targeted somatic protocols, curated task lists, and binaural audio to shift toward regulated, productive work.
+  </p>
+  <p>
+    The app is fully offline-capable using <code>localStorage</code>. An optional Supabase backend enables cross-device session syncing, authentication, and team collaboration features.
+  </p>
+
+  <div class="overview-grid">
+    <div class="overview-card">
+      <div class="overview-card-label">Components</div>
+      <div class="overview-card-value">32</div>
+      <div class="overview-card-desc">Specialized UI modules</div>
+    </div>
+    <div class="overview-card">
+      <div class="overview-card-label">Custom Hooks</div>
+      <div class="overview-card-value">10+</div>
+      <div class="overview-card-desc">Logic abstracted from UI</div>
+    </div>
+    <div class="overview-card">
+      <div class="overview-card-label">Themes</div>
+      <div class="overview-card-value">3</div>
+      <div class="overview-card-desc">Dark · Light · Pastel</div>
+    </div>
+    <div class="overview-card">
+      <div class="overview-card-label">States</div>
+      <div class="overview-card-value">3</div>
+      <div class="overview-card-desc">Frozen · Anxious · Flow</div>
+    </div>
+    <div class="overview-card">
+      <div class="overview-card-label">Build Size</div>
+      <div class="overview-card-value">~456kB</div>
+      <div class="overview-card-desc">JS + 25kB CSS (gzipped)</div>
+    </div>
+    <div class="overview-card">
+      <div class="overview-card-label">Dev Port</div>
+      <div class="overview-card-value">5173</div>
+      <div class="overview-card-desc"><code>npm run dev</code></div>
+    </div>
+  </div>
+
+  <!-- ─── 2. Nervous System States ─── -->
+  <h2><span class="section-icon">⚡</span> <span class="section-num">02</span> Nervous System States</h2>
+  <p>All state logic is centralized in <code>src/data/stateData.js</code> — a single <code>STATES</code> object keyed by <code>'frozen' | 'anxious' | 'flow'</code>. Each state defines its accent color, reset protocol, task list, binaural audio configuration, and tips.</p>
+
+  <div class="state-grid">
+    <div class="state-card frozen">
+      <div class="state-card-header">
+        <div>
+          <div class="state-card-title">Frozen / Shutdown</div>
+          <div class="state-card-subtitle">Dissociated · Low energy · Can't start</div>
+        </div>
+        <div class="state-hex">#c4604a</div>
+      </div>
+      <div class="state-detail"><strong>Protocol:</strong> Ear-Apex Pull (60 sec, 5 steps)</div>
+      <div class="state-detail"><strong>Audio:</strong> Theta Emergence — 5 Hz (180 + 5 Hz)</div>
+      <div class="state-detail"><strong>Tasks:</strong> Inbox, water, file, walk, list</div>
+      <div class="state-theory">Dorsal vagal shutdown — parasympathetic brake fully engaged, immobility response.</div>
+    </div>
+    <div class="state-card anxious">
+      <div class="state-card-header">
+        <div>
+          <div class="state-card-title">Anxious / High-Alert</div>
+          <div class="state-card-subtitle">Scattered · Overthinking · Chest tight</div>
+        </div>
+        <div class="state-hex">#c8a040</div>
+      </div>
+      <div class="state-detail"><strong>Protocol:</strong> Rib-Cage Expansion (60 sec, 5 steps)</div>
+      <div class="state-detail"><strong>Audio:</strong> Alpha Anchor — 10 Hz (200 + 10 Hz)</div>
+      <div class="state-detail"><strong>Tasks:</strong> Draft, Loom, outline, respond, review</div>
+      <div class="state-theory">Sympathetic mobilization — fight/flight response, elevated arousal, tunnel vision.</div>
+    </div>
+    <div class="state-card flow">
+      <div class="state-card-header">
+        <div>
+          <div class="state-card-title">Safe / Flow</div>
+          <div class="state-card-subtitle">Grounded · Present · Ready to build</div>
+        </div>
+        <div class="state-hex">#52b87e</div>
+      </div>
+      <div class="state-detail"><strong>Protocol:</strong> Peripheral Vision Soften (60 sec, 4 steps)</div>
+      <div class="state-detail"><strong>Audio:</strong> Gamma Forge — 40 Hz (200 + 40 Hz)</div>
+      <div class="state-detail"><strong>Tasks:</strong> Create, strategy, calls, build, learn</div>
+      <div class="state-theory">Ventral vagal engagement — social safety system, safe and connected, peak cognition.</div>
+    </div>
+  </div>
+
+  <!-- ─── 3. Architecture ─── -->
+  <div class="page-break"></div>
+  <h2><span class="section-icon">🗂</span> <span class="section-num">03</span> Architecture</h2>
+
+  <h3>App Flow</h3>
+  <ol style="padding-left: 20px; color: #9eb0a0; font-size: 12px;">
+    <li style="margin-bottom: 8px;"><strong style="color:#c5d4c7;">Init</strong> — ThemeProvider wraps app; check <code>vagaFirstVisitComplete</code> in localStorage; load sessions; calculate streak.</li>
+    <li style="margin-bottom: 8px;"><strong style="color:#c5d4c7;">First Visit</strong> — Show <code>FirstVisitExperience</code> (30-sec breathing timer + state intro). On complete, set localStorage flag.</li>
+    <li style="margin-bottom: 8px;"><strong style="color:#c5d4c7;">Main Layout</strong> — Header (fixed) → StateAssist → StateSelector → DailySummary → HRV Indicator → (if state selected) Dashboard Grid → TeamPanel → WeeklyIntelligenceCard → Footer.</li>
+    <li style="margin-bottom: 8px;"><strong style="color:#c5d4c7;">Overlays</strong> — Fixed-position layers rendered at bottom of App.jsx at various z-index levels: NeuralBackground (z-0), ImmersionBackground (z-1), content (z-10), modals (z-50 to z-100).</li>
+    <li style="margin-bottom: 8px;"><strong style="color:#c5d4c7;">State Transitions</strong> — Selecting a state resets timer; switching states clears all transient overlays and task load; completing any reset triggers PostResetCheckin.</li>
+  </ol>
+
+  <h3>State Management</h3>
+  <p>No external state library. All central state lives in <code>App.jsx</code> and is passed down as props:</p>
+  <div class="kv-list">
+    <div class="kv-row"><span class="kv-key">selectedState</span><span class="kv-val">'frozen' | 'anxious' | 'flow' | null — drives entire UI</span></div>
+    <div class="kv-row"><span class="kv-key">panicOpen</span><span class="kv-val">boolean — shows PanicReset overlay</span></div>
+    <div class="kv-row"><span class="kv-key">focusOpen</span><span class="kv-val">boolean — shows FocusMode overlay</span></div>
+    <div class="kv-row"><span class="kv-key">flowLockOpen</span><span class="kv-val">boolean — shows FlowLock overlay</span></div>
+    <div class="kv-row"><span class="kv-key">ruptureOpen</span><span class="kv-val">boolean — shows RuptureModal</span></div>
+    <div class="kv-row"><span class="kv-key">isImmersive</span><span class="kv-val">boolean — toggles immersion mode</span></div>
+    <div class="kv-row"><span class="kv-key">checkinPending</span><span class="kv-val">{ source, accentHex, state } | null — triggers PostResetCheckin</span></div>
+  </div>
+
+  <h3>Data Flow</h3>
+  <pre>stateData.js (STATES)
+  └─► App.jsx (selectedState → stateData = STATES[selectedState])
+        ├─► StateSelector (read + set selectedState)
+        ├─► StealthReset (stateData.reset)
+        ├─► TaskFilter (stateData.tasks)
+        ├─► AudioPlayer + useAudioEngine (stateData.audio)
+        └─► All overlays (accentHex, selectedState)</pre>
+
+  <!-- ─── 4. Components ─── -->
+  <h2><span class="section-icon">🧩</span> <span class="section-num">04</span> Components</h2>
+
+  <h3>Core Components</h3>
+  <div class="component-list">
+    <div class="component-item">
+      <div>
+        <div class="component-name">App.jsx</div>
+        <div class="component-path">src/App.jsx</div>
+      </div>
+      <div class="component-desc">Root orchestrator. Holds all central state, keyboard shortcuts, session loading, streak calculation, and renders the full layout including all overlays.</div>
+    </div>
+    <div class="component-item">
+      <div>
+        <div class="component-name">Header.jsx</div>
+        <div class="component-path">src/components/</div>
+      </div>
+      <div class="component-desc">Sticky header with logo, HRV gauge, immersion toggle, streak/stats display, auth section, rupture button, and real-time clock (HH:MM:SS).</div>
+    </div>
+    <div class="component-item">
+      <div>
+        <div class="component-name">StateSelector.jsx</div>
+        <div class="component-path">src/components/</div>
+      </div>
+      <div class="component-desc">3-column card grid for state selection. Shows accent colors, descriptions, Polyvagal note, and active state indicator (pulsing dot).</div>
+    </div>
+    <div class="component-item">
+      <div>
+        <div class="component-name">StealthReset.jsx</div>
+        <div class="component-path">src/components/</div>
+      </div>
+      <div class="component-desc">Primary 60-second somatic protocol timer. Shows countdown, step cues, 5-phase progress bars, activation rating (1–10), and completion tone. Includes video background and VideoModal.</div>
+    </div>
+    <div class="component-item">
+      <div>
+        <div class="component-name">TaskFilter.jsx</div>
+        <div class="component-path">src/components/</div>
+      </div>
+      <div class="component-desc">Capacity Calibrator — displays state-specific task list with cognitive load indicator. User drops tasks until 1 remains (Singular Focus). OVERLOAD → OPTIMAL transition.</div>
+    </div>
+    <div class="component-item">
+      <div>
+        <div class="component-name">AudioPlayer.jsx</div>
+        <div class="component-path">src/components/</div>
+      </div>
+      <div class="component-desc">Binaural beats player. Shows frequency info (L/R ear Hz), Lissajous canvas visualizer, progress bar, ±15s controls, volume slider, and track queue.</div>
+    </div>
+  </div>
+
+  <h3>Protocol &amp; Reset Components</h3>
+  <div class="component-list">
+    <div class="component-item">
+      <div>
+        <div class="component-name">PanicReset.jsx</div>
+        <div class="component-path">src/components/</div>
+      </div>
+      <div class="component-desc">Full-screen emergency 30-second reset with expanding breathing orb SVG. Activation capture before, completion tone, auto-proceeds to PostResetCheckin.</div>
+    </div>
+    <div class="component-item">
+      <div>
+        <div class="component-name">FlowLock.jsx</div>
+        <div class="component-path">src/components/</div>
+      </div>
+      <div class="component-desc">90-minute deep-work blocker overlay (Cmd+F in Flow state). Minimal UI, logs flowMinutes on exit. Plays completion tone at 90 min.</div>
+    </div>
+    <div class="component-item">
+      <div>
+        <div class="component-name">FocusMode.jsx</div>
+        <div class="component-path">src/components/</div>
+      </div>
+      <div class="component-desc">60-second focused work mode with timer. Linked to App.jsx state via F key shortcut.</div>
+    </div>
+    <div class="component-item">
+      <div>
+        <div class="component-name">RuptureModal.jsx</div>
+        <div class="component-path">src/components/</div>
+      </div>
+      <div class="component-desc">Rupture protocol overlay for extreme panic situations. Opened via R key or ⚠ header button.</div>
+    </div>
+  </div>
+
+  <h3>Feedback Components</h3>
+  <div class="component-list">
+    <div class="component-item">
+      <div>
+        <div class="component-name">PostResetCheckin.jsx</div>
+        <div class="component-path">src/components/</div>
+      </div>
+      <div class="component-desc">Bottom-right slide-up modal after every reset. Step 1: Shift? (Worse/Same/Better/Much Better). Step 2: Activation now? (1–10). Auto-dismisses after 12 seconds.</div>
+    </div>
+    <div class="component-item">
+      <div>
+        <div class="component-name">DailySummary.jsx</div>
+        <div class="component-path">src/components/</div>
+      </div>
+      <div class="component-desc">Compact stats strip showing today's reset count, avg shift arrow direction, and flow minutes. Only renders if resetCount > 0.</div>
+    </div>
+    <div class="component-item">
+      <div>
+        <div class="component-name">StateAssist.jsx</div>
+        <div class="component-path">src/components/</div>
+      </div>
+      <div class="component-desc">2-question Energy/Focus quiz that recommends a state when none is selected. Dismissable.</div>
+    </div>
+  </div>
+
+  <h3>Analytics &amp; Insight Components</h3>
+  <div class="component-list">
+    <div class="component-item">
+      <div>
+        <div class="component-name">HRVIndicator.jsx</div>
+        <div class="component-path">src/components/</div>
+      </div>
+      <div class="component-desc">HRV proxy gauge visual. State-dependent values: 31% frozen, 42% anxious, 78% flow.</div>
+    </div>
+    <div class="component-item">
+      <div>
+        <div class="component-name">WeeklyConsistency.jsx</div>
+        <div class="component-path">src/components/</div>
+      </div>
+      <div class="component-desc">7-day session frequency visualization bar chart.</div>
+    </div>
+    <div class="component-item">
+      <div>
+        <div class="component-name">WeeklyIntelligenceCard.jsx</div>
+        <div class="component-path">src/components/</div>
+      </div>
+      <div class="component-desc">Weekly summary card showing dominant state, avg recovery time, most effective protocol, and volatility score from useSessionMetrics.</div>
+    </div>
+    <div class="component-item">
+      <div>
+        <div class="component-name">StreakMilestone.jsx</div>
+        <div class="component-path">src/components/</div>
+      </div>
+      <div class="component-desc">Celebratory notification that appears when the user hits a streak milestone.</div>
+    </div>
+  </div>
+
+  <h3>Immersion Mode Components</h3>
+  <div class="component-list">
+    <div class="component-item">
+      <div>
+        <div class="component-name">ImmersionContainer.jsx</div>
+        <div class="component-path">src/components/</div>
+      </div>
+      <div class="component-desc">3-phase regulated deep-work overlay (z-100). Wraps entire immersion experience.</div>
+    </div>
+    <div class="component-item">
+      <div>
+        <div class="component-name">NeuralBackground.jsx</div>
+        <div class="component-path">src/components/</div>
+      </div>
+      <div class="component-desc">Animated procedural neural background (z-0) rendered behind all content in immersion mode.</div>
+    </div>
+    <div class="component-item">
+      <div>
+        <div class="component-name">ImmersionBackground.jsx</div>
+        <div class="component-path">src/components/</div>
+      </div>
+      <div class="component-desc">State-adaptive breath-synced pulse layer (z-1). Color driven by selected state's accentHex.</div>
+    </div>
+    <div class="component-item">
+      <div>
+        <div class="component-name">BreathingOrb.jsx</div>
+        <div class="component-path">src/components/</div>
+      </div>
+      <div class="component-desc">Animated breathing orb centered above cards in immersion mode when a state is selected.</div>
+    </div>
+    <div class="component-item">
+      <div>
+        <div class="component-name">VagusLogSidebar.jsx</div>
+        <div class="component-path">src/components/</div>
+      </div>
+      <div class="component-desc">Floating sidebar visible in immersion mode. Shows streak + session history in a muted style.</div>
+    </div>
+    <div class="component-item">
+      <div>
+        <div class="component-name">AmbientSoundscape.jsx</div>
+        <div class="component-path">src/components/</div>
+      </div>
+      <div class="component-desc">Ambient audio element that plays in immersion mode as environmental backing.</div>
+    </div>
+  </div>
+
+  <h3>Team &amp; Auth Components</h3>
+  <div class="component-list">
+    <div class="component-item">
+      <div>
+        <div class="component-name">TeamPanel.jsx</div>
+        <div class="component-path">src/components/</div>
+      </div>
+      <div class="component-desc">Create/join/leave teams with 6-char invite codes. Shows roster with member streaks and latest states (self-only session detail via RLS).</div>
+    </div>
+    <div class="component-item">
+      <div>
+        <div class="component-name">AuthModal.jsx</div>
+        <div class="component-path">src/components/</div>
+      </div>
+      <div class="component-desc">Email/password sign in and sign up modal. Calls useAuth() methods.</div>
+    </div>
+  </div>
+
+  <!-- ─── 5. Hooks ─── -->
+  <div class="page-break"></div>
+  <h2><span class="section-icon">🪝</span> <span class="section-num">05</span> Custom Hooks</h2>
+  <p>All hooks live in <code>src/hooks/</code>. They handle side effects, Web Audio, session persistence, and analytics — keeping components purely presentational.</p>
+
+  <div class="hook-item">
+    <div class="hook-sig">useSessionLog()</div>
+    <div class="hook-desc">Persists sessions to <code>localStorage</code> key <code>vaga-sessions</code> (max 90 entries). Syncs to Supabase <code>nervous_system_sessions</code> table when authenticated. Returns <code>{ sessions, logSession, clearSessions }</code>. Session shape includes <code>state, type, durationSec, resetCompleted, outcome, shift, flowMinutes, activationBefore, activationAfter</code>.</div>
+  </div>
+
+  <div class="hook-item">
+    <div class="hook-sig">useAudioEngine({ carrierHz, beatHz })</div>
+    <div class="hook-desc">Web Audio API binaural beat engine. Left ear = carrierHz, right ear = carrierHz + beatHz. Also generates pink noise (Paul Kellett algorithm, low-pass at 4kHz). Handles browser autoplay policy. Returns <code>{ playing, play, pause, volume, setVolume, supported }</code>.</div>
+  </div>
+
+  <div class="hook-item">
+    <div class="hook-sig">useStreak(sessions)</div>
+    <div class="hook-desc">Memoized streak calculation from session array. Extracts unique calendar days, sorts descending, counts consecutive days from most recent. Returns <code>{ streak, lastCheckin }</code>.</div>
+  </div>
+
+  <div class="hook-item">
+    <div class="hook-sig">useTeam()</div>
+    <div class="hook-desc">Team CRUD via Supabase RLS. <code>createTeam(name)</code>, <code>joinTeam(inviteCode)</code>, <code>leaveTeam()</code>, <code>fetchMembers(teamId)</code>. Returns <code>{ team, members, createTeam, joinTeam, leaveTeam }</code>. Graceful no-op if Supabase is null.</div>
+  </div>
+
+  <div class="hook-item">
+    <div class="hook-sig">useSessionMetrics(sessions) — pure exports</div>
+    <div class="hook-desc"><code>computeMetrics()</code> returns averageActivation, averageDelta, stateFrequency. <code>generateWeeklySummary()</code> returns dominantState, avgRecoveryTime, mostEffectiveProtocol, volatilityScore (proportion of state transitions across consecutive sessions).</div>
+  </div>
+
+  <div class="hook-item">
+    <div class="hook-sig">useBreathTimer(running)</div>
+    <div class="hook-desc">Cyclic breathing phase manager for animations. 13-second cycle: 4s inhale, 1s hold, 8s exhale. Uses requestAnimationFrame. Returns <code>{ phase, cycleProgress, cycleTimeMs }</code>.</div>
+  </div>
+
+  <div class="hook-item">
+    <div class="hook-sig">useCompletionTone()</div>
+    <div class="hook-desc">Plays a short Web Audio API completion beep when protocols finish.</div>
+  </div>
+
+  <div class="hook-item">
+    <div class="hook-sig">useHRV()</div>
+    <div class="hook-desc">HRV proxy calculation for the gauge indicator in the Header.</div>
+  </div>
+
+  <!-- ─── 6. Context Providers ─── -->
+  <h2><span class="section-icon">🌐</span> <span class="section-num">06</span> Context Providers</h2>
+
+  <div class="component-list">
+    <div class="component-item">
+      <div>
+        <div class="component-name">ThemeContext.jsx</div>
+        <div class="component-path">src/context/</div>
+      </div>
+      <div class="component-desc">Exposes <code>useTheme() → { theme, setTheme }</code>. Persists to <code>localStorage: nso-theme</code>. Sets <code>data-theme</code> on <code>&lt;html&gt;</code>. CSS custom properties defined per theme in <code>index.css</code>.</div>
+    </div>
+    <div class="component-item">
+      <div>
+        <div class="component-name">AuthContext.jsx</div>
+        <div class="component-path">src/contexts/</div>
+      </div>
+      <div class="component-desc">Exposes <code>useAuth() → { user, session, loading, signIn, signUp, signOut }</code>. Listens to Supabase <code>onAuthStateChange</code>. All methods return graceful errors when Supabase is null.</div>
+    </div>
+  </div>
+
+  <!-- ─── 7. Features ─── -->
+  <h2><span class="section-icon">✨</span> <span class="section-num">07</span> Key Features</h2>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-title">⚡ Panic Reset</div>
+      <div class="feature-desc">30-second emergency regulation triggered by the bottom-left ⚡ button or <code>Cmd+Shift+R</code>. Expanding/contracting SVG breathing orb synced to inhale/exhale cues. Auto-proceeds to PostResetCheckin on completion.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-title">🔒 Flow Lock</div>
+      <div class="feature-desc">90-minute deep-work blocker overlay for the Flow state (<code>Cmd+F</code>). Minimal distraction UI, tracks elapsed minutes, plays completion tone, logs <code>flowMinutes</code> to session log on exit.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-title">🌿 Immersion Mode</div>
+      <div class="feature-desc">Toggled via <code>I</code> key. Shows procedural neural background, breathing orb animation, vagus log sidebar, ambient soundscape. Hides all operational noise for distraction-free deep work.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-title">🎧 Binaural Audio</div>
+      <div class="feature-desc">Real Web Audio API binaural beats generated on-device. Frozen: Theta 5 Hz (180+5 Hz). Anxious: Alpha 10 Hz (200+10 Hz). Flow: Gamma 40 Hz (200+40 Hz). Pink noise backing. Lissajous canvas visualizer.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-title">📊 Session Analytics</div>
+      <div class="feature-desc">Daily Summary strip, 7-day consistency graph, Weekly Intelligence card with dominant state, average recovery time, most effective protocol, and volatility score. Streak tracking with milestone celebrations.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-title">🧑‍🤝‍🧑 Team Features</div>
+      <div class="feature-desc">Create/join teams with 6-char invite codes. View roster with members' streaks and latest states. Own session data only visible to self (Supabase RLS). Graceful no-op when offline.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-title">📱 PWA / Offline-First</div>
+      <div class="feature-desc">Fully functional without Supabase using localStorage. PWA-enabled via <code>vite-plugin-pwa</code> with auto-update and Google Fonts cache-first. Installable as standalone app on desktop/mobile.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-title">🎨 3-Theme System</div>
+      <div class="feature-desc">Dark (default), Light, and Pastel themes via CSS custom properties on <code>data-theme</code>. Biophilic, non-neon accents: sage green, amber gold, terracotta. Persisted in localStorage.</div>
+    </div>
+  </div>
+
+  <!-- ─── 8. Keyboard Shortcuts ─── -->
+  <h2><span class="section-icon">⌨️</span> <span class="section-num">08</span> Keyboard Shortcuts</h2>
+
+  <table>
+    <thead>
+      <tr><th>Key</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>1</code> / <code>2</code> / <code>3</code></td><td>Select Frozen / Anxious / Flow state</td></tr>
+      <tr><td><code>Cmd+1</code> / <code>Cmd+2</code> / <code>Cmd+3</code></td><td>Same with modifier key</td></tr>
+      <tr><td><code>R</code></td><td>Open Rupture modal</td></tr>
+      <tr><td><code>F</code></td><td>Toggle Focus mode (requires state selected)</td></tr>
+      <tr><td><code>I</code></td><td>Toggle Immersion mode</td></tr>
+      <tr><td><code>Cmd+F</code></td><td>Toggle Flow Lock (Flow state only)</td></tr>
+      <tr><td><code>Cmd+Shift+R</code></td><td>Trigger Panic Reset</td></tr>
+      <tr><td><code>Escape</code></td><td>Close all overlays</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ─── 9. Data Persistence ─── -->
+  <h2><span class="section-icon">💾</span> <span class="section-num">09</span> Data &amp; Persistence</h2>
+
+  <h3>localStorage Keys</h3>
+  <table>
+    <thead>
+      <tr><th>Key</th><th>Purpose</th><th>Shape</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>nso-theme</code></td><td>Active theme</td><td><code>'dark' | 'light' | 'pastel'</code></td></tr>
+      <tr><td><code>vaga-sessions</code></td><td>Session log</td><td>JSON array, max 90 entries</td></tr>
+      <tr><td><code>vagaFirstVisitComplete</code></td><td>Skip onboarding</td><td><code>'true'</code> or absent</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Session Shape</h3>
+  <pre>{
+  id, date, state, type, durationSec, resetCompleted, outcome,
+  shift, flowMinutes, activationBefore, activationAfter,
+  activationDelta, protocolUsed, protocolStartedAt,
+  protocolCompletedAt, recoveryDurationSeconds, timestamp
+}</pre>
+
+  <h3>Supabase Tables (Optional)</h3>
+  <table>
+    <thead>
+      <tr><th>Table</th><th>Columns</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>nervous_system_sessions</code></td><td>Full session shape above</td><td>RLS — user sees own rows only</td></tr>
+      <tr><td><code>teams</code></td><td>id, name, invite_code, owner_id, created_at</td><td>6-char random invite code</td></tr>
+      <tr><td><code>team_members</code></td><td>id, team_id, user_id, joined_at</td><td>Join table; owner auto-added on create</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ─── 10. Tech Stack ─── -->
+  <div class="page-break"></div>
+  <h2><span class="section-icon">🔧</span> <span class="section-num">10</span> Tech Stack &amp; Config</h2>
+
+  <h3>Dependencies</h3>
+  <table>
+    <thead>
+      <tr><th>Package</th><th>Version</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>react</code></td><td>^19.2.0</td><td>UI framework</td></tr>
+      <tr><td><code>react-dom</code></td><td>^19.2.0</td><td>DOM rendering</td></tr>
+      <tr><td><code>vite</code></td><td>^7.3.1</td><td>Build tool + HMR dev server</td></tr>
+      <tr><td><code>tailwindcss</code></td><td>^3.4.19</td><td>Utility-first CSS</td></tr>
+      <tr><td><code>@supabase/supabase-js</code></td><td>^2.98.0</td><td>Auth + realtime DB (optional)</td></tr>
+      <tr><td><code>framer-motion</code></td><td>^12.34.5</td><td>Animations</td></tr>
+      <tr><td><code>lucide-react</code></td><td>^0.576.0</td><td>Icon library</td></tr>
+      <tr><td><code>vite-plugin-pwa</code></td><td>^1.2.0</td><td>PWA manifest + service worker</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Tailwind Custom Tokens</h3>
+  <table>
+    <thead>
+      <tr><th>Token</th><th>Value</th><th>Usage</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>egreen</code></td><td>#52b87e</td><td>Flow state accent</td></tr>
+      <tr><td><code>eamber</code></td><td>#c8a040</td><td>Anxious state accent</td></tr>
+      <tr><td><code>ered</code></td><td>#c4604a</td><td>Frozen state accent</td></tr>
+      <tr><td><code>charcoal-900</code></td><td>#111318</td><td>Deep background panels</td></tr>
+      <tr><td><code>shadow-green-glow</code></td><td>0 0 20px rgba(82,184,126,0.3)</td><td>Flow state card glow</td></tr>
+      <tr><td>font-mono</td><td>JetBrains Mono</td><td>Data, labels, code</td></tr>
+      <tr><td>font-sans</td><td>Inter</td><td>Body, headings</td></tr>
+    </tbody>
+  </table>
+
+  <h3>PWA Manifest</h3>
+  <div class="kv-list">
+    <div class="kv-row"><span class="kv-key">name</span><span class="kv-val">VAGA OPS — Regulation Station</span></div>
+    <div class="kv-row"><span class="kv-key">short_name</span><span class="kv-val">VAGA OPS</span></div>
+    <div class="kv-row"><span class="kv-key">display</span><span class="kv-val">standalone</span></div>
+    <div class="kv-row"><span class="kv-key">theme_color</span><span class="kv-val">#060d1a</span></div>
+    <div class="kv-row"><span class="kv-key">registerType</span><span class="kv-val">autoUpdate</span></div>
+    <div class="kv-row"><span class="kv-key">Fonts caching</span><span class="kv-val">CacheFirst strategy for Google Fonts</span></div>
+  </div>
+
+  <h3>npm Commands</h3>
+  <pre>cd regulation-station/
+npm run dev      # dev server → localhost:5173
+npm run build    # production build → dist/  (~456kB JS + 25kB CSS)
+npm run lint     # ESLint
+npm run preview  # preview production build</pre>
+
+  <h3>Environment Variables (.env.local)</h3>
+  <pre>VITE_SUPABASE_URL=...
+VITE_SUPABASE_ANON_KEY=...</pre>
+  <p style="font-size: 11px; color: #617a6a;">Without these variables, <code>src/lib/supabase.js</code> exports <code>null</code> and the app runs fully offline.</p>
+
+  <!-- ─── 11. Design System ─── -->
+  <h2><span class="section-icon">🎨</span> <span class="section-num">11</span> Design System</h2>
+
+  <h3>CSS Theme Variables (Dark Default)</h3>
+  <table>
+    <thead>
+      <tr><th>Variable</th><th>Dark</th><th>Light</th><th>Pastel</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>--bg-base</code></td><td>#0f1410</td><td>#f5ede4</td><td>#e8ede9</td></tr>
+      <tr><td><code>--bg-panel</code></td><td>#161d15</td><td>#ede4db</td><td>#d8e5dc</td></tr>
+      <tr><td><code>--border</code></td><td>#263024</td><td colspan="2">(lighter variants)</td></tr>
+      <tr><td><code>--text-primary</code></td><td>#eaf0eb</td><td colspan="2">(dark variants)</td></tr>
+      <tr><td><code>--accent-flow</code></td><td>#52b87e</td><td colspan="2">same across all themes</td></tr>
+      <tr><td><code>--accent-anxious</code></td><td>#c8a040</td><td colspan="2">same across all themes</td></tr>
+      <tr><td><code>--accent-frozen</code></td><td>#c4604a</td><td colspan="2">same across all themes</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Design Principles</h3>
+  <ul>
+    <li><strong>Biophilic, not neon</strong> — warm earth tones, no harsh bright colors</li>
+    <li><strong>Breathe animations</strong> — 4-second cycles that mirror physiology</li>
+    <li><strong>Monospace for data</strong> — JetBrains Mono at small sizes for precision</li>
+    <li><strong>Soft glows</strong> — state-colored radial shadows, no sharp UI borders</li>
+    <li><strong>Dark default</strong> — optimized for WFH comfort (#0f1410 background)</li>
+    <li><strong>Large touch targets</strong> — buttons minimum 2.5rem for accessibility</li>
+  </ul>
+
+  <!-- ─── Footer ─── -->
+  <hr />
+  <div class="footer">
+    <span>REGULATION STATION · APPLICATION SUMMARY</span>
+    <span>Generated 2026-03-05 · React 19 + Vite 7 + Tailwind 3</span>
+  </div>
+
+</body>
+</html>

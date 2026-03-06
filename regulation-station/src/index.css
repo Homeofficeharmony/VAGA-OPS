@@ -1,0 +1,205 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Theme Tokens ──────────────────────────────────────────── */
+
+:root,
+[data-theme="dark"] {
+  /* Structural */
+  --bg-base:       #0f1410;
+  --bg-panel:      #161d15;
+  --bg-panel-alt:  #1d261b;
+  --border:        #263024;
+  --border-subtle: #1e2a1c;
+
+  /* Text */
+  --text-primary:   #dce8de;
+  --text-secondary: #8ab092;
+  --text-muted:     #6ca175;
+
+  /* Accent (biophilic) */
+  --accent-frozen:  #c4604a;
+  --accent-anxious: #c8a040;
+  --accent-flow:    #52b87e;
+}
+
+[data-theme="light"] {
+  --bg-base:       #f5ede4;
+  --bg-panel:      #ede4db;
+  --bg-panel-alt:  #e5dbd0;
+  --border:        #c8b8a8;
+  --border-subtle: #d8c8b8;
+
+  --text-primary:   #2d2318;
+  --text-secondary: #6b5040;
+  --text-muted:     #9a8070;
+
+  --accent-frozen:  #b84f3a;
+  --accent-anxious: #b08830;
+  --accent-flow:    #3a9060;
+}
+
+[data-theme="pastel"] {
+  --bg-base:       #e8ede9;
+  --bg-panel:      #d8e5dc;
+  --bg-panel-alt:  #ccd8d1;
+  --border:        #a8c4b4;
+  --border-subtle: #b8d0c4;
+
+  --text-primary:   #2a3a2e;
+  --text-secondary: #4a6858;
+  --text-muted:     #7a9888;
+
+  --accent-frozen:  #c06050;
+  --accent-anxious: #b89040;
+  --accent-flow:    #4a9868;
+}
+
+/* ── Base Styles ───────────────────────────────────────────── */
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  #root { min-height: 100vh; }
+}
+
+/* ── Utilities ─────────────────────────────────────────────── */
+
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Glow — uses CSS vars, adapts per theme */
+  .glow-green { box-shadow: 0 0 20px color-mix(in srgb, var(--accent-flow) 35%, transparent), 0 0 60px color-mix(in srgb, var(--accent-flow) 12%, transparent); }
+  .glow-amber { box-shadow: 0 0 20px color-mix(in srgb, var(--accent-anxious) 35%, transparent), 0 0 60px color-mix(in srgb, var(--accent-anxious) 12%, transparent); }
+  .glow-red   { box-shadow: 0 0 20px color-mix(in srgb, var(--accent-frozen) 35%, transparent),  0 0 60px color-mix(in srgb, var(--accent-frozen) 12%, transparent); }
+
+  /* Ring utilities */
+  .ring-green { --tw-ring-color: var(--accent-flow); }
+  .ring-amber { --tw-ring-color: var(--accent-anxious); }
+  .ring-red   { --tw-ring-color: var(--accent-frozen); }
+
+  /* Text utilities */
+  .text-egreen { color: var(--accent-flow); }
+  .text-eamber { color: var(--accent-anxious); }
+  .text-ered   { color: var(--accent-frozen); }
+
+  /* Background glow utilities */
+  .bg-egreen-glow { background-color: color-mix(in srgb, var(--accent-flow) 8%, transparent); }
+  .bg-eamber-glow { background-color: color-mix(in srgb, var(--accent-anxious) 8%, transparent); }
+  .bg-ered-glow   { background-color: color-mix(in srgb, var(--accent-frozen) 8%, transparent); }
+
+  /* Border utilities */
+  .border-egreen { border-color: var(--accent-flow); }
+  .border-eamber { border-color: var(--accent-anxious); }
+  .border-ered   { border-color: var(--accent-frozen); }
+
+  .progress-ring {
+    transition: stroke-dashoffset 1s linear;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+  }
+}
+
+/* ── Theme Overrides for Hardcoded Tailwind Values ─────────── */
+/* Light & Pastel themes remap hardcoded hex bg/border/text classes */
+
+[data-theme="light"],
+[data-theme="pastel"] {
+
+  /* Backgrounds */
+  .bg-\[\#060d1a\] { background-color: var(--bg-base); }
+  .bg-\[\#111318\] { background-color: var(--bg-panel); }
+  .bg-\[\#1a1d23\] { background-color: var(--bg-panel-alt); }
+  .bg-navy-950     { background-color: var(--bg-base); }
+  .bg-charcoal-900 { background-color: var(--bg-panel); }
+  .bg-charcoal-800 { background-color: var(--bg-panel-alt); }
+
+  /* Borders */
+  .border-\[\#22262f\] { border-color: var(--border); }
+  .border-\[\#1a1d23\] { border-color: var(--border); }
+  .border-charcoal-800 { border-color: var(--border); }
+  .border-charcoal-700 { border-color: var(--border); }
+
+  /* Primary text */
+  .text-slate-100 { color: var(--text-primary); }
+  .text-slate-200 { color: var(--text-primary); }
+  .text-slate-300 { color: var(--text-primary); }
+
+  /* Secondary text */
+  .text-charcoal-400 { color: var(--text-secondary); }
+  .text-charcoal-500 { color: var(--text-muted); }
+  .text-charcoal-600 { color: var(--text-muted); }
+  .text-charcoal-700 { color: var(--border); }
+
+  /* Muted structural elements */
+  .bg-charcoal-700 { background-color: var(--border); }
+  .bg-charcoal-600 { background-color: var(--border-subtle); }
+
+  /* Glow — subtler on light backgrounds */
+  .glow-green { box-shadow: 0 2px 16px color-mix(in srgb, var(--accent-flow) 22%, transparent); }
+  .glow-amber { box-shadow: 0 2px 16px color-mix(in srgb, var(--accent-anxious) 22%, transparent); }
+  .glow-red   { box-shadow: 0 2px 16px color-mix(in srgb, var(--accent-frozen) 22%, transparent); }
+}
+
+/* ── Calm Mode — active when state is Anxious or Frozen ────── */
+/* Softens glow intensity and increases breathing room */
+
+[data-calm="true"] {
+  .glow-green,
+  .glow-amber,
+  .glow-red {
+    box-shadow: none;
+  }
+
+  /* Dampen pulsing elements */
+  .animate-pulse {
+    animation-duration: 4s;
+  }
+
+  /* More breathing room on section panels */
+  section > div[class*="rounded-xl"] {
+    padding: 1.75rem;
+  }
+}
+/* ── ImmersionContainer phase animations ──────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes stateBreathe {
+  0% { transform: scale(1.025); }
+  50% { transform: scale(1.035); }
+  100% { transform: scale(1.025); }
+}
+
+@keyframes glowBreathe {
+  0% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 0.6; transform: scale(1); }
+}
+
+.state-breathe {
+  animation: stateBreathe 6s ease-in-out infinite;
+}
+
+.glow-breathe {
+  animation: glowBreathe 4s ease-in-out infinite;
+}
