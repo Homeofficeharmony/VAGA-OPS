@@ -42,18 +42,20 @@ import { useAmbientEngine } from './hooks/useAmbientEngine'
 export default function App() {
   const [selectedState, setSelectedState] = useState(null)
   const stateData = selectedState ? STATES[selectedState] : null
+  const hasEnteredImmersion = useRef(false)
 
-  // Wrap setSelectedState to auto-enter immersion when a state is selected
+  // Only auto-immerse on the FIRST state selection in a session.
+  // After that, switching states just updates the dashboard.
   const handleStateSelect = (state) => {
     setSelectedState(state)
-    if (state) {
+    if (state && !hasEnteredImmersion.current) {
+      hasEnteredImmersion.current = true
       setIsImmersive(true)
       setShowDashboard(false)
       setBreathCycles(0)
-      // Auto-start ambient audio (needs user interaction first for Web Audio)
       const data = STATES[state]
       ambientEngine.autoStartForState?.(state, data)
-    } else {
+    } else if (!state) {
       setIsImmersive(false)
     }
   }

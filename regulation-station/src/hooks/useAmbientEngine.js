@@ -257,7 +257,8 @@ export function useAmbientEngine() {
   }, [])
 
   // State → soundscape mapping for auto-start
-  const STATE_SOUNDSCAPE = { frozen: 'forest', anxious: 'ocean', flow: 'binaural' }
+  // All states use gentle noise-based audio — no binaural sine tones (they can be triggering)
+  const STATE_SOUNDSCAPE = { frozen: 'forest', anxious: 'ocean', flow: 'forest' }
 
   /**
    * Auto-start the appropriate soundscape for a given state.
