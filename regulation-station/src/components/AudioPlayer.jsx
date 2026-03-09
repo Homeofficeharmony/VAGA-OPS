@@ -83,12 +83,8 @@ export default function AudioPlayer({ stateData }) {
 
   return (
     <section>
-      {/* Section header */}
-      <div className="flex items-center gap-3 mb-4">
-        <span className="font-mono text-[11px] font-semibold tracking-[0.2em] uppercase text-slate-300">
-          04 / Binaural Focus
-        </span>
-        <div className="flex-1 h-px bg-charcoal-700" />
+      {/* Hz badge */}
+      <div className="flex items-center justify-end gap-3 mb-3">
         <span
           className="font-mono text-[10px] tracking-widest uppercase px-2 py-0.5 rounded border"
           style={{ color, borderColor: color + '50', backgroundColor: color + '10' }}

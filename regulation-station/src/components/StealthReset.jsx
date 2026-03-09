@@ -131,11 +131,7 @@ export default function StealthReset({ stateData, onComplete }) {
 
   return (
     <section>
-      <div className="flex items-center gap-3 mb-4">
-        <span className="font-mono text-[11px] font-semibold tracking-[0.2em] uppercase text-slate-300">
-          02 / Stealth Reset
-        </span>
-        <div className="flex-1 h-px bg-charcoal-700" />
+      <div className="flex items-center justify-end gap-3 mb-3">
         <span
           className="font-mono text-[10px] tracking-widest uppercase px-2 py-0.5 rounded border"
           style={{ color, borderColor: color + '50', backgroundColor: color + '10' }}

@@ -70,71 +70,10 @@ export default function Header({ streak = 0, sessions = [], onRuptureClick, isIm
           </div>
         </div>
 
-        {/* Center: Nervous System Gauge (Only visible on wide screens or in Immersive) */}
-        <div className="hidden md:flex flex-col items-center justify-center">
-          <div className="flex items-center gap-3">
-            <div className="relative w-8 h-8 rounded-full flex items-center justify-center" style={{ background: '#111318' }}>
-              {/* SVG Ring */}
-              <svg className="w-full h-full transform -rotate-90">
-                <circle cx="16" cy="16" r="14" stroke="#22262f" strokeWidth="3" fill="none" />
-                <circle cx="16" cy="16" r="14" stroke={gaugeColor} strokeWidth="3" fill="none"
-                  strokeDasharray={`${(gaugePct / 100) * 88} 88`} className="transition-all duration-1000" />
-              </svg>
-              <span className="absolute font-mono text-[9px] font-bold text-white">{gaugePct}%</span>
-            </div>
-            <div className="flex flex-col justify-center">
-              <span className="font-mono text-[10px] tracking-widest uppercase text-slate-300 leading-none mb-1">
-                State Index
-              </span>
-              <span className="font-mono text-[8px] tracking-[0.2em] uppercase text-charcoal-500 leading-none">
-                Based on selected state
-              </span>
-            </div>
-          </div>
-        </div>
+
 
         {/* Right status */}
         <div className="flex items-center gap-3 md:gap-5">
-
-          <div className="flex items-center gap-1 sm:gap-2 border-r border-[#22262f] pr-2 sm:pr-5">
-            <span className="hidden sm:inline font-mono text-[10px] tracking-widest uppercase text-charcoal-400">
-              Immersion Mode
-            </span>
-            <button
-              onClick={onToggleImmersive}
-              className={`w-9 sm:w-10 h-5 rounded-full relative transition-colors duration-300 ${isImmersive ? 'bg-[#52b87e] shadow-[0_0_10px_#52b87e50]' : 'bg-[#1a1d23] border border-[#3a404d]'}`}
-            >
-              <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-300 ${isImmersive ? 'translate-x-[18px] sm:translate-x-[22px]' : 'translate-x-0.5'}`} />
-            </button>
-          </div>
-
-          <div className="hidden sm:flex items-center gap-2">
-            <div className={`w-1.5 h-1.5 rounded-full ${isImmersive ? 'animate-pulse bg-[#52b87e]' : 'bg-[var(--accent-flow)]'}`} />
-            <span className="font-mono text-[10px] tracking-widest uppercase text-charcoal-400">
-              System Active
-            </span>
-          </div>
-
-          {/* Quick Stats (Hidden in deep immersion) */}
-          {!isImmersive && (
-            <>
-              {streak > 0 && (
-                <span className="hidden sm:inline font-mono text-[10px] text-charcoal-400 tabular-nums">
-                  🔥 {streak}d
-                </span>
-              )}
-              {weeklyCount > 0 && (
-                <div className="hidden sm:flex flex-col items-end">
-                  <span className="font-mono text-[10px] tabular-nums text-charcoal-400">
-                    {weeklyCount}/7
-                  </span>
-                  <span className="font-mono text-[8px] tracking-widest uppercase text-charcoal-600">
-                    this week
-                  </span>
-                </div>
-              )}
-            </>
-          )}
 
           {/* Auth */}
           {!user ? (
@@ -179,21 +118,7 @@ export default function Header({ streak = 0, sessions = [], onRuptureClick, isIm
             </div>
           )}
 
-          {/* Shortcut help */}
-          <button
-            onClick={onShortcutHelp}
-            className="font-mono text-[10px] tracking-widest w-7 h-7 flex items-center justify-center rounded border transition-all duration-200"
-            style={{
-              borderColor: 'color-mix(in srgb, var(--accent-flow) 30%, transparent)',
-              color: 'var(--text-muted)',
-              backgroundColor: 'transparent',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent-flow)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-muted)' }}
-            title="Keyboard shortcuts (?)"
-          >
-            ?
-          </button>
+
 
           {/* Rupture Panic */}
           <button

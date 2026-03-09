@@ -65,9 +65,9 @@ function FlowIcon({ color }) {
 const ICONS = { frozen: FrozenIcon, anxious: AnxiousIcon, flow: FlowIcon }
 
 const HOVER_PREVIEW = {
-  frozen:  'Unlocks: Ear-Apex Pull · Low-activation tasks · Theta audio',
+  frozen: 'Unlocks: Ear-Apex Pull · Low-activation tasks · Theta audio',
   anxious: 'Unlocks: Rib-Cage Expansion · Focused tasks · Alpha audio',
-  flow:    'Unlocks: Peripheral Vision Soften · Deep work tasks · Gamma audio',
+  flow: 'Unlocks: Peripheral Vision Soften · Deep work tasks · Gamma audio',
 }
 
 function StateCard({ stateKey, stateData: s, isActive, onSelect }) {
@@ -204,19 +204,6 @@ function StateCard({ stateKey, stateData: s, isActive, onSelect }) {
 export default function StateSelector({ selected, onSelect }) {
   return (
     <section>
-      <div className="flex items-center gap-3 mb-4">
-        <span className="font-mono text-[11px] font-semibold tracking-[0.2em] uppercase text-slate-300">
-          01 / Current State
-        </span>
-        <div className="flex-1 h-px bg-charcoal-700" />
-      </div>
-
-      <div className="flex items-center gap-4 mb-5">
-        <p className="text-xs text-charcoal-400 leading-relaxed">
-          Select your biological state with honesty — not aspirationally.
-        </p>
-      </div>
-
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {STATE_KEYS.map(key => (
           <StateCard

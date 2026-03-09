@@ -28,6 +28,7 @@ import FirstVisitExperience from './components/FirstVisitExperience'
 import TacticalAdvisor from './components/TacticalAdvisor'
 import MissionControl from './components/MissionControl'
 import RegulationDepthMeter from './components/RegulationDepthMeter'
+import TabBar from './components/TabBar'
 
 // New Immersive Components
 import ImmersionContainer from './components/ImmersionContainer'
@@ -69,6 +70,7 @@ export default function App() {
   // Auto-immersion: track whether user is in focused regulation vs dashboard
   const [showDashboard, setShowDashboard] = useState(false)
   const [breathCycles, setBreathCycles] = useState(0)
+  const [activeTab, setActiveTab] = useState('regulate')
 
   // Unified checkin queue: { source: 'stealth'|'panic', accentHex, state }
   const [checkinPending, setCheckinPending] = useState(null)
@@ -222,41 +224,9 @@ export default function App() {
             onShortcutHelp={() => setShortcutHelpOpen(v => !v)}
           />
 
-          <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+          <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 pb-24">
 
-            {/* Page title — hidden in immersion mode */}
-            {!isImmersive && (
-              <div className="mb-8">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="font-mono text-[11px] tracking-[0.25em] uppercase text-charcoal-400">
-                    VAGA OPS
-                  </span>
-                  <span className="font-mono text-[11px] text-charcoal-700">·</span>
-                  <span className="font-mono text-[11px] tracking-[0.25em] uppercase text-charcoal-600">
-                    Regulation Station
-                  </span>
-                </div>
-                <p className="text-2xl font-semibold leading-tight" style={{ color: 'var(--text-primary)' }}>
-                  Where are you right now?
-                </p>
-                <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-                  Biological state determines capacity. Identify, then regulate.
-                </p>
-              </div>
-            )}
-
-            {/* Today's Intention — daily ritual card */}
-            {!isImmersive && (
-              <TodayIntention onIntentionSet={setTodayIntention} />
-            )}
-
-            {/* State Assist — 2-question widget */}
-            <StateAssist
-              visible={!selectedState}
-              onSelectState={handleStateSelect}
-            />
-
-            {/* Breathing Orb + Depth Meter — core regulation experience */}
+            {/* Breathing Orb + Depth Meter — visible in immersion mode */}
             <BreathingOrb
               isImmersive={isImmersive}
               stateData={stateData}
@@ -268,52 +238,94 @@ export default function App() {
                   cycles={breathCycles}
                   accentHex={stateData.accentHex}
                 />
-                {/* Dashboard toggle */}
-                <button
-                  onClick={() => setShowDashboard(d => !d)}
-                  className="mt-4 font-mono text-[9px] tracking-widest uppercase transition-colors duration-200"
-                  style={{ color: `${stateData.accentHex}50` }}
-                  onMouseEnter={e => { e.currentTarget.style.color = stateData.accentHex }}
-                  onMouseLeave={e => { e.currentTarget.style.color = `${stateData.accentHex}50` }}
-                >
-                  {showDashboard ? '← Back to breathing' : 'View dashboard →'}
-                </button>
               </div>
             )}
 
-            {/* State selector — always visible */}
-            <div className={`mb-4 relative z-20 transition-all duration-1000 ${isImmersive && stateData ? 'opacity-30 hover:opacity-100' : 'opacity-100'}`}>
-              <StateSelector selected={selectedState} onSelect={handleStateSelect} isImmersive={isImmersive} />
-            </div>
+            {/* ── REGULATE TAB ─────────────────────────────────── */}
+            {activeTab === 'regulate' && !isImmersive && (
+              <div className="transition-opacity duration-200">
+                {/* Clean page title */}
+                <div className="mb-8">
+                  <p className="text-2xl font-semibold leading-tight" style={{ color: 'var(--text-primary)' }}>
+                    Where are you right now?
+                  </p>
+                  <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+                    Select your state. We'll do the rest.
+                  </p>
+                </div>
 
-            {/* Mission Control trigger — hidden in immersion mode */}
-            {!isImmersive && (
-              <button
-                onClick={() => setMissionOpen(true)}
-                className="w-full mb-4 py-2.5 px-4 rounded-2xl font-mono text-[10px] tracking-[0.24em] uppercase focus:outline-none transition-all duration-200 flex items-center justify-between"
-                style={{ border: '1px solid var(--border)', backgroundColor: 'var(--bg-panel)', color: 'var(--text-muted)' }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.borderColor = '#52b87e40'
-                  e.currentTarget.style.color = '#52b87e'
-                  e.currentTarget.style.backgroundColor = '#52b87e07'
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.borderColor = 'var(--border)'
-                  e.currentTarget.style.color = 'var(--text-muted)'
-                  e.currentTarget.style.backgroundColor = 'var(--bg-panel)'
-                }}
-              >
-                <span>⊙ Mission Control</span>
-                <span style={{ opacity: 0.5 }}>M</span>
-              </button>
+                {/* State Assist — 2-question widget */}
+                <StateAssist
+                  visible={!selectedState}
+                  onSelectState={handleStateSelect}
+                />
+
+                {/* State selector */}
+                <div className="mb-6 relative z-20">
+                  <StateSelector selected={selectedState} onSelect={handleStateSelect} isImmersive={false} />
+                </div>
+
+                {/* Status bar */}
+                {stateData && (
+                  <div className="mb-6 relative z-20">
+                    <StatusBar selectedState={selectedState} stateData={stateData} />
+                  </div>
+                )}
+
+                {/* Protocol — only shows when state is selected */}
+                {stateData && (
+                  <div className="space-y-6">
+                    <StealthReset
+                      stateData={stateData}
+                      onComplete={({ activationBefore = null, startedAt = null } = {}) => setCheckinPending({
+                        source: 'stealth',
+                        accentHex: stateData.accentHex,
+                        state: selectedState,
+                        activationBefore,
+                        startedAt,
+                        protocolUsed: stateData.reset.id,
+                      })}
+                    />
+                    <TaskFilter stateData={stateData} />
+                  </div>
+                )}
+
+                {/* Empty state */}
+                {!stateData && (
+                  <div className="flex flex-col items-center justify-center py-16 text-center">
+                    <div className="w-12 h-12 rounded-full border-2 border-dashed border-charcoal-600 flex items-center justify-center mb-4 animate-pulse">
+                      <div className="w-2 h-2 rounded-full bg-charcoal-600" />
+                    </div>
+                    <p className="font-mono text-[11px] tracking-widest uppercase text-charcoal-500">
+                      Pick how you're feeling to begin
+                    </p>
+                  </div>
+                )}
+              </div>
             )}
 
-            {/* Operational noise — hidden in immersion mode (unless dashboard toggled) */}
-            {(!isImmersive || showDashboard) && (
-              <div>
+            {/* Immersion mode: show state selector faded */}
+            {isImmersive && (
+              <div className="mb-4 relative z-20 opacity-30 hover:opacity-100 transition-all duration-1000">
+                <StateSelector selected={selectedState} onSelect={handleStateSelect} isImmersive={true} />
+              </div>
+            )}
+
+            {/* ── INSIGHTS TAB ─────────────────────────────────── */}
+            {activeTab === 'insights' && !isImmersive && (
+              <div className="transition-opacity duration-200 space-y-6">
+                <div className="mb-2">
+                  <p className="text-2xl font-semibold leading-tight" style={{ color: 'var(--text-primary)' }}>
+                    Your patterns
+                  </p>
+                  <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+                    Track your nervous system over time.
+                  </p>
+                </div>
+
+                <TodayIntention onIntentionSet={setTodayIntention} />
                 <DailySummary sessions={sessions} />
 
-                {/* Tactical Advisor — rule-based session pattern alerts */}
                 <TacticalAdvisor
                   sessions={sessions}
                   onAction={(action) => {
@@ -328,49 +340,51 @@ export default function App() {
                 />
 
                 {sessions.length > 0 && (
-                  <div className="mb-4">
-                    <WeeklyConsistency sessions={sessions} />
-                  </div>
+                  <WeeklyConsistency sessions={sessions} />
                 )}
 
-                <div className="mb-4">
-                  <HRVIndicator selectedState={selectedState} onAcceptSuggestion={handleStateSelect} />
+                <WeeklyIntelligenceCard sessions={sessions} />
+              </div>
+            )}
+
+            {/* ── TOOLS TAB ────────────────────────────────────── */}
+            {activeTab === 'tools' && !isImmersive && (
+              <div className="transition-opacity duration-200 space-y-6">
+                <div className="mb-2">
+                  <p className="text-2xl font-semibold leading-tight" style={{ color: 'var(--text-primary)' }}>
+                    Tools
+                  </p>
+                  <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+                    Advanced regulation tools and settings.
+                  </p>
                 </div>
-              </div>
-            )}
 
-            {/* Status bar */}
-            {stateData && (
-              <div className="mb-8 relative z-20">
-                <StatusBar selectedState={selectedState} stateData={stateData} />
-              </div>
-            )}
-
-            {/* Empty state */}
-            {!stateData && (
-              <div className="flex flex-col items-center justify-center py-20 text-center">
-                <div
-                  className="w-14 h-14 rounded-full border-2 border-dashed border-charcoal-600 flex items-center justify-center mb-4 animate-pulse relative z-20"
+                {/* Mission Control */}
+                <button
+                  onClick={() => setMissionOpen(true)}
+                  className="w-full py-3 px-4 rounded-2xl font-mono text-[10px] tracking-[0.24em] uppercase focus:outline-none transition-all duration-200 flex items-center justify-between"
+                  style={{ border: '1px solid var(--border)', backgroundColor: 'var(--bg-panel)', color: 'var(--text-muted)' }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.borderColor = '#52b87e40'
+                    e.currentTarget.style.color = '#52b87e'
+                    e.currentTarget.style.backgroundColor = '#52b87e07'
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.borderColor = 'var(--border)'
+                    e.currentTarget.style.color = 'var(--text-muted)'
+                    e.currentTarget.style.backgroundColor = 'var(--bg-panel)'
+                  }}
                 >
-                  <div className="w-2 h-2 rounded-full bg-charcoal-600" />
-                </div>
-                <p className="font-mono text-[11px] tracking-widest uppercase text-charcoal-500">
-                  Pick how you're feeling right now to begin
-                </p>
-              </div>
-            )}
+                  <span>⊙ Mission Control</span>
+                  <span style={{ opacity: 0.5 }}>M</span>
+                </button>
 
-            {/* Dashboard grid — centered single column in immersion mode */}
-            {stateData && (!isImmersive || showDashboard) && (
-              <div className={`relative z-20 transition-all duration-700 ${isImmersive ? 'flex justify-center' : 'grid grid-cols-1 lg:grid-cols-5 gap-6'}`}>
-
-                {/* Protocol column — full width centred in immersion */}
-                <div className={isImmersive ? 'w-full max-w-xl space-y-6' : 'lg:col-span-3 space-y-6'}>
-                  {/* Focus / Flow Lock buttons — hidden in immersion */}
-                  {!isImmersive && (<div className="flex justify-end gap-2">
+                {/* Focus / Flow Lock buttons */}
+                {stateData && (
+                  <div className="flex gap-2">
                     <button
                       onClick={() => setFocusOpen(true)}
-                      className="font-mono text-[10px] tracking-widest uppercase px-4 py-2 rounded-lg border transition-all duration-200"
+                      className="flex-1 font-mono text-[10px] tracking-widest uppercase px-4 py-3 rounded-2xl border transition-all duration-200"
                       style={{
                         borderColor: stateData.accentHex + '50',
                         color: stateData.accentHex,
@@ -379,12 +393,12 @@ export default function App() {
                       onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = stateData.accentHex + '1a' }}
                       onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = stateData.accentHex + '0d' }}
                     >
-                      ⊡ FOCUS
+                      ⊡ Focus Mode
                     </button>
                     {selectedState === 'flow' && (
                       <button
                         onClick={() => setFlowLockOpen(true)}
-                        className="font-mono text-[10px] tracking-widest uppercase px-4 py-2 rounded-lg border transition-all duration-200"
+                        className="flex-1 font-mono text-[10px] tracking-widest uppercase px-4 py-3 rounded-2xl border transition-all duration-200"
                         style={{
                           borderColor: stateData.accentHex + '80',
                           color: stateData.accentHex,
@@ -392,76 +406,31 @@ export default function App() {
                         }}
                         onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = stateData.accentHex + '28' }}
                         onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = stateData.accentHex + '18' }}
-                        title="Enter 90-minute deep work session (Cmd+F)"
                       >
-                        ⊞ FLOW LOCK
+                        ⊞ Flow Lock
                       </button>
                     )}
                   </div>
-                  )}
-
-                  <StealthReset
-                    stateData={stateData}
-                    onComplete={({ activationBefore = null, startedAt = null } = {}) => setCheckinPending({
-                      source: 'stealth',
-                      accentHex: stateData.accentHex,
-                      state: selectedState,
-                      activationBefore,
-                      startedAt,
-                      protocolUsed: stateData.reset.id,
-                    })}
-                  />
-                  {/* Task list — hidden in immersion to keep focus on protocol */}
-                  {!isImmersive && <TaskFilter stateData={stateData} />}
-                </div>
-
-                {!isImmersive && (
-                  <div className="lg:col-span-2">
-                    <AudioPlayer stateData={stateData} />
-                  </div>
                 )}
+
+                {/* Audio Player */}
+                {stateData && <AudioPlayer stateData={stateData} />}
+
+                {/* HRV Monitor */}
+                <HRVIndicator selectedState={selectedState} onAcceptSuggestion={handleStateSelect} />
+
+                {/* Team */}
+                <TeamPanel />
+
+                {/* Keyboard Shortcuts */}
+                <button
+                  onClick={() => setShortcutHelpOpen(true)}
+                  className="w-full py-2.5 px-4 rounded-2xl font-mono text-[10px] tracking-widest uppercase transition-all duration-200 text-left"
+                  style={{ border: '1px solid var(--border)', backgroundColor: 'var(--bg-panel)', color: 'var(--text-muted)' }}
+                >
+                  ? Keyboard shortcuts
+                </button>
               </div>
-            )}
-
-            {/* Team panel, weekly intelligence, footer — hidden in immersion */}
-            {(!isImmersive || showDashboard) && (
-              <>
-                <div className="mt-8">
-                  <TeamPanel />
-                </div>
-
-                <div className="mt-6">
-                  <WeeklyIntelligenceCard sessions={sessions} />
-                </div>
-              </>
-            )}
-
-            {/* Footer — hidden in immersion */}
-            {(!isImmersive || showDashboard) && (
-              <footer className="mt-16 pt-6 border-t border-charcoal-800 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-5 h-5 rounded overflow-hidden flex-shrink-0">
-                    <img
-                      src="/vaga-ops-logo.jpg"
-                      alt=""
-                      className="w-full h-full object-cover"
-                      style={{ objectPosition: '50% 45%', transform: 'scale(1.6)' }}
-                    />
-                  </div>
-                  <div className="font-mono text-[10px] tracking-widest uppercase text-charcoal-600 space-x-4">
-                    <span>VAGA OPS · Nervous System Ops Pack · v1.0</span>
-                    <button
-                      onClick={() => setShortcutHelpOpen(true)}
-                      className="underline hover:text-charcoal-400 text-charcoal-700 transition"
-                    >
-                      View keyboard shortcuts
-                    </button>
-                  </div>
-                </div>
-                <div className="font-mono text-[10px] tracking-widest uppercase text-charcoal-600">
-                  Polyvagal Theory · Somatic Reset Protocols
-                </div>
-              </footer>
             )}
           </main>
         </div> {/* End of .relative.z-10 wrapper */}
@@ -602,6 +571,14 @@ export default function App() {
         />
         <ShortcutHelp open={shortcutHelpOpen} onClose={() => setShortcutHelpOpen(false)} />
         <StreakMilestone streak={streak} />
+
+        {/* Bottom tab navigation */}
+        <TabBar
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          accentHex={stateData?.accentHex}
+          hidden={isImmersive}
+        />
 
       </div>
     </ThemeProvider>
