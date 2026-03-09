@@ -240,6 +240,35 @@ export function useAmbientEngine() {
     } else stop()
   }, [startForest, startOcean, startBinaural, stop, volume])
 
+  /**
+   * Gentle volume fade-in from 0 to target over durationMs.
+   * Call after select() to create a smooth entry.
+   */
+  const fadeIn = useCallback((targetVolume, durationMs = 3000) => {
+    if (!masterGainRef.current || !ctxRef.current) return
+    const ctx = ctxRef.current
+    const now = ctx.currentTime
+    masterGainRef.current.gain.setValueAtTime(0, now)
+    masterGainRef.current.gain.linearRampToValueAtTime(
+      targetVolume,
+      now + durationMs / 1000
+    )
+    baseVolRef.current = targetVolume
+  }, [])
+
+  // State → soundscape mapping for auto-start
+  const STATE_SOUNDSCAPE = { frozen: 'forest', anxious: 'ocean', flow: 'binaural' }
+
+  /**
+   * Auto-start the appropriate soundscape for a given state.
+   * Starts at zero volume and fades in over 3 seconds.
+   */
+  const autoStartForState = useCallback(async (stateId, stateData = null) => {
+    const soundscape = STATE_SOUNDSCAPE[stateId] || 'ocean'
+    await select(soundscape, stateData)
+    fadeIn(volume * 0.5, 3000) // Start at half the user's volume for subtlety
+  }, [select, fadeIn, volume])
+
   useEffect(() => {
     return () => {
       teardown()
@@ -248,5 +277,5 @@ export function useAmbientEngine() {
     }
   }, [teardown])
 
-  return { activeId, select, volume, setVolume, syncBreath }
+  return { activeId, select, volume, setVolume, syncBreath, fadeIn, autoStartForState }
 }

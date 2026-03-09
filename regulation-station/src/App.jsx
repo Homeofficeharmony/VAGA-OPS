@@ -27,6 +27,7 @@ import WeeklyIntelligenceCard from './components/WeeklyIntelligenceCard'
 import FirstVisitExperience from './components/FirstVisitExperience'
 import TacticalAdvisor from './components/TacticalAdvisor'
 import MissionControl from './components/MissionControl'
+import RegulationDepthMeter from './components/RegulationDepthMeter'
 
 // New Immersive Components
 import ImmersionContainer from './components/ImmersionContainer'
@@ -41,6 +42,21 @@ export default function App() {
   const [selectedState, setSelectedState] = useState(null)
   const stateData = selectedState ? STATES[selectedState] : null
 
+  // Wrap setSelectedState to auto-enter immersion when a state is selected
+  const handleStateSelect = (state) => {
+    setSelectedState(state)
+    if (state) {
+      setIsImmersive(true)
+      setShowDashboard(false)
+      setBreathCycles(0)
+      // Auto-start ambient audio (needs user interaction first for Web Audio)
+      const data = STATES[state]
+      ambientEngine.autoStartForState?.(state, data)
+    } else {
+      setIsImmersive(false)
+    }
+  }
+
   const [ruptureOpen, setRuptureOpen] = useState(false)
   const [focusOpen, setFocusOpen] = useState(false)
   const [panicOpen, setPanicOpen] = useState(false)
@@ -49,6 +65,10 @@ export default function App() {
   const [missionOpen, setMissionOpen] = useState(false)
   const [shortcutHelpOpen, setShortcutHelpOpen] = useState(false)
   const [todayIntention, setTodayIntention] = useState('')
+
+  // Auto-immersion: track whether user is in focused regulation vs dashboard
+  const [showDashboard, setShowDashboard] = useState(false)
+  const [breathCycles, setBreathCycles] = useState(0)
 
   // Unified checkin queue: { source: 'stealth'|'panic', accentHex, state }
   const [checkinPending, setCheckinPending] = useState(null)
@@ -122,9 +142,9 @@ export default function App() {
         setPanicOpen(true)
         return
       }
-      if (mod && e.key === '1') { e.preventDefault(); setSelectedState('frozen'); return }
-      if (mod && e.key === '2') { e.preventDefault(); setSelectedState('anxious'); return }
-      if (mod && e.key === '3') { e.preventDefault(); setSelectedState('flow'); return }
+      if (mod && e.key === '1') { e.preventDefault(); handleStateSelect('frozen'); return }
+      if (mod && e.key === '2') { e.preventDefault(); handleStateSelect('anxious'); return }
+      if (mod && e.key === '3') { e.preventDefault(); handleStateSelect('flow'); return }
       if (mod && (e.key === 'f' || e.key === 'F')) {
         e.preventDefault()
         if (selectedState === 'flow') setFlowLockOpen((v) => !v)
@@ -133,9 +153,9 @@ export default function App() {
 
       // Plain shortcuts (no modifier)
       if (mod) return
-      if (e.key === '1') setSelectedState('frozen')
-      if (e.key === '2') setSelectedState('anxious')
-      if (e.key === '3') setSelectedState('flow')
+      if (e.key === '1') handleStateSelect('frozen')
+      if (e.key === '2') handleStateSelect('anxious')
+      if (e.key === '3') handleStateSelect('flow')
       if (e.key === 'r' || e.key === 'R') setRuptureOpen(true)
       if (e.key === 'i' || e.key === 'I') setIsImmersive(v => !v)
       if (e.key === 'm' || e.key === 'M') setMissionOpen(v => !v)
@@ -165,7 +185,7 @@ export default function App() {
     return (
       <ThemeProvider>
         <FirstVisitExperience
-          onStateSelect={(s) => setSelectedState(s)}
+          onStateSelect={(s) => handleStateSelect(s)}
           onComplete={() => {
             localStorage.setItem('vagaFirstVisitComplete', 'true')
             setIsFirstVisit(false)
@@ -233,15 +253,37 @@ export default function App() {
             {/* State Assist — 2-question widget */}
             <StateAssist
               visible={!selectedState}
-              onSelectState={setSelectedState}
+              onSelectState={handleStateSelect}
             />
 
-            {/* New Breathing Orb - Centers right above cards if Immersive & State Selected */}
-            <BreathingOrb isImmersive={isImmersive} stateData={stateData} />
+            {/* Breathing Orb + Depth Meter — core regulation experience */}
+            <BreathingOrb
+              isImmersive={isImmersive}
+              stateData={stateData}
+              onCycleComplete={() => setBreathCycles(c => c + 1)}
+            />
+            {isImmersive && stateData && (
+              <div className="flex flex-col items-center mb-6 z-20 relative">
+                <RegulationDepthMeter
+                  cycles={breathCycles}
+                  accentHex={stateData.accentHex}
+                />
+                {/* Dashboard toggle */}
+                <button
+                  onClick={() => setShowDashboard(d => !d)}
+                  className="mt-4 font-mono text-[9px] tracking-widest uppercase transition-colors duration-200"
+                  style={{ color: `${stateData.accentHex}50` }}
+                  onMouseEnter={e => { e.currentTarget.style.color = stateData.accentHex }}
+                  onMouseLeave={e => { e.currentTarget.style.color = `${stateData.accentHex}50` }}
+                >
+                  {showDashboard ? '← Back to breathing' : 'View dashboard →'}
+                </button>
+              </div>
+            )}
 
             {/* State selector — always visible */}
             <div className={`mb-4 relative z-20 transition-all duration-1000 ${isImmersive && stateData ? 'opacity-30 hover:opacity-100' : 'opacity-100'}`}>
-              <StateSelector selected={selectedState} onSelect={setSelectedState} isImmersive={isImmersive} />
+              <StateSelector selected={selectedState} onSelect={handleStateSelect} isImmersive={isImmersive} />
             </div>
 
             {/* Mission Control trigger — hidden in immersion mode */}
@@ -266,8 +308,8 @@ export default function App() {
               </button>
             )}
 
-            {/* Operational noise — hidden in immersion mode */}
-            {!isImmersive && (
+            {/* Operational noise — hidden in immersion mode (unless dashboard toggled) */}
+            {(!isImmersive || showDashboard) && (
               <div>
                 <DailySummary sessions={sessions} />
 
@@ -280,7 +322,7 @@ export default function App() {
                     } else if (action === 'panic') {
                       setPanicOpen(true)
                     } else if (action === 'flow') {
-                      setSelectedState('flow')
+                      handleStateSelect('flow')
                     }
                   }}
                 />
@@ -292,7 +334,7 @@ export default function App() {
                 )}
 
                 <div className="mb-4">
-                  <HRVIndicator selectedState={selectedState} onAcceptSuggestion={setSelectedState} />
+                  <HRVIndicator selectedState={selectedState} onAcceptSuggestion={handleStateSelect} />
                 </div>
               </div>
             )}
@@ -319,7 +361,7 @@ export default function App() {
             )}
 
             {/* Dashboard grid — centered single column in immersion mode */}
-            {stateData && (
+            {stateData && (!isImmersive || showDashboard) && (
               <div className={`relative z-20 transition-all duration-700 ${isImmersive ? 'flex justify-center' : 'grid grid-cols-1 lg:grid-cols-5 gap-6'}`}>
 
                 {/* Protocol column — full width centred in immersion */}
@@ -382,7 +424,7 @@ export default function App() {
             )}
 
             {/* Team panel, weekly intelligence, footer — hidden in immersion */}
-            {!isImmersive && (
+            {(!isImmersive || showDashboard) && (
               <>
                 <div className="mt-8">
                   <TeamPanel />
@@ -395,7 +437,7 @@ export default function App() {
             )}
 
             {/* Footer — hidden in immersion */}
-            {!isImmersive && (
+            {(!isImmersive || showDashboard) && (
               <footer className="mt-16 pt-6 border-t border-charcoal-800 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-5 h-5 rounded overflow-hidden flex-shrink-0">

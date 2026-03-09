@@ -7,5 +7,8 @@
       "Bash(npx eslint:*)",
       "Bash(npm run:*)"
     ]
+  },
+  "enabledPlugins": {
+    "supabase@claude-plugins-official": true
   }
 }

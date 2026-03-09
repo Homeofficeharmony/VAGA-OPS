@@ -2,22 +2,22 @@ import { useState, useEffect } from 'react'
 
 // Biophilic palette — matches the main app theme
 const STATES = {
-  frozen:  { id: 'frozen',  name: 'Foggy / Shut Down',    mapTo: 'frozen',  color: '#c4604a' },
+  frozen: { id: 'frozen', name: 'Foggy / Shut Down', mapTo: 'frozen', color: '#c4604a' },
   anxious: { id: 'anxious', name: 'Wired / Overthinking', mapTo: 'anxious', color: '#c8a040' },
-  flow:    { id: 'flow',    name: 'Clear / Focused',      mapTo: 'flow',    color: '#52b87e' },
+  flow: { id: 'flow', name: 'Clear / Focused', mapTo: 'flow', color: '#52b87e' },
 }
 
 const STATE_SUBLABELS = {
-  frozen:  'Dissociated · Low energy · Can\'t start',
+  frozen: 'Dissociated · Low energy · Can\'t start',
   anxious: 'Scattered · Overthinking · Chest tight',
-  flow:    'Grounded · Present · Ready to build',
+  flow: 'Grounded · Present · Ready to build',
 }
 
 // Asymmetric organic border-radius per state (matches StateSelector)
 const RADII = {
-  frozen:  '20px 12px 20px 12px',
+  frozen: '20px 12px 20px 12px',
   anxious: '12px 22px 12px 22px',
-  flow:    '20px 20px 10px 20px',
+  flow: '20px 20px 10px 20px',
 }
 
 // SVG grain texture for warmth and depth
@@ -26,9 +26,9 @@ const GRAIN_BG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='ht
 // Breathing phase: 4s inhale · 1s hold · 8s exhale = 13s cycle
 const getPhase = (elapsed) => {
   const cycle = elapsed % 13
-  if (cycle < 4) return { label: 'Breathe in',  scale: 1.0,  dur: '4s' }
-  if (cycle < 5) return { label: 'Hold',         scale: 1.0,  dur: '0.1s' }
-  return             { label: 'Breathe out',     scale: 0.32, dur: '8s' }
+  if (cycle < 4) return { label: 'Breathe in', scale: 1.0, dur: '4s' }
+  if (cycle < 5) return { label: 'Hold', scale: 1.0, dur: '0.1s' }
+  return { label: 'Breathe out', scale: 0.32, dur: '8s' }
 }
 
 // Layered concentric orb — the visual heart of the breathing screen
@@ -492,8 +492,72 @@ function StateSelect({ onSelect }) {
   )
 }
 
+// ── "Lead with the breath" intro screen ─────────────────────────────
+function BreathFirstScreen({ onDone }) {
+  const [phase, setPhase] = useState(0) // 0 = dark, 1 = text, 2 = orb, 3 = reveal
+  const color = '#52b87e'
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setPhase(1), 800)   // show text
+    const t2 = setTimeout(() => setPhase(2), 2500)   // show orb
+    const t3 = setTimeout(() => setPhase(3), 16000)  // after ~1 breath cycle, reveal continue
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
+  }, [])
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center"
+      style={{ backgroundColor: '#060810' }}
+    >
+      {/* "Take a breath with me" */}
+      <div
+        className="flex flex-col items-center gap-10 transition-all duration-1000"
+        style={{ opacity: phase >= 1 ? 1 : 0, transform: phase >= 1 ? 'translateY(0)' : 'translateY(12px)' }}
+      >
+        <p
+          className="font-sans text-xl font-light tracking-wide"
+          style={{ color: '#ffffff', opacity: 0.9 }}
+        >
+          Take a breath with me.
+        </p>
+
+        {/* Breathing orb — simple version */}
+        <div
+          className="transition-all duration-1000"
+          style={{ opacity: phase >= 2 ? 1 : 0, transform: phase >= 2 ? 'scale(1)' : 'scale(0.8)' }}
+        >
+          <BreathingOrb color={color} scale={phase >= 2 ? 0.32 : 1} duration="8s" />
+        </div>
+      </div>
+
+      {/* Continue button — appears after one breath */}
+      <div
+        className="absolute bottom-16 flex flex-col items-center gap-3 transition-all duration-700"
+        style={{ opacity: phase >= 3 ? 1 : 0, transform: phase >= 3 ? 'translateY(0)' : 'translateY(8px)' }}
+      >
+        <p
+          className="font-sans text-sm max-w-xs text-center leading-relaxed"
+          style={{ color: '#94a3b8' }}
+        >
+          Good. I'm <span style={{ color: '#00ff88' }}>VAGA OPS</span> — I help you regulate your nervous system.
+        </p>
+        <button
+          onClick={onDone}
+          className="mt-2 font-mono text-[10px] tracking-widest uppercase px-6 py-2.5 rounded-xl border transition-all duration-200"
+          style={{ color: '#00ff88', borderColor: '#00ff8840', backgroundColor: '#00ff8808' }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = '#00ff8880'; e.currentTarget.style.backgroundColor = '#00ff8818' }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = '#00ff8840'; e.currentTarget.style.backgroundColor = '#00ff8808' }}
+        >
+          Continue
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export default function FirstVisitExperience({ onComplete, onStateSelect }) {
-  const [step, setStep] = useState('select')
+  // New flow: breathFirst → select → reset/flowPrep → shift/flowTimer
+  const [step, setStep] = useState('breathFirst')
   const [selectedState, setSelectedState] = useState(null)
 
   const handleSelect = (stateId) => {
@@ -506,6 +570,7 @@ export default function FirstVisitExperience({ onComplete, onStateSelect }) {
     }
   }
 
+  if (step === 'breathFirst') return <BreathFirstScreen onDone={() => setStep('select')} />
   if (step === 'select') return <StateSelect onSelect={handleSelect} />
 
   if (step === 'reset') {
