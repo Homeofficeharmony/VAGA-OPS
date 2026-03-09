@@ -1,0 +1,10 @@
+# The app lives in a subfolder — tell Netlify where to find it
+[build]
+  base = "regulation-station"
+  command = "npm run build"
+  publish = "dist"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
