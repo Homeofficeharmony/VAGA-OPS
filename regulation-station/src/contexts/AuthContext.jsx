@@ -38,7 +38,11 @@ export function AuthProvider({ children }) {
 
   const signUp = async (email, password) => {
     if (!supabase) return { error: { message: 'Supabase not configured' } }
-    return supabase.auth.signUp({ email, password })
+    return supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: window.location.origin },
+    })
   }
 
   const signOut = async () => {

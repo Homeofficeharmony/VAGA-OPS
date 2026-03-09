@@ -51,6 +51,7 @@ export function useAmbientEngine() {
   const ctxRef = useRef(null)
   const nodesRef = useRef([])
   const masterGainRef = useRef(null)
+  const baseVolRef = useRef(0.7)
   const [activeId, setActiveId] = useState('silence')
   const [volume, setVolumeState] = useState(0.7)
 
@@ -75,6 +76,7 @@ export function useAmbientEngine() {
   const startForest = useCallback(async (vol) => {
     const ctx = await ensureCtx()
     teardown()
+    baseVolRef.current = vol
     const master = ctx.createGain()
     master.gain.value = vol
     masterGainRef.current = master
@@ -113,6 +115,7 @@ export function useAmbientEngine() {
   const startOcean = useCallback(async (vol) => {
     const ctx = await ensureCtx()
     teardown()
+    baseVolRef.current = vol
     const master = ctx.createGain()
     master.gain.value = vol
     masterGainRef.current = master
@@ -151,6 +154,7 @@ export function useAmbientEngine() {
   const startBinaural = useCallback(async (vol, carrierHz = 200, beatHz = 10) => {
     const ctx = await ensureCtx()
     teardown()
+    baseVolRef.current = vol * 0.5
     const master = ctx.createGain()
     master.gain.value = vol * 0.5
     masterGainRef.current = master
@@ -191,9 +195,38 @@ export function useAmbientEngine() {
 
   const setVolume = useCallback((v) => {
     setVolumeState(v)
+    baseVolRef.current = v
     if (masterGainRef.current && ctxRef.current) {
       masterGainRef.current.gain.linearRampToValueAtTime(v, ctxRef.current.currentTime + 0.05)
     }
+  }, [])
+
+  /**
+   * Sync master gain to breath phase for immersive audio-visual sync.
+   * inhale → swell to 1.28× base, exhale → soften to 0.62× base.
+   * Call this only on phase transitions (not every frame).
+   *
+   * @param {'inhale'|'hold'|'exhale'} phase
+   * @param {number} durationMs — length of the current phase in ms
+   */
+  const syncBreath = useCallback((phase, durationMs) => {
+    if (!masterGainRef.current || !ctxRef.current) return
+    const ctx = ctxRef.current
+    const now = ctx.currentTime
+    const dur = Math.max(0.1, (durationMs ?? 4000) / 1000)
+    const base = baseVolRef.current
+
+    masterGainRef.current.gain.cancelScheduledValues(now)
+    masterGainRef.current.gain.setValueAtTime(masterGainRef.current.gain.value, now)
+
+    if (phase === 'inhale') {
+      // Swell into inhale — ramp to peak over 90% of the phase duration
+      masterGainRef.current.gain.linearRampToValueAtTime(base * 1.28, now + dur * 0.9)
+    } else if (phase === 'exhale') {
+      // Soften into exhale — ramp to trough over 85% of phase duration
+      masterGainRef.current.gain.linearRampToValueAtTime(base * 0.62, now + dur * 0.85)
+    }
+    // hold: no change — stays at inhale peak
   }, [])
 
   const select = useCallback(async (id, stateData = null) => {
@@ -215,5 +248,5 @@ export function useAmbientEngine() {
     }
   }, [teardown])
 
-  return { activeId, select, volume, setVolume }
+  return { activeId, select, volume, setVolume, syncBreath }
 }

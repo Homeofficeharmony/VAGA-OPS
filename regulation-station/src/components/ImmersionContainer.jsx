@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useImmersionBreath } from '../hooks/useImmersionBreath'
 import { useCompletionTone } from '../hooks/useCompletionTone'
+import { useHaptics } from '../hooks/useHaptics'
+import { useHeartTap } from '../hooks/useHeartTap'
 
 const BREATH_TIMING = {
   frozen:  { inhale: 4000, hold: 0,    exhale: 8000 },
@@ -110,7 +112,153 @@ function BreathOrb({ accent, orbScale, bloomScale, bloomOpacity, timing, isExhal
   )
 }
 
-export default function ImmersionContainer({ open, stateData, onComplete, onClose }) {
+// ── Heart Rate Calibration Pane ────────────────────────────────────────
+function CalibrationPane({ accent, tap, bpm, tapCount, rippleKey, isReady, calibratedTiming, onLock, onCancel }) {
+  const MIN_TAPS = 8
+
+  return (
+    <div
+      className="relative w-full max-w-sm flex flex-col items-center text-center"
+      style={{ animation: 'fadeIn 0.5s ease both' }}
+    >
+      {/* Header row */}
+      <div className="flex items-center gap-2 mb-7">
+        <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: accent }} />
+        <span
+          className="font-mono text-[10px] tracking-[0.28em] uppercase"
+          style={{ color: accent }}
+        >
+          HRV Calibration
+        </span>
+        <button
+          onClick={onCancel}
+          className="ml-3 font-mono text-[9px] tracking-wider uppercase focus:outline-none transition-colors duration-150"
+          style={{ color: accent + '45' }}
+          onMouseEnter={e => e.currentTarget.style.color = accent + 'aa'}
+          onMouseLeave={e => e.currentTarget.style.color = accent + '45'}
+        >
+          cancel
+        </button>
+      </div>
+
+      <p className="font-mono text-[11px] tracking-[0.2em] uppercase mb-7" style={{ color: 'var(--text-muted)' }}>
+        Tap in rhythm with your heartbeat
+      </p>
+
+      {/* Tap orb */}
+      <div className="relative flex items-center justify-center mb-8" style={{ width: 150, height: 150 }}>
+        {/* Ripple — re-mounts on every tap via key */}
+        {rippleKey > 0 && (
+          <div
+            key={rippleKey}
+            className="absolute inset-0 rounded-full pointer-events-none"
+            style={{
+              border: `1.5px solid ${accent}`,
+              animation: 'hrv-ripple 0.75s ease-out forwards',
+            }}
+          />
+        )}
+        {/* Tap button */}
+        <button
+          onClick={tap}
+          className="absolute inset-0 rounded-full focus:outline-none select-none"
+          style={{
+            backgroundColor: accent + (tapCount > 0 ? '14' : '08'),
+            border: `1.5px solid ${accent}${tapCount > 0 ? '70' : '28'}`,
+            boxShadow: tapCount > 0
+              ? `0 0 40px ${accent}20, inset 0 0 20px ${accent}0a`
+              : 'none',
+            transition: 'background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease',
+          }}
+          onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.96)' }}
+          onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)' }}
+          onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}
+        >
+          {bpm ? (
+            <div className="flex flex-col items-center pointer-events-none">
+              <span
+                className="font-mono font-light tabular-nums leading-none"
+                style={{ color: accent, fontSize: '38px', letterSpacing: '-0.03em' }}
+              >
+                {bpm}
+              </span>
+              <span className="font-mono text-[9px] tracking-[0.22em] uppercase mt-1" style={{ color: accent + '70' }}>
+                bpm
+              </span>
+            </div>
+          ) : (
+            <span className="font-mono text-[10px] tracking-[0.2em] uppercase pointer-events-none" style={{ color: accent + '50' }}>
+              tap here
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* Tap progress — 8 dots */}
+      <div className="flex items-center gap-2 mb-6">
+        {Array.from({ length: MIN_TAPS }).map((_, i) => (
+          <div
+            key={i}
+            className="rounded-full transition-all duration-300"
+            style={{
+              width: 6,
+              height: 6,
+              backgroundColor: i < tapCount ? accent : accent + '20',
+              transform: i < tapCount ? 'scale(1)' : 'scale(0.65)',
+            }}
+          />
+        ))}
+        <span className="font-mono text-[9px] ml-1.5" style={{ color: accent + '55' }}>
+          {Math.min(tapCount, MIN_TAPS)}/{MIN_TAPS}
+        </span>
+      </div>
+
+      {/* Computed timing preview — shown when locked */}
+      {isReady && calibratedTiming && (
+        <div
+          className="w-full flex items-center justify-center gap-3 mb-5 px-4 py-3 rounded-xl font-mono text-[10px]"
+          style={{ border: `1px solid ${accent}25`, backgroundColor: `${accent}08`, animation: 'fadeIn 0.5s ease both' }}
+        >
+          <span style={{ color: accent + '80' }}>Signal locked</span>
+          <span style={{ color: accent, fontWeight: 600 }}>
+            {(calibratedTiming.inhale / 1000).toFixed(1)}s in
+          </span>
+          <span style={{ color: accent + '40' }}>·</span>
+          <span style={{ color: accent, fontWeight: 600 }}>
+            {(calibratedTiming.exhale / 1000).toFixed(1)}s out
+          </span>
+        </div>
+      )}
+
+      {/* Lock / waiting */}
+      {isReady && calibratedTiming ? (
+        <button
+          onClick={onLock}
+          className="w-full py-4 rounded-2xl font-mono text-[11px] tracking-[0.25em] uppercase focus:outline-none transition-all duration-300"
+          style={{
+            backgroundColor: accent + '1e',
+            border: `1px solid ${accent}50`,
+            color: accent,
+            boxShadow: `0 0 28px ${accent}18`,
+          }}
+          onMouseEnter={e => { e.currentTarget.style.backgroundColor = accent + '2e'; e.currentTarget.style.boxShadow = `0 0 38px ${accent}28` }}
+          onMouseLeave={e => { e.currentTarget.style.backgroundColor = accent + '1e'; e.currentTarget.style.boxShadow = `0 0 28px ${accent}18` }}
+        >
+          Lock Signal → Begin
+        </button>
+      ) : (
+        <div
+          className="w-full py-4 rounded-2xl font-mono text-[11px] tracking-[0.25em] uppercase text-center select-none"
+          style={{ border: `1px solid ${accent}15`, color: accent + '30' }}
+        >
+          {tapCount === 0 ? 'Waiting for signal…' : `${MIN_TAPS - tapCount} more tap${MIN_TAPS - tapCount !== 1 ? 's' : ''}…`}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function ImmersionContainer({ open, stateData, ambientEngine, onComplete, onClose }) {
   // phases: 'welcome' | 'stabilize' | 'integrate'
   const [phase, setPhase]             = useState('welcome')
   const [breathElapsed, setBreathElapsed] = useState(0)
@@ -118,17 +266,43 @@ export default function ImmersionContainer({ open, stateData, onComplete, onClos
   const [activation, setActivation]   = useState(5)
   const [integElapsed, setIntegElapsed] = useState(0)
   const [visible, setVisible]         = useState(false)
+  const [showCalibration, setShowCalibration] = useState(false)
+  const [calibratedTiming, setCalibratedTiming] = useState(null)
 
-  const startedAtRef  = useRef(null)
-  const playToneRef   = useRef(null)
-  const activationRef = useRef(5)
+  const startedAtRef    = useRef(null)
+  const playToneRef     = useRef(null)
+  const hapticCompleteRef = useRef(null)
+  const activationRef   = useRef(5)
 
   const playTone = useCompletionTone()
   playToneRef.current = playTone
 
-  const timing = BREATH_TIMING[stateData?.id] ?? BREATH_TIMING.anxious
+  const { inhale: hapticInhale, exhale: hapticExhale, complete: hapticComplete } = useHaptics()
+  hapticCompleteRef.current = hapticComplete
+
+  const {
+    tap: tapHeart, reset: resetTap, bpm: tapBpm,
+    tapCount, rippleKey, isReady: tapReady,
+    calibratedTiming: tapTiming,
+  } = useHeartTap()
+
+  // Use calibrated timing when available, fall back to state defaults
+  const timing = calibratedTiming ?? (BREATH_TIMING[stateData?.id] ?? BREATH_TIMING.anxious)
   const { phase: breathPhase, phaseProgress, phaseRemainingSec } =
     useImmersionBreath(open && phase === 'stabilize', timing)
+
+  // ── Audio-visual + haptic breath sync ─────────────────────────────────
+  // Fires only on phase transitions (breathPhase is a string, changes ~4-8s)
+  useEffect(() => {
+    if (phase !== 'stabilize') return
+
+    const durationMs = timing[breathPhase] ?? 4000
+    ambientEngine?.syncBreath(breathPhase, durationMs)
+
+    if (breathPhase === 'inhale') hapticInhale()
+    else if (breathPhase === 'exhale') hapticExhale()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [breathPhase, phase])
 
   // Reset on open
   useEffect(() => {
@@ -138,10 +312,13 @@ export default function ImmersionContainer({ open, stateData, onComplete, onClos
     setPhraseIndex(0)
     setActivation(5)
     setIntegElapsed(0)
+    setShowCalibration(false)
+    setCalibratedTiming(null)
+    resetTap()
     activationRef.current = 5
     startedAtRef.current = new Date().toISOString()
     setTimeout(() => setVisible(true), 40)
-  }, [open])
+  }, [open, resetTap])
 
   // Stabilize: session countdown + phrase rotation
   useEffect(() => {
@@ -153,6 +330,7 @@ export default function ImmersionContainer({ open, stateData, onComplete, onClos
         if (prev + 1 >= total) {
           clearInterval(countId)
           playToneRef.current?.()
+          hapticCompleteRef.current?.()
           setTimeout(() => setPhase('integrate'), 800)
           return total
         }
@@ -239,6 +417,29 @@ export default function ImmersionContainer({ open, stateData, onComplete, onClos
       {children}
     </div>
   )
+
+  // ── PHASE: WELCOME — CALIBRATION SUB-VIEW ─────────────────────────────
+  if (phase === 'welcome' && showCalibration) {
+    return wrapper(
+      <CalibrationPane
+        accent={accent}
+        tap={tapHeart}
+        bpm={tapBpm}
+        tapCount={tapCount}
+        rippleKey={rippleKey}
+        isReady={tapReady}
+        calibratedTiming={tapTiming}
+        onLock={() => {
+          setCalibratedTiming(tapTiming)
+          setPhase('stabilize')
+        }}
+        onCancel={() => {
+          resetTap()
+          setShowCalibration(false)
+        }}
+      />
+    )
+  }
 
   // ── PHASE: WELCOME ────────────────────────────────────────────────────
   if (phase === 'welcome') {
@@ -333,6 +534,17 @@ export default function ImmersionContainer({ open, stateData, onComplete, onClos
         >
           Begin
         </button>
+
+        {/* HR calibration entry point */}
+        <button
+          onClick={() => setShowCalibration(true)}
+          className="w-full py-2.5 rounded-2xl font-mono text-[10px] tracking-[0.22em] uppercase focus:outline-none transition-colors duration-200"
+          style={{ color: accent + '55', border: `1px solid ${accent}18`, backgroundColor: 'transparent' }}
+          onMouseEnter={e => { e.currentTarget.style.color = accent + 'aa'; e.currentTarget.style.borderColor = accent + '35' }}
+          onMouseLeave={e => { e.currentTarget.style.color = accent + '55'; e.currentTarget.style.borderColor = accent + '18' }}
+        >
+          ⦿ Calibrate to your heart rate
+        </button>
       </div>
     )
   }
@@ -350,6 +562,17 @@ export default function ImmersionContainer({ open, stateData, onComplete, onClos
         >
           {remStr}
         </div>
+
+        {/* HR-SYNC badge — shown when user calibrated to their heart rate */}
+        {calibratedTiming && (
+          <div
+            className="fixed top-5 left-20 flex items-center gap-1.5 font-mono"
+            style={{ color: accent + '55', fontSize: '9px', letterSpacing: '0.2em' }}
+          >
+            <div className="w-1 h-1 rounded-full animate-pulse" style={{ backgroundColor: accent }} />
+            HR-SYNC
+          </div>
+        )}
 
         {/* Breath orb */}
         <BreathOrb

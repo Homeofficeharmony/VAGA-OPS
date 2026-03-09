@@ -25,6 +25,8 @@ import StreakMilestone from './components/StreakMilestone'
 import WeeklyConsistency from './components/WeeklyConsistency'
 import WeeklyIntelligenceCard from './components/WeeklyIntelligenceCard'
 import FirstVisitExperience from './components/FirstVisitExperience'
+import TacticalAdvisor from './components/TacticalAdvisor'
+import MissionControl from './components/MissionControl'
 
 // New Immersive Components
 import ImmersionContainer from './components/ImmersionContainer'
@@ -33,6 +35,7 @@ import ImmersionBackground from './components/ImmersionBackground'
 import BreathingOrb from './components/BreathingOrb'
 import VagusLogSidebar from './components/VagusLogSidebar'
 import AmbientSoundscape from './components/AmbientSoundscape'
+import { useAmbientEngine } from './hooks/useAmbientEngine'
 
 export default function App() {
   const [selectedState, setSelectedState] = useState(null)
@@ -43,6 +46,7 @@ export default function App() {
   const [panicOpen, setPanicOpen] = useState(false)
   const [flowLockOpen, setFlowLockOpen] = useState(false)
   const [isImmersive, setIsImmersive] = useState(false)
+  const [missionOpen, setMissionOpen] = useState(false)
   const [shortcutHelpOpen, setShortcutHelpOpen] = useState(false)
   const [todayIntention, setTodayIntention] = useState('')
 
@@ -54,6 +58,7 @@ export default function App() {
 
   const { sessions, logSession } = useSessionLog()
   const { streak } = useStreak(sessions)
+  const ambientEngine = useAmbientEngine()
 
   const [isFirstVisit, setIsFirstVisit] = useState(
     () => localStorage.getItem('vagaFirstVisitComplete') !== 'true'
@@ -133,6 +138,7 @@ export default function App() {
       if (e.key === '3') setSelectedState('flow')
       if (e.key === 'r' || e.key === 'R') setRuptureOpen(true)
       if (e.key === 'i' || e.key === 'I') setIsImmersive(v => !v)
+      if (e.key === 'm' || e.key === 'M') setMissionOpen(v => !v)
       if (e.key === 'f' || e.key === 'F') {
         if (stateData) setFocusOpen((v) => !v)
       }
@@ -147,6 +153,7 @@ export default function App() {
         setFlowLockOpen(false)
         setCheckinPending(null)
         setIsImmersive(false)
+        setMissionOpen(false)
         setShortcutHelpOpen(false)
       }
     }
@@ -237,10 +244,46 @@ export default function App() {
               <StateSelector selected={selectedState} onSelect={setSelectedState} isImmersive={isImmersive} />
             </div>
 
+            {/* Mission Control trigger — hidden in immersion mode */}
+            {!isImmersive && (
+              <button
+                onClick={() => setMissionOpen(true)}
+                className="w-full mb-4 py-2.5 px-4 rounded-2xl font-mono text-[10px] tracking-[0.24em] uppercase focus:outline-none transition-all duration-200 flex items-center justify-between"
+                style={{ border: '1px solid var(--border)', backgroundColor: 'var(--bg-panel)', color: 'var(--text-muted)' }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = '#52b87e40'
+                  e.currentTarget.style.color = '#52b87e'
+                  e.currentTarget.style.backgroundColor = '#52b87e07'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = 'var(--border)'
+                  e.currentTarget.style.color = 'var(--text-muted)'
+                  e.currentTarget.style.backgroundColor = 'var(--bg-panel)'
+                }}
+              >
+                <span>⊙ Mission Control</span>
+                <span style={{ opacity: 0.5 }}>M</span>
+              </button>
+            )}
+
             {/* Operational noise — hidden in immersion mode */}
             {!isImmersive && (
               <div>
                 <DailySummary sessions={sessions} />
+
+                {/* Tactical Advisor — rule-based session pattern alerts */}
+                <TacticalAdvisor
+                  sessions={sessions}
+                  onAction={(action) => {
+                    if (action === 'immersion') {
+                      if (selectedState) setIsImmersive(true)
+                    } else if (action === 'panic') {
+                      setPanicOpen(true)
+                    } else if (action === 'flow') {
+                      setSelectedState('flow')
+                    }
+                  }}
+                />
 
                 {sessions.length > 0 && (
                   <div className="mb-4">
@@ -383,14 +426,34 @@ export default function App() {
 
         {/* Floating elements tied to Immersive Mode */}
         <VagusLogSidebar isImmersive={isImmersive} streak={streak} sessions={sessions} />
-        <AmbientSoundscape isImmersive={isImmersive} stateData={stateData} />
+        <AmbientSoundscape isImmersive={isImmersive} stateData={stateData} engine={ambientEngine} />
 
         {/* ── Fixed overlays ───────────────────────────────────── */}
+
+        {/* Mission Control — z-[60], above ImmersionContainer (z-[55]) */}
+        <MissionControl
+          open={missionOpen}
+          ambientEngine={ambientEngine}
+          onMissionComplete={({ missionId, totalElapsed, completedPhases }) => {
+            logSession({
+              state: 'flow',
+              type: 'stealth',
+              resetCompleted: completedPhases > 0,
+              protocolUsed: missionId,
+              durationSec: totalElapsed,
+              flowMinutes: Math.round(totalElapsed / 60),
+              outcome: null,
+              shift: null,
+            })
+          }}
+          onClose={() => setMissionOpen(false)}
+        />
 
         {/* Guided Immersion Container — 3-phase regulated experience */}
         <ImmersionContainer
           open={isImmersive}
           stateData={stateData}
+          ambientEngine={ambientEngine}
           onComplete={({ activationAfter, notes, startedAt, resetCompleted }) => {
             logSession({
               state: selectedState,

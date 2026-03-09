@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion'
 import { TreePine, Waves, AudioLines, VolumeX } from 'lucide-react'
-import { useAmbientEngine } from '../hooks/useAmbientEngine'
 
 const SOUNDSCAPES = [
   { id: 'forest',   icon: TreePine,   label: 'Forest',   color: '#52b87e', bg: '#52b87e20' },
@@ -9,8 +8,8 @@ const SOUNDSCAPES = [
   { id: 'silence',  icon: VolumeX,    label: 'Silence',  color: '#64748b', bg: 'transparent' },
 ]
 
-export default function AmbientSoundscape({ isImmersive, stateData }) {
-  const { activeId, select } = useAmbientEngine()
+export default function AmbientSoundscape({ isImmersive, stateData, engine }) {
+  const { activeId, select } = engine
 
   if (!isImmersive) return null
 
