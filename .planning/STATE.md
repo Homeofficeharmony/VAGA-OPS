@@ -5,22 +5,57 @@
 See: .planning/PROJECT.md (updated 2026-03-09)
 
 **Core value:** When you sit down dysregulated, you use this and walk away calm with your task feeling attainable.
-**Current focus:** v1.0 — Visual & Experience Refresh
+**Current focus:** Phase 1 — Foundations
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-03-09 — Milestone v1.0 started
+Phase: 1 of 6 (Foundations)
+Plan: 0 of ? in current phase
+Status: Ready to plan
+Last activity: 2026-03-09 — Roadmap created for v1.0 Visual & Experience Refresh
+
+Progress: [░░░░░░░░░░] 0%
+
+## Performance Metrics
+
+**Velocity:**
+- Total plans completed: 0
+- Average duration: — min
+- Total execution time: 0 hours
+
+**By Phase:**
+
+| Phase | Plans | Total | Avg/Plan |
+|-------|-------|-------|----------|
+| - | - | - | - |
+
+**Recent Trend:**
+- Last 5 plans: none yet
+- Trend: —
+
+*Updated after each plan completion*
 
 ## Accumulated Context
 
-- App has 3 waves of features shipped (core → retention → upgrade pass)
-- Bundle: ~656kB JS + 36kB CSS
-- Pre-existing lint warnings: App.jsx setState-in-effect, ThemeContext fast-refresh, useTeam setState
-- Binaural frequencies: Frozen 180+5Hz, Anxious 200+10Hz, Flow 200+40Hz
-- stateData.js has 8 tips per state, estimatedDurationMin on tasks
+### Decisions
+
+Decisions are logged in PROJECT.md Key Decisions table.
+Recent decisions affecting current work:
+
+- [Roadmap]: No new dependencies — framer-motion 12 already installed, use AnalyserNode (browser built-in), native SVG for all charts
+- [Roadmap]: 44kB bundle headroom remaining — no chart libraries, no new animation libraries permitted
+- [Roadmap]: Phase 4 depends on Phase 2 (stateData.js enrichment needed before per-state particle profiles can be tuned)
+- [Roadmap]: All content rotation happens at session START only — no mid-session content changes inside ImmersionContainer
+
+### Pending Todos
+
+None yet.
+
+### Blockers/Concerns
+
+- [Phase 3]: AnalyserNode tap pattern for dual-oscillator setup needs verification during planning — analyser must connect after GainNode merge, not per-oscillator
+- [Phase 4]: Per-state particle tuning (speed, opacity, count) requires visual iteration — treat as design spike during planning
+- [General]: VagusLogSidebar hardcoded dark-theme hex values — technical debt, out of scope this milestone
 
 ## Key Files
 
@@ -34,6 +69,8 @@ Last activity: 2026-03-09 — Milestone v1.0 started
 - `regulation-station/src/hooks/useSessionLog.js` — session persistence
 - `regulation-station/src/components/VagusLogSidebar.jsx` — session history UI
 
-## Todos
+## Session Continuity
 
-Count: 0
+Last session: 2026-03-09
+Stopped at: Roadmap created, STATE.md initialized, REQUIREMENTS.md traceability updated
+Resume file: None

@@ -74,26 +74,26 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| VATM-01 | — | Pending |
-| VATM-02 | — | Pending |
-| VATM-03 | — | Pending |
-| VATM-04 | — | Pending |
-| CVAR-01 | — | Pending |
-| CVAR-02 | — | Pending |
-| CVAR-03 | — | Pending |
-| CVAR-04 | — | Pending |
-| DVIZ-01 | — | Pending |
-| DVIZ-02 | — | Pending |
-| AVIZ-01 | — | Pending |
-| AVIZ-02 | — | Pending |
-| STUX-01 | — | Pending |
-| STUX-02 | — | Pending |
+| VATM-01 | Phase 4 | Pending |
+| VATM-02 | Phase 4 | Pending |
+| VATM-03 | Phase 4 | Pending |
+| VATM-04 | Phase 4 | Pending |
+| CVAR-01 | Phase 2 | Pending |
+| CVAR-02 | Phase 2 | Pending |
+| CVAR-03 | Phase 2 | Pending |
+| CVAR-04 | Phase 2 | Pending |
+| DVIZ-01 | Phase 5 | Pending |
+| DVIZ-02 | Phase 5 | Pending |
+| AVIZ-01 | Phase 3 | Pending |
+| AVIZ-02 | Phase 3 | Pending |
+| STUX-01 | Phase 6 | Pending |
+| STUX-02 | Phase 4 | Pending |
 
 **Coverage:**
 - v1 requirements: 14 total
-- Mapped to phases: 0
-- Unmapped: 14 ⚠️
+- Mapped to phases: 14
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-09*
-*Last updated: 2026-03-09 after initial definition*
+*Last updated: 2026-03-09 after roadmap creation*
