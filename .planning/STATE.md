@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Phase 1 context gathered
-last_updated: "2026-03-10T02:59:56.035Z"
-last_activity: 2026-03-09 — Roadmap created for v1.0 Visual & Experience Refresh
+status: executing
+stopped_at: "Completed 01-02-PLAN.md: chartData.js transforms + AnalyserNode wiring"
+last_updated: "2026-03-10T06:40:11.419Z"
+last_activity: 2026-03-10 — Completed plan 01-01 (grain utility + content rotation hook)
 progress:
   total_phases: 6
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  completed_phases: 1
+  total_plans: 2
+  completed_plans: 2
+  percent: 8
 ---
 
 # Project State
@@ -26,30 +26,31 @@ See: .planning/PROJECT.md (updated 2026-03-09)
 ## Current Position
 
 Phase: 1 of 6 (Foundations)
-Plan: 0 of ? in current phase
-Status: Ready to plan
-Last activity: 2026-03-09 — Roadmap created for v1.0 Visual & Experience Refresh
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-03-10 — Completed plan 01-01 (grain utility + content rotation hook)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [█░░░░░░░░░] 8%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0
-- Average duration: — min
-- Total execution time: 0 hours
+- Total plans completed: 1
+- Average duration: 3 min
+- Total execution time: 0.05 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 01-foundations | 1 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: none yet
+- Last 5 plans: 01-01 (3 min)
 - Trend: —
 
 *Updated after each plan completion*
+| Phase 01-foundations P02 | 3 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -62,6 +63,10 @@ Recent decisions affecting current work:
 - [Roadmap]: 44kB bundle headroom remaining — no chart libraries, no new animation libraries permitted
 - [Roadmap]: Phase 4 depends on Phase 2 (stateData.js enrichment needed before per-state particle profiles can be tuned)
 - [Roadmap]: All content rotation happens at session START only — no mid-session content changes inside ImmersionContainer
+- [01-01]: Midnight local time is the rotation boundary (en-CA toLocaleDateString)
+- [01-01]: No re-roll/manual override in useContentRotation API — one selection per day
+- [01-01]: Independent rotation per pool — each pool.length drives its own hash cycle, no global seed
+- [Phase 01-02]: Expose analyserRef object from hooks (not ref.current in return) to satisfy react-hooks/refs ESLint rule — consumers access .current inside effects/RAF callbacks
 
 ### Pending Todos
 
@@ -87,6 +92,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-10T02:59:56.033Z
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-foundations/01-CONTEXT.md
+Last session: 2026-03-10T06:40:11.417Z
+Stopped at: Completed 01-02-PLAN.md: chartData.js transforms + AnalyserNode wiring
+Resume file: None

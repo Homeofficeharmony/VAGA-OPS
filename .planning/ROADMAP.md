@@ -12,7 +12,7 @@ This milestone transforms a fully functional but text-heavy regulation dashboard
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundations** - Shared utilities that every subsequent phase depends on (rotation hook, chart data transforms, AnalyserNode wiring, grain texture)
+- [x] **Phase 1: Foundations** - Shared utilities that every subsequent phase depends on (rotation hook, chart data transforms, AnalyserNode wiring, grain texture) (completed 2026-03-10)
 - [ ] **Phase 2: Content Variety** - Expand stateData.js with 20+ tips per state, breath cue variants, protocol alternatives, and time-of-day task groups; wire rotation hook into all consumers
 - [ ] **Phase 3: Audio Visualization** - Beat-reactive glow on audio controls and real-time WaveformBars driven by AnalyserNode from the live audio graph
 - [ ] **Phase 4: Atmospheric Effects** - NeuralBackground particle system, state-keyed immersion visuals, session color field transition, and standalone ambient mode
@@ -30,7 +30,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. `src/lib/chartData.js` exports pure transform functions that convert the existing session array into chart-ready data shapes without any UI dependency
   3. Both `useAudioEngine` and `useAmbientEngine` expose an `analyserNode` value that is non-null when audio is active and null when audio is inactive
   4. A shared `src/utils/grain.js` utility exists and exports a grain texture constant usable by any canvas component
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 Plans:
 - [ ] 01-01-PLAN.md — Grain texture extraction + content rotation hook
 - [ ] 01-02-PLAN.md — Chart data transforms + AnalyserNode wiring
@@ -93,7 +93,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundations | 0/2 | Planning complete | - |
+| 1. Foundations | 2/2 | Complete   | 2026-03-10 |
 | 2. Content Variety | 0/? | Not started | - |
 | 3. Audio Visualization | 0/? | Not started | - |
 | 4. Atmospheric Effects | 0/? | Not started | - |
