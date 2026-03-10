@@ -44,7 +44,10 @@ Plans:
   2. User reads a different breath cue phrasing across sessions (at minimum 4 variants per breath phase per state) — the cue does not change mid-session
   3. User experiences a different somatic protocol sequence on a new session day, selected from 2-3 variants per state
   4. User sees task checklist items filtered to morning, afternoon, or evening context based on the time of day they open the app
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 02-01-PLAN.md — Tips expansion (20+ per state) + time-of-day task filtering
+- [ ] 02-02-PLAN.md — Breath cue variants + somatic protocol variants
 
 ### Phase 3: Audio Visualization
 **Goal**: The audio UI reflects what is actually playing — users can see the binaural signal and feel the beat frequency through visual feedback
@@ -94,7 +97,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundations | 2/2 | Complete   | 2026-03-10 |
-| 2. Content Variety | 0/? | Not started | - |
+| 2. Content Variety | 0/2 | Not started | - |
 | 3. Audio Visualization | 0/? | Not started | - |
 | 4. Atmospheric Effects | 0/? | Not started | - |
 | 5. Data Visualization | 0/? | Not started | - |
