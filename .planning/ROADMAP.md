@@ -30,7 +30,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. `src/lib/chartData.js` exports pure transform functions that convert the existing session array into chart-ready data shapes without any UI dependency
   3. Both `useAudioEngine` and `useAmbientEngine` expose an `analyserNode` value that is non-null when audio is active and null when audio is inactive
   4. A shared `src/utils/grain.js` utility exists and exports a grain texture constant usable by any canvas component
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 01-01-PLAN.md — Grain texture extraction + content rotation hook
+- [ ] 01-02-PLAN.md — Chart data transforms + AnalyserNode wiring
 
 ### Phase 2: Content Variety
 **Goal**: Users experience fresh content on every session — different tips, breath cue phrasings, protocol sequences, and task groups appropriate to their time of day
@@ -90,7 +93,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundations | 0/? | Not started | - |
+| 1. Foundations | 0/2 | Planning complete | - |
 | 2. Content Variety | 0/? | Not started | - |
 | 3. Audio Visualization | 0/? | Not started | - |
 | 4. Atmospheric Effects | 0/? | Not started | - |
