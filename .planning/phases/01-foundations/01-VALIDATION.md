@@ -2,8 +2,8 @@
 phase: 1
 slug: foundations
 status: draft
-nyquist_compliant: false
-wave_0_complete: false
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-03-10
 ---
 
@@ -36,21 +36,22 @@ created: 2026-03-10
 
 ## Per-Task Verification Map
 
-| Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
-|---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 01-01-01 | 01 | 1 | SC-5 (grain.js) | unit (pure fn) | `node -e "import('./src/utils/grain.js').then(m => console.log(Object.keys(m)))"` | ❌ W0 | ⬜ pending |
-| 01-02-01 | 02 | 1 | SC-1 (useContentRotation) | unit (pure fn) | `node -e "..."` verify same-date stability | ❌ W0 | ⬜ pending |
-| 01-03-01 | 03 | 1 | SC-2 (chartData.js) | unit (pure fn) | `node -e "..."` verify shape output | ❌ W0 | ⬜ pending |
-| 01-04-01 | 04 | 1 | SC-3/SC-4 (analyserNode) | smoke (browser) | Manual: DevTools console log analyserNode | N/A | ⬜ pending |
+| Task ID | Plan | Wave | Requirement | Test Type | Automated Command | Status |
+|---------|------|------|-------------|-----------|-------------------|--------|
+| 01-01-T1 | 01 | 1 | SC-4 (grain.js) | unit (pure fn) | `node -e "import('./src/utils/grain.js').then(m => ...)"` + `npm run build` | pending |
+| 01-01-T2 | 01 | 1 | SC-1 (useContentRotation) | unit (pure fn) | `node -e "..."` replicate dailyIndex, assert same-date stability + different-date rotation + file structure | pending |
+| 01-02-T1 | 02 | 1 | SC-2 (chartData.js) | unit (pure fn) | `node -e "import('./src/lib/chartData.js').then(m => ...)"` verify 3 exports and data shapes | pending |
+| 01-02-T2 | 02 | 1 | SC-3/SC-4 (analyserNode) | build + lint | `npm run build && npm run lint` (browser-dependent — manual DevTools check for runtime) | pending |
 
-*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
+*Status: pending / green / red / flaky*
 
 ---
 
 ## Wave 0 Requirements
 
-- [ ] No automated test runner exists — pure function verification via `node` CLI or build-time checks
-- [ ] Consider `scripts/verify-phase1.mjs` for pure-function validation of chartData.js and useContentRotation
+- [x] No automated test runner exists — pure function verification via `node` CLI or build-time checks
+- [x] All pure-function tasks (01-01-T1, 01-01-T2, 01-02-T1) have inline `node -e` verification scripts that exit 1 on failure
+- [x] Browser-dependent task (01-02-T2, analyserNode) uses build+lint as automated gate with documented manual supplement
 
 *Existing build/lint infrastructure covers compilation and code quality checks.*
 
@@ -62,17 +63,17 @@ created: 2026-03-10
 |----------|-------------|------------|-------------------|
 | analyserNode non-null when playing | SC-3 | Requires browser Web Audio API context | 1. Open app 2. Select state 3. Play audio 4. In DevTools, inspect analyserNode ref value |
 | analyserNode null when inactive | SC-4 | Requires browser Web Audio API context | 1. Open app 2. Before play: verify null 3. After pause: verify null |
-| grain texture visual appearance | SC-5 | Visual check that grain renders correctly | 1. Open app 2. Verify AudioPlayer still shows grain overlay |
+| grain texture visual appearance | SC-4 | Visual check that grain renders correctly | 1. Open app 2. Verify AudioPlayer still shows grain overlay |
 
 ---
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 15s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 15s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved
