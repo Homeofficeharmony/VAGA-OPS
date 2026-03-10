@@ -52,6 +52,7 @@ export function useAmbientEngine() {
   const nodesRef = useRef([])
   const masterGainRef = useRef(null)
   const baseVolRef = useRef(0.7)
+  const analyserRef = useRef(null)
   const [activeId, setActiveId] = useState('silence')
   const [volume, setVolumeState] = useState(0.7)
 
@@ -61,6 +62,7 @@ export function useAmbientEngine() {
     }
     nodesRef.current = []
     masterGainRef.current = null
+    analyserRef.current = null
   }, [])
 
   const ensureCtx = useCallback(async () => {
@@ -71,6 +73,14 @@ export function useAmbientEngine() {
       await ctxRef.current.resume()
     }
     return ctxRef.current
+  }, [])
+
+  const connectWithAnalyser = useCallback((ctx, master) => {
+    const analyser = ctx.createAnalyser()
+    analyser.fftSize = 2048
+    master.connect(analyser)
+    analyser.connect(ctx.destination)
+    analyserRef.current = analyser
   }, [])
 
   const startForest = useCallback(async (vol) => {
@@ -105,12 +115,12 @@ export function useAmbientEngine() {
     source.connect(lpf)
     lpf.connect(tremoloBase)
     tremoloBase.connect(master)
-    master.connect(ctx.destination)
+    connectWithAnalyser(ctx, master)
 
     source.start()
     lfo.start()
     nodesRef.current = [source, lfo]
-  }, [ensureCtx, teardown])
+  }, [ensureCtx, teardown, connectWithAnalyser])
 
   const startOcean = useCallback(async (vol) => {
     const ctx = await ensureCtx()
@@ -144,12 +154,12 @@ export function useAmbientEngine() {
     source.connect(bpf)
     bpf.connect(sweepBase)
     sweepBase.connect(master)
-    master.connect(ctx.destination)
+    connectWithAnalyser(ctx, master)
 
     source.start()
     lfo.start()
     nodesRef.current = [source, lfo]
-  }, [ensureCtx, teardown])
+  }, [ensureCtx, teardown, connectWithAnalyser])
 
   const startBinaural = useCallback(async (vol, carrierHz = 200, beatHz = 10) => {
     const ctx = await ensureCtx()
@@ -179,12 +189,12 @@ export function useAmbientEngine() {
     leftGain.connect(merger, 0, 0)
     rightGain.connect(merger, 0, 1)
     merger.connect(master)
-    master.connect(ctx.destination)
+    connectWithAnalyser(ctx, master)
 
     leftOsc.start()
     rightOsc.start()
     nodesRef.current = [leftOsc, rightOsc]
-  }, [ensureCtx, teardown])
+  }, [ensureCtx, teardown, connectWithAnalyser])
 
   const stop = useCallback(() => {
     teardown()
@@ -278,5 +288,5 @@ export function useAmbientEngine() {
     }
   }, [teardown])
 
-  return { activeId, select, volume, setVolume, syncBreath, fadeIn, autoStartForState }
+  return { activeId, select, volume, setVolume, syncBreath, fadeIn, autoStartForState, analyserRef }
 }

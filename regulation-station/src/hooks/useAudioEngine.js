@@ -44,6 +44,7 @@ export function useAudioEngine({ carrierHz, beatHz }) {
   const masterGainRef = useRef(null)
   const noiseGainRef = useRef(null)
   const toneGainRef  = useRef(null)
+  const analyserRef  = useRef(null)
 
   const [playing, setPlaying]   = useState(false)
   const [volume, setVolume]     = useState(0.7)
@@ -59,6 +60,7 @@ export function useAudioEngine({ carrierHz, beatHz }) {
     leftOscRef.current  = null
     rightOscRef.current = null
     noiseRef.current    = null
+    analyserRef.current = null
   }, [])
 
   // Build the audio graph
@@ -129,7 +131,11 @@ export function useAudioEngine({ carrierHz, beatHz }) {
     noiseSource.start()
     noiseRef.current = noiseSource
 
-    master.connect(ctx.destination)
+    const analyser = ctx.createAnalyser()
+    analyser.fftSize = 2048
+    master.connect(analyser)
+    analyser.connect(ctx.destination)
+    analyserRef.current = analyser
   }, [carrierHz, beatHz, volume, teardown])
 
   // Play
@@ -187,5 +193,5 @@ export function useAudioEngine({ carrierHz, beatHz }) {
     }
   }, [teardown])
 
-  return { playing, play, pause, volume, setVolume: applyVolume, supported }
+  return { playing, play, pause, volume, setVolume: applyVolume, supported, analyserRef }
 }
