@@ -350,6 +350,17 @@ export default function ImmersionContainer({ open, stateData, ambientEngine, onC
 
   const { item: dailyTip } = useContentRotation(stateData?.tips ?? [])
 
+  const { index: cueIdx } = useContentRotation(stateData?.breathCues?.inhale ?? [])
+  const breathLabel = stateData?.breathCues ? {
+    inhale: stateData.breathCues.inhale?.[cueIdx] ?? 'Breathe in',
+    hold:   stateData.breathCues.hold?.[cueIdx]   ?? 'Hold',
+    exhale: stateData.breathCues.exhale?.[cueIdx]  ?? 'Breathe out',
+  } : BREATH_LABEL
+
+  const resetPool = stateData?.resetVariants ?? (stateData?.reset ? [stateData.reset] : [])
+  const { item: selectedReset } = useContentRotation(resetPool)
+  const _activeReset = selectedReset ?? stateData?.reset
+
   const handleComplete = useCallback((autoDismissed) => {
     onComplete({
       activationAfter: activationRef.current,
@@ -598,7 +609,7 @@ export default function ImmersionContainer({ open, stateData, ambientEngine, onC
               transition: 'opacity 0.6s ease',
             }}
           >
-            {BREATH_LABEL[breathPhase]}
+            {breathLabel[breathPhase]}
           </p>
           {/* Phase countdown number */}
           <span

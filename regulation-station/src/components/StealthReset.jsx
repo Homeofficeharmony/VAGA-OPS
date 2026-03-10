@@ -14,7 +14,10 @@ const accentColor = {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function StealthReset({ stateData, onComplete }) {
-  const { reset, accent, id: stateId } = stateData
+  const { accent, id: stateId } = stateData
+  const resetPool = stateData?.resetVariants ?? (stateData?.reset ? [stateData.reset] : [])
+  const { item: selectedReset } = useContentRotation(resetPool)
+  const reset = selectedReset ?? stateData?.reset
   const color = accentColor[accent]
   const { item: dailyTip } = useContentRotation(stateData?.tips ?? [])
 
