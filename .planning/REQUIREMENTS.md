@@ -16,10 +16,10 @@ Requirements for v1.0 Visual & Experience Refresh. Each maps to roadmap phases.
 
 ### Content Variety
 
-- [ ] **CVAR-01**: User sees different tips each day, drawn from an expanded pool of 20+ per state
+- [x] **CVAR-01**: User sees different tips each day, drawn from an expanded pool of 20+ per state
 - [ ] **CVAR-02**: User hears/reads varied breath cue phrasings between sessions (not "Inhale... Exhale" every time)
 - [ ] **CVAR-03**: User experiences 2-3 different somatic protocol step sequences per state across sessions
-- [ ] **CVAR-04**: User sees task checklist items that rotate by time-of-day context (morning/afternoon/evening)
+- [x] **CVAR-04**: User sees task checklist items that rotate by time-of-day context (morning/afternoon/evening)
 
 ### Data Visualization
 
@@ -78,10 +78,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VATM-02 | Phase 4 | Pending |
 | VATM-03 | Phase 4 | Pending |
 | VATM-04 | Phase 4 | Pending |
-| CVAR-01 | Phase 2 | Pending |
+| CVAR-01 | Phase 2 | Complete |
 | CVAR-02 | Phase 2 | Pending |
 | CVAR-03 | Phase 2 | Pending |
-| CVAR-04 | Phase 2 | Pending |
+| CVAR-04 | Phase 2 | Complete |
 | DVIZ-01 | Phase 5 | Pending |
 | DVIZ-02 | Phase 5 | Pending |
 | AVIZ-01 | Phase 3 | Pending |

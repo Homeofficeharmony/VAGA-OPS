@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 01-02-PLAN.md: chartData.js transforms + AnalyserNode wiring"
-last_updated: "2026-03-10T06:40:11.419Z"
+stopped_at: "Completed 02-01-PLAN.md: expanded tips + time-tagged tasks + component wiring"
+last_updated: "2026-03-10T11:31:55.607Z"
 last_activity: 2026-03-10 — Completed plan 01-01 (grain utility + content rotation hook)
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_plans: 4
+  completed_plans: 3
   percent: 8
 ---
 
@@ -51,6 +51,7 @@ Progress: [█░░░░░░░░░] 8%
 
 *Updated after each plan completion*
 | Phase 01-foundations P02 | 3 | 2 tasks | 3 files |
+| Phase 02-content-variety P01 | 6 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -67,6 +68,9 @@ Recent decisions affecting current work:
 - [01-01]: No re-roll/manual override in useContentRotation API — one selection per day
 - [01-01]: Independent rotation per pool — each pool.length drives its own hash cycle, no global seed
 - [Phase 01-02]: Expose analyserRef object from hooks (not ref.current in return) to satisfy react-hooks/refs ESLint rule — consumers access .current inside effects/RAF callbacks
+- [Phase 02-content-variety]: Daily tip in ImmersionContainer replaces hardcoded WELCOME.tip via dailyTip ?? w.tip fallback pattern
+- [Phase 02-content-variety]: TaskFilter filters silently by time slot — no UI indicator, tasks appear contextually relevant without explanation
+- [Phase 02-content-variety]: Items missing timeOfDay default to always-visible for backward compatibility
 
 ### Pending Todos
 
@@ -92,6 +96,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-10T06:40:11.417Z
-Stopped at: Completed 01-02-PLAN.md: chartData.js transforms + AnalyserNode wiring
+Last session: 2026-03-10T11:31:55.605Z
+Stopped at: Completed 02-01-PLAN.md: expanded tips + time-tagged tasks + component wiring
 Resume file: None
