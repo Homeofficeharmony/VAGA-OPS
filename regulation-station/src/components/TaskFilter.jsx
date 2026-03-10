@@ -6,6 +6,13 @@ const accentColor = {
   green: '#52b87e',
 }
 
+function getTimeOfDaySlot() {
+  const h = new Date().getHours()
+  if (h >= 5 && h < 12) return 'morning'
+  if (h >= 12 && h < 17) return 'afternoon'
+  return 'evening'
+}
+
 export default function TaskFilter({ stateData }) {
   const { tasks, accent } = stateData
   const color = accentColor[accent]
@@ -14,6 +21,11 @@ export default function TaskFilter({ stateData }) {
   const [shedIds, setShedIds] = useState(new Set())
   const [isCalibrated, setIsCalibrated] = useState(false)
   const [expandedWhy, setExpandedWhy] = useState(null)
+
+  const slot = getTimeOfDaySlot()
+  const visibleItems = tasks.items.filter(
+    item => !item.timeOfDay || item.timeOfDay === 'any' || item.timeOfDay === slot
+  )
 
   useEffect(() => {
     setShedIds(new Set())
@@ -26,7 +38,7 @@ export default function TaskFilter({ stateData }) {
     setShedIds((prev) => {
       const next = new Set(prev)
       next.add(id)
-      if (tasks.items.length - next.size === 1) {
+      if (visibleItems.length - next.size === 1) {
         setIsCalibrated(true)
         setExpandedWhy(null)
       }
@@ -40,8 +52,8 @@ export default function TaskFilter({ stateData }) {
     setExpandedWhy(null)
   }
 
-  const remainingCount = tasks.items.length - shedIds.size
-  const totalCount = tasks.items.length
+  const remainingCount = visibleItems.length - shedIds.size
+  const totalCount = visibleItems.length
 
   // Meter colors: full state uses a softer amber instead of alarming red
   const fullColor = '#c87840'
@@ -122,7 +134,7 @@ export default function TaskFilter({ stateData }) {
 
         {/* Task list */}
         <div className="space-y-2.5">
-          {tasks.items.map((task) => {
+          {visibleItems.map((task) => {
             const isShed = shedIds.has(task.id)
             const isSoleRemaining = isCalibrated && !isShed
             const isWhyOpen = expandedWhy === task.id

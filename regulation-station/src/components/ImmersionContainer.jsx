@@ -3,6 +3,7 @@ import { useImmersionBreath } from '../hooks/useImmersionBreath'
 import { useCompletionTone } from '../hooks/useCompletionTone'
 import { useHaptics } from '../hooks/useHaptics'
 import { useHeartTap } from '../hooks/useHeartTap'
+import { useContentRotation } from '../hooks/useContentRotation'
 
 const BREATH_TIMING = {
   frozen:  { inhale: 4000, hold: 0,    exhale: 8000 },
@@ -347,6 +348,8 @@ export default function ImmersionContainer({ open, stateData, ambientEngine, onC
 
   useEffect(() => { activationRef.current = activation }, [activation])
 
+  const { item: dailyTip } = useContentRotation(stateData?.tips ?? [])
+
   const handleComplete = useCallback((autoDismissed) => {
     onComplete({
       activationAfter: activationRef.current,
@@ -516,7 +519,7 @@ export default function ImmersionContainer({ open, stateData, ambientEngine, onC
             backgroundColor: `${accent}07`,
           }}
         >
-          {w.tip}
+          {dailyTip ?? w.tip}
         </div>
 
         {/* Begin */}

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useCompletionTone } from '../hooks/useCompletionTone'
+import { useContentRotation } from '../hooks/useContentRotation'
 import VideoBackground from './VideoBackground'
 import VideoModal from './VideoModal'
 
@@ -15,6 +16,7 @@ const accentColor = {
 export default function StealthReset({ stateData, onComplete }) {
   const { reset, accent, id: stateId } = stateData
   const color = accentColor[accent]
+  const { item: dailyTip } = useContentRotation(stateData?.tips ?? [])
 
   const [running, setRunning] = useState(false)
   const [elapsed, setElapsed] = useState(0)
@@ -353,6 +355,11 @@ export default function StealthReset({ stateData, onComplete }) {
             <p className="text-sm text-slate-300 leading-relaxed font-medium">
               {reset.mechanism}
             </p>
+            {dailyTip && (
+              <p className="text-xs text-slate-400 mt-3 leading-relaxed italic">
+                {dailyTip}
+              </p>
+            )}
           </div>
         </div>
       </div>
