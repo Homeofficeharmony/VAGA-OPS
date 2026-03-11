@@ -56,7 +56,9 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. The audio player's play button glows or pulses visibly at the binaural beat frequency of the active state (5 Hz for frozen, 10 Hz for anxious, 40 Hz for flow)
   2. A real-time frequency bar visualization appears in the audio player area that responds to actual audio output when audio is playing, and shows a static decorative fallback when audio is inactive
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 03-01-PLAN.md — FrequencyBars component + beat-reactive play button glow
 
 ### Phase 4: Atmospheric Effects
 **Goal**: The app's visual environment shifts with each nervous system state and deepens during immersion — users feel the state, not just read it
@@ -97,8 +99,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundations | 2/2 | Complete   | 2026-03-10 |
-| 2. Content Variety | 0/2 | Not started | - |
-| 3. Audio Visualization | 0/? | Not started | - |
+| 2. Content Variety | 2/2 | Complete | 2026-03-10 |
+| 3. Audio Visualization | 0/1 | Not started | - |
 | 4. Atmospheric Effects | 0/? | Not started | - |
 | 5. Data Visualization | 0/? | Not started | - |
 | 6. Animation Polish | 0/? | Not started | - |
