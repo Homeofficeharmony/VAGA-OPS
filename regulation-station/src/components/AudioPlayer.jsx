@@ -82,16 +82,6 @@ export default function AudioPlayer({ stateData }) {
 
   return (
     <section>
-      {/* Hz badge */}
-      <div className="flex items-center justify-end gap-3 mb-3">
-        <span
-          className="font-mono text-[10px] tracking-widest uppercase px-2 py-0.5 rounded border"
-          style={{ color, borderColor: color + '50', backgroundColor: color + '10' }}
-        >
-          {audio.hz}
-        </span>
-      </div>
-
       {/* ── PANEL ── */}
       <div
         className="relative rounded-2xl overflow-hidden"
