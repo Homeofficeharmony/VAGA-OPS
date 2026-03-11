@@ -92,7 +92,8 @@ function StateCard({ stateKey, stateData: s, isActive, onSelect }) {
           style={{
             borderRadius: radius,
             boxShadow: `0 0 0 1px ${s.accentHex}50, 0 6px 36px ${s.accentHex}1e, 0 0 80px ${s.accentHex}0d`,
-            transition: 'box-shadow 0.4s ease',
+            transition: 'box-shadow 0.5s ease',
+            transitionDelay: '0.4s',
           }}
         />
       )}
@@ -108,7 +109,8 @@ function StateCard({ stateKey, stateData: s, isActive, onSelect }) {
             : `radial-gradient(ellipse at 50% 50%, ${s.accentHex}09 0%, transparent 55%), var(--bg-panel)`,
           padding: '18px 16px 16px',
           opacity: isActive ? 1 : 0.6,
-          transition: 'opacity 0.35s ease, border-color 0.35s ease, background 0.45s ease, padding 0.35s ease',
+          transition: 'opacity 0.35s ease, border-color 0.5s ease, background 0.45s ease, padding 0.35s ease, box-shadow 0.5s ease',
+          transitionDelay: isActive ? '0s' : '0.4s',
         }}
       >
         {/* Grain overlay */}
@@ -135,7 +137,12 @@ function StateCard({ stateKey, stateData: s, isActive, onSelect }) {
           <span
             aria-hidden
             className="absolute top-3 right-3 w-1.5 h-1.5 rounded-full animate-pulse-slow"
-            style={{ backgroundColor: s.accentHex, boxShadow: `0 0 7px ${s.accentHex}` }}
+            style={{
+              backgroundColor: s.accentHex,
+              boxShadow: `0 0 7px ${s.accentHex}`,
+              transition: 'background-color 0.5s ease, box-shadow 0.5s ease',
+              transitionDelay: '0.4s',
+            }}
           />
         )}
 
