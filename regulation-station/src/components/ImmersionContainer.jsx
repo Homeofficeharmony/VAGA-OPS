@@ -277,7 +277,7 @@ function CalibrationPane({ accent, tap, bpm, tapCount, rippleKey, isReady, calib
   )
 }
 
-export default function ImmersionContainer({ open, stateData, ambientEngine, onComplete, onClose }) {
+export default function ImmersionContainer({ open, stateData, ambientEngine, onComplete, onClose, onBreathPhaseChange }) {
   // phases: 'welcome' | 'stabilize' | 'integrate'
   const [phase, setPhase]             = useState('welcome')
   const [breathElapsed, setBreathElapsed] = useState(0)
@@ -318,6 +318,7 @@ export default function ImmersionContainer({ open, stateData, ambientEngine, onC
 
     const durationMs = timing[breathPhase] ?? 4000
     ambientEngine?.syncBreath(breathPhase, durationMs)
+    onBreathPhaseChange?.(breathPhase)
 
     if (breathPhase === 'inhale') hapticInhale()
     else if (breathPhase === 'exhale') hapticExhale()
