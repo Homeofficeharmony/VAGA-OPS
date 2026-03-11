@@ -88,6 +88,7 @@ export default function ParticleField({ selectedState, breathPhase = 'inhale' })
   const particlesRef = useRef([])
   const rafRef = useRef(null)
   const breathPhaseRef = useRef(breathPhase)
+  const speedMultRef = useRef(1.0)
 
   // Keep breathPhaseRef in sync without triggering particle reinit
   useEffect(() => {
@@ -96,6 +97,8 @@ export default function ParticleField({ selectedState, breathPhase = 'inhale' })
 
   // Particle init + rAF loop — reinit when state changes
   useEffect(() => {
+    speedMultRef.current = 1.0
+
     const canvas = canvasRef.current
     if (!canvas || !selectedState) return
 
@@ -126,8 +129,9 @@ export default function ParticleField({ selectedState, breathPhase = 'inhale' })
 
       ctx.clearRect(0, 0, cssW, cssH)
 
-      const phase = breathPhaseRef.current
-      const speedMult = effectiveConfig.breathSpeedMult[phase] ?? 1.0
+      const targetMult = effectiveConfig.breathSpeedMult[breathPhaseRef.current] ?? 1.0
+      speedMultRef.current += (targetMult - speedMultRef.current) * 0.025
+      const speedMult = speedMultRef.current
       const particles = particlesRef.current
 
       for (let i = 0; i < particles.length; i++) {
