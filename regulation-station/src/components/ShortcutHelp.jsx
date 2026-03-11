@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 
 const SHORTCUTS = [
   { key: '1 / 2 / 3',    action: 'Select Frozen / Anxious / Flow' },
+  { key: 'A',            action: 'Toggle Ambient Mode (state required)' },
   { key: 'R',            action: 'Overwhelm Response' },
   { key: 'F',            action: 'Start 60-sec protocol (full screen)' },
   { key: 'I',            action: 'Toggle Immersion mode' },

@@ -51,12 +51,14 @@ export default function App() {
     if (state && !hasEnteredImmersion.current) {
       hasEnteredImmersion.current = true
       setIsImmersive(true)
+      setAmbientMode(false)
       setShowDashboard(false)
       setBreathCycles(0)
       const data = STATES[state]
       ambientEngine.autoStartForState?.(state, data)
     } else if (!state) {
       setIsImmersive(false)
+      setAmbientMode(false)
     }
   }
 
@@ -65,6 +67,7 @@ export default function App() {
   const [panicOpen, setPanicOpen] = useState(false)
   const [flowLockOpen, setFlowLockOpen] = useState(false)
   const [isImmersive, setIsImmersive] = useState(false)
+  const [ambientMode, setAmbientMode] = useState(false)
   const [missionOpen, setMissionOpen] = useState(false)
   const [shortcutHelpOpen, setShortcutHelpOpen] = useState(false)
   const [todayIntention, setTodayIntention] = useState('')
@@ -94,6 +97,13 @@ export default function App() {
   useEffect(() => {
     document.body.style.overflow = isImmersive ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
+  }, [isImmersive])
+
+  // Guard against audio doubling: clear ambient mode when entering immersion
+  useEffect(() => {
+    if (isImmersive) {
+      setAmbientMode(false)
+    }
   }, [isImmersive])
 
   // Drive focus-mode timer when focusOpen and resetRunning
@@ -130,6 +140,17 @@ export default function App() {
     }
   }
 
+  const handleAmbientToggle = () => {
+    if (!selectedState) return
+    const next = !ambientMode
+    setAmbientMode(next)
+    if (next) {
+      ambientEngine.autoStartForState?.(selectedState, stateData)
+    } else {
+      ambientEngine.select?.('silence')
+    }
+  }
+
   const anyOverlayOpen = panicOpen || flowLockOpen || focusOpen
 
   // Keyboard shortcuts
@@ -160,6 +181,7 @@ export default function App() {
       if (e.key === '1') handleStateSelect('frozen')
       if (e.key === '2') handleStateSelect('anxious')
       if (e.key === '3') handleStateSelect('flow')
+      if (e.key === 'a' || e.key === 'A') handleAmbientToggle()
       if (e.key === 'r' || e.key === 'R') setRuptureOpen(true)
       if (e.key === 'i' || e.key === 'I') setIsImmersive(v => !v)
       if (e.key === 'm' || e.key === 'M') setMissionOpen(v => !v)
@@ -183,7 +205,8 @@ export default function App() {
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [stateData, selectedState])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stateData, selectedState, ambientMode])
 
   if (isFirstVisit) {
     return (
@@ -213,6 +236,7 @@ export default function App() {
         {/* Immersive Neural Background */}
         <NeuralBackground
           isImmersive={isImmersive}
+          ambientMode={ambientMode}
           selectedState={selectedState}
           breathPhase="inhale"
         />
@@ -275,6 +299,24 @@ export default function App() {
                 {stateData && (
                   <div className="mb-6 relative z-20">
                     <StatusBar selectedState={selectedState} stateData={stateData} />
+                  </div>
+                )}
+
+                {/* Ambient Mode toggle — only shows when state is selected */}
+                {stateData && (
+                  <div className="mb-4">
+                    <button
+                      onClick={handleAmbientToggle}
+                      className="w-full py-3 px-4 rounded-2xl font-mono text-[10px] tracking-[0.24em] uppercase focus:outline-none transition-all duration-300 flex items-center justify-between"
+                      style={{
+                        border: `1px solid ${ambientMode ? stateData.accentHex + '50' : 'var(--border)'}`,
+                        backgroundColor: ambientMode ? stateData.accentHex + '12' : 'var(--bg-panel)',
+                        color: ambientMode ? stateData.accentHex : 'var(--text-muted)',
+                      }}
+                    >
+                      <span>{ambientMode ? '◉ Ambient On' : '○ Ambient Mode'}</span>
+                      <span style={{ opacity: 0.5, fontSize: '9px' }}>A</span>
+                    </button>
                   </div>
                 )}
 
