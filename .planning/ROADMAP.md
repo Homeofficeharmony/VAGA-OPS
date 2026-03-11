@@ -96,7 +96,9 @@ Plans:
   1. When the user selects a different nervous system state, the full page environment visibly transitions (cards, background, accents) rather than snapping instantly
   2. The active state card in StateSelector expands with a smooth layout transition that feels deliberate and grounded
   3. Tab content changes in the dashboard animate in cleanly (fade or slide) rather than cutting
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 06-01-PLAN.md — Tab transitions (AnimatePresence) + state environment accent stagger
 
 ## Progress
 
