@@ -18,6 +18,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 4: Atmospheric Effects** - NeuralBackground particle system, state-keyed immersion visuals, session color field transition, and standalone ambient mode
 - [ ] **Phase 5: Data Visualization** - Before/after activation comparison in post-reset check-in and shift trajectory chart in session history
 - [x] **Phase 6: Animation Polish** - Framer Motion on StateSelector cards, tab content transitions, CSS shimmer/fade enters, and streak milestone moments (completed 2026-03-11)
+- [ ] **Phase 7: Breath Phase Signal Wire** - Lift breathPhase to App.jsx state, wire ImmersionContainer callback, pass live value to NeuralBackground; fix AudioPlayer undefined fields
+- [ ] **Phase 8: Immersion Activation Capture** - Add activation picker to ImmersionContainer welcome phase; wire activationBefore through onComplete to ActivationBars
 
 ## Phase Details
 
@@ -100,6 +102,26 @@ Plans:
 Plans:
 - [ ] 06-01-PLAN.md — Tab transitions (AnimatePresence) + state environment accent stagger
 
+### Phase 7: Breath Phase Signal Wire
+**Goal**: Live breath phase from ImmersionContainer reaches NeuralBackground so particles actually respond to breath; AudioPlayer cosmetic undefined fields fixed
+**Depends on**: Phase 4, Phase 6
+**Requirements**: VATM-02
+**Gap Closure:** Closes gaps from v1.0 audit — VATM-02 integration defect + AudioPlayer cosmetic
+**Success Criteria** (what must be TRUE):
+  1. During an immersion session, background particles visibly change speed when breath transitions between inhale and exhale phases
+  2. `breathPhase` in App.jsx is a live state value (not hardcoded `"inhale"`) updated by ImmersionContainer via callback
+  3. AudioPlayer Hz badge and description show real values from `audio.range` rather than rendering blank
+
+### Phase 8: Immersion Activation Capture
+**Goal**: Immersion sessions capture a pre-session activation level so ActivationBars fires for all session paths, not just stealth/panic resets
+**Depends on**: Phase 5, Phase 7
+**Requirements**: DVIZ-01
+**Gap Closure:** Closes DVIZ-01 partial gap from v1.0 audit — immersion path missing activation picker
+**Success Criteria** (what must be TRUE):
+  1. ImmersionContainer welcome phase includes an activation level picker (before the session starts)
+  2. The picked value is passed through `onComplete` as `activationBefore` (replacing the hardcoded `null` at App.jsx:534)
+  3. After completing an immersion session, PostResetCheckin renders ActivationBars with a valid before/after comparison
+
 ## Progress
 
 **Execution Order:**
@@ -113,3 +135,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 4. Atmospheric Effects | 1/3 | In Progress|  |
 | 5. Data Visualization | 1/2 | In Progress|  |
 | 6. Animation Polish | 1/1 | Complete   | 2026-03-11 |
+| 7. Breath Phase Signal Wire | 0/1 | Pending |  |
+| 8. Immersion Activation Capture | 0/1 | Pending |  |
