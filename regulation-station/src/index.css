@@ -201,6 +201,11 @@
   100% { transform: scale(2.4); opacity: 0;   }
 }
 
+@keyframes beatPulse {
+  0%, 100% { opacity: 0.25; transform: scale(1); }
+  50%      { opacity: 0.75; transform: scale(1.05); }
+}
+
 .state-breathe {
   animation: stateBreathe 6s ease-in-out infinite;
 }
