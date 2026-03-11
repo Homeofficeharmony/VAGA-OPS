@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-02-PLAN.md (color-field transition + CompletionBurst)
-last_updated: "2026-03-11T04:06:51.575Z"
+stopped_at: Completed 04-03-PLAN.md (ambient mode toggle)
+last_updated: "2026-03-11T04:26:40.219Z"
 last_activity: 2026-03-10 — Completed plan 01-01 (grain utility + content rotation hook)
 progress:
   total_phases: 6
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 8
-  completed_plans: 7
+  completed_plans: 8
   percent: 8
 ---
 
@@ -56,6 +56,7 @@ Progress: [█░░░░░░░░░] 8%
 | Phase 03-audio-visualization P01 | 1 | 2 tasks | 4 files |
 | Phase 04-atmospheric-effects P01 | 1 | 2 tasks | 3 files |
 | Phase 04-atmospheric-effects P02 | 7 | 2 tasks | 3 files |
+| Phase 04-atmospheric-effects P03 | 5 | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -85,6 +86,8 @@ Recent decisions affecting current work:
 - [Phase 04-atmospheric-effects]: SETTLED_HUE = '#1a1f1a' — near-neutral dark green-grey as settled target for color-field interpolation during immersion stabilize phase
 - [Phase 04-atmospheric-effects]: sqrt easing on stabilizePct (Math.pow(t, 0.5)) makes color shift visible in first 30s of session
 - [Phase 04-atmospheric-effects]: CompletionBurst auto-dismisses via onAnimationEnd callback after 1.2s — no timeout needed
+- [Phase 04-atmospheric-effects]: Ambient mode: useEffect watching isImmersive clears ambientMode — single guard for all immersion entry paths
+- [Phase 04-atmospheric-effects]: Ambient mode is NOT added to anyOverlayOpen — runs behind dashboard, PanicButton stays visible
 
 ### Pending Todos
 
@@ -110,6 +113,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T04:06:51.573Z
-Stopped at: Completed 04-02-PLAN.md (color-field transition + CompletionBurst)
+Last session: 2026-03-11T04:26:40.217Z
+Stopped at: Completed 04-03-PLAN.md (ambient mode toggle)
 Resume file: None
