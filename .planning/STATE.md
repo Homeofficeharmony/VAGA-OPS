@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-01-PLAN.md (ParticleField + NeuralBackground)
-last_updated: "2026-03-11T04:05:17.139Z"
+stopped_at: Completed 04-02-PLAN.md (color-field transition + CompletionBurst)
+last_updated: "2026-03-11T04:06:51.575Z"
 last_activity: 2026-03-10 — Completed plan 01-01 (grain utility + content rotation hook)
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 8
-  completed_plans: 6
+  completed_plans: 7
   percent: 8
 ---
 
@@ -55,6 +55,7 @@ Progress: [█░░░░░░░░░] 8%
 | Phase 02-content-variety P02 | 4 min | 2 tasks | 3 files |
 | Phase 03-audio-visualization P01 | 1 | 2 tasks | 4 files |
 | Phase 04-atmospheric-effects P01 | 1 | 2 tasks | 3 files |
+| Phase 04-atmospheric-effects P02 | 7 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -81,6 +82,9 @@ Recent decisions affecting current work:
 - [Phase 04-atmospheric-effects]: Particles stored in useRef not useState — prevents re-render churn in rAF loop
 - [Phase 04-atmospheric-effects]: breathPhaseRef updated via separate useEffect — avoids stale closure in rAF callback
 - [Phase 04-atmospheric-effects]: ambientMode prop accepted with default false — Plan 03 (STUX-02) wires it from App.jsx
+- [Phase 04-atmospheric-effects]: SETTLED_HUE = '#1a1f1a' — near-neutral dark green-grey as settled target for color-field interpolation during immersion stabilize phase
+- [Phase 04-atmospheric-effects]: sqrt easing on stabilizePct (Math.pow(t, 0.5)) makes color shift visible in first 30s of session
+- [Phase 04-atmospheric-effects]: CompletionBurst auto-dismisses via onAnimationEnd callback after 1.2s — no timeout needed
 
 ### Pending Todos
 
@@ -106,6 +110,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T04:05:17.137Z
-Stopped at: Completed 04-01-PLAN.md (ParticleField + NeuralBackground)
+Last session: 2026-03-11T04:06:51.573Z
+Stopped at: Completed 04-02-PLAN.md (color-field transition + CompletionBurst)
 Resume file: None
