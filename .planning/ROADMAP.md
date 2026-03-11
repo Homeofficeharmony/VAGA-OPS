@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Audio Visualization** - Beat-reactive glow on audio controls and real-time WaveformBars driven by AnalyserNode from the live audio graph (completed 2026-03-11)
 - [ ] **Phase 4: Atmospheric Effects** - NeuralBackground particle system, state-keyed immersion visuals, session color field transition, and standalone ambient mode
 - [ ] **Phase 5: Data Visualization** - Before/after activation comparison in post-reset check-in and shift trajectory chart in session history
-- [ ] **Phase 6: Animation Polish** - Framer Motion on StateSelector cards, tab content transitions, CSS shimmer/fade enters, and streak milestone moments
+- [x] **Phase 6: Animation Polish** - Framer Motion on StateSelector cards, tab content transitions, CSS shimmer/fade enters, and streak milestone moments (completed 2026-03-11)
 
 ## Phase Details
 
@@ -96,7 +96,7 @@ Plans:
   1. When the user selects a different nervous system state, the full page environment visibly transitions (cards, background, accents) rather than snapping instantly
   2. The active state card in StateSelector expands with a smooth layout transition that feels deliberate and grounded
   3. Tab content changes in the dashboard animate in cleanly (fade or slide) rather than cutting
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
 - [ ] 06-01-PLAN.md — Tab transitions (AnimatePresence) + state environment accent stagger
 
@@ -112,4 +112,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Audio Visualization | 1/1 | Complete   | 2026-03-11 |
 | 4. Atmospheric Effects | 1/3 | In Progress|  |
 | 5. Data Visualization | 1/2 | In Progress|  |
-| 6. Animation Polish | 0/? | Not started | - |
+| 6. Animation Polish | 1/1 | Complete   | 2026-03-11 |

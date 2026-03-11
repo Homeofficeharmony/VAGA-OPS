@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 6 context gathered
-last_updated: "2026-03-11T10:57:38.374Z"
+stopped_at: "06-01 checkpoint:human-verify — tasks 1+2 committed, awaiting visual verification at localhost:5173"
+last_updated: "2026-03-11T11:20:20.188Z"
 last_activity: 2026-03-10 — Completed plan 01-01 (grain utility + content rotation hook)
 progress:
   total_phases: 6
-  completed_phases: 5
-  total_plans: 10
-  completed_plans: 10
+  completed_phases: 6
+  total_plans: 11
+  completed_plans: 11
   percent: 8
 ---
 
@@ -92,6 +92,9 @@ Recent decisions affecting current work:
 - [Phase 04-atmospheric-effects]: Ambient mode is NOT added to anyOverlayOpen — runs behind dashboard, PanicButton stays visible
 - [Phase 05-data-visualization]: Use accentHex prop directly for ActivationBars fills — correct state color already available from App.jsx without importing state string into PostResetCheckin
 - [Phase 05-data-visualization]: ShiftTrajectoryChart: Y range fixed -1..2, state-agnostic color (var(--text-primary)), no wrapper guard — empty state internal to component
+- [Phase 06-animation-polish]: initial={false} on AnimatePresence suppresses first-load animation — Regulate tab appears immediately at startup
+- [Phase 06-animation-polish]: transitionDelay '0s'/'0.4s' pattern on StateSelector — active card snaps immediately, inactive cards lag 400ms for stagger effect
+- [Phase 06-animation-polish]: gradient background snapping accepted — CSS spec limitation, border-color and box-shadow still interpolate smoothly
 
 ### Pending Todos
 
@@ -117,6 +120,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T10:57:38.372Z
-Stopped at: Phase 6 context gathered
-Resume file: .planning/phases/06-animation-polish/06-CONTEXT.md
+Last session: 2026-03-11T11:20:15.258Z
+Stopped at: 06-01 checkpoint:human-verify — tasks 1+2 committed, awaiting visual verification at localhost:5173
+Resume file: None
