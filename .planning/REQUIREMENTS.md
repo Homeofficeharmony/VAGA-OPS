@@ -33,7 +33,7 @@ Requirements for v1.0 Visual & Experience Refresh. Each maps to roadmap phases.
 
 ### State & Interaction
 
-- [ ] **STUX-01**: User sees the full page environment animate/transition when selecting a different nervous system state
+- [x] **STUX-01**: User sees the full page environment animate/transition when selecting a different nervous system state
 - [x] **STUX-02**: User can enter an ambient mode (atmosphere + audio without a structured session)
 
 ## v2 Requirements
@@ -86,7 +86,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DVIZ-02 | Phase 5 | Complete |
 | AVIZ-01 | Phase 3 | Complete |
 | AVIZ-02 | Phase 3 | Complete |
-| STUX-01 | Phase 6 | Pending |
+| STUX-01 | Phase 6 | Complete |
 | STUX-02 | Phase 4 | Complete |
 
 **Coverage:**
