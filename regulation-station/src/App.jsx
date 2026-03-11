@@ -211,7 +211,11 @@ export default function App() {
       >
 
         {/* Immersive Neural Background */}
-        <NeuralBackground isImmersive={isImmersive} />
+        <NeuralBackground
+          isImmersive={isImmersive}
+          selectedState={selectedState}
+          breathPhase="inhale"
+        />
         {/* State-adaptive breath-synced pulse (z-[1], between neural bg and content) */}
         <ImmersionBackground isImmersive={isImmersive} selectedState={selectedState} />
 

@@ -1,10 +1,17 @@
-export default function NeuralBackground({ isImmersive }) {
-  if (!isImmersive) return null
-  // Minimal dark base — no animations, no visual noise
+import ParticleField from './ParticleField'
+
+export default function NeuralBackground({
+  isImmersive,
+  ambientMode = false,
+  selectedState,
+  breathPhase = 'inhale',
+}) {
+  if (!isImmersive && !ambientMode) return null
+  if (!selectedState) return null
+
   return (
-    <div
-      className="fixed inset-0 z-0 pointer-events-none"
-      style={{ backgroundColor: 'var(--bg-base)' }}
-    />
+    <div className="fixed inset-0 z-0 pointer-events-none">
+      <ParticleField selectedState={selectedState} breathPhase={breathPhase} />
+    </div>
   )
 }
