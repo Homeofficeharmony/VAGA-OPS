@@ -83,7 +83,10 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. After completing a reset, the post-reset check-in shows a side-by-side visual comparison of activation level before and after the session
   2. The session history panel includes a chart that plots regulation shift (activation delta) across multiple sessions, making improvement visible as a trend rather than a number
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 05-01-PLAN.md — Before/after activation comparison bars in PostResetCheckin
+- [ ] 05-02-PLAN.md — Shift trajectory line chart in Insights tab
 
 ### Phase 6: Animation Polish
 **Goal**: Selecting a state and navigating the dashboard feels intentional and alive — transitions communicate meaning, not just movement
@@ -106,5 +109,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Content Variety | 2/2 | Complete | 2026-03-10 |
 | 3. Audio Visualization | 1/1 | Complete   | 2026-03-11 |
 | 4. Atmospheric Effects | 1/3 | In Progress|  |
-| 5. Data Visualization | 0/? | Not started | - |
+| 5. Data Visualization | 0/2 | Not started | - |
 | 6. Animation Polish | 0/? | Not started | - |
