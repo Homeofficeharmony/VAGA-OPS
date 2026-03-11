@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { STATES } from './data/stateData'
 import { ThemeProvider } from './context/ThemeContext'
 import Header from './components/Header'
@@ -39,6 +40,13 @@ import BreathingOrb from './components/BreathingOrb'
 import VagusLogSidebar from './components/VagusLogSidebar'
 import AmbientSoundscape from './components/AmbientSoundscape'
 import { useAmbientEngine } from './hooks/useAmbientEngine'
+
+const TAB_VARIANTS = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0 },
+  exit:    { opacity: 0, y: -8 },
+}
+const TAB_TRANSITION = { duration: 0.28, ease: 'easeOut' }
 
 export default function App() {
   const [selectedState, setSelectedState] = useState(null)
@@ -272,9 +280,10 @@ export default function App() {
               </div>
             )}
 
+            <AnimatePresence mode="wait" initial={false}>
             {/* ── REGULATE TAB ─────────────────────────────────── */}
             {activeTab === 'regulate' && !isImmersive && (
-              <div className="transition-opacity duration-200">
+              <motion.div key="regulate" variants={TAB_VARIANTS} initial="initial" animate="animate" exit="exit" transition={TAB_TRANSITION}>
                 {/* Clean page title */}
                 <div className="mb-8">
                   <p className="text-2xl font-semibold leading-tight" style={{ color: 'var(--text-primary)' }}>
@@ -350,7 +359,7 @@ export default function App() {
                     </p>
                   </div>
                 )}
-              </div>
+              </motion.div>
             )}
 
             {/* Immersion mode: show state selector faded */}
@@ -362,7 +371,7 @@ export default function App() {
 
             {/* ── INSIGHTS TAB ─────────────────────────────────── */}
             {activeTab === 'insights' && !isImmersive && (
-              <div className="transition-opacity duration-200 space-y-6">
+              <motion.div key="insights" variants={TAB_VARIANTS} initial="initial" animate="animate" exit="exit" transition={TAB_TRANSITION} className="space-y-6">
                 <div className="mb-2">
                   <p className="text-2xl font-semibold leading-tight" style={{ color: 'var(--text-primary)' }}>
                     Your patterns
@@ -395,12 +404,12 @@ export default function App() {
                 <ShiftTrajectoryChart sessions={sessions} />
 
                 <WeeklyIntelligenceCard sessions={sessions} />
-              </div>
+              </motion.div>
             )}
 
             {/* ── TOOLS TAB ────────────────────────────────────── */}
             {activeTab === 'tools' && !isImmersive && (
-              <div className="transition-opacity duration-200 space-y-6">
+              <motion.div key="tools" variants={TAB_VARIANTS} initial="initial" animate="animate" exit="exit" transition={TAB_TRANSITION} className="space-y-6">
                 <div className="mb-2">
                   <p className="text-2xl font-semibold leading-tight" style={{ color: 'var(--text-primary)' }}>
                     Tools
@@ -481,8 +490,9 @@ export default function App() {
                 >
                   ? Keyboard shortcuts
                 </button>
-              </div>
+              </motion.div>
             )}
+            </AnimatePresence>
           </main>
         </div> {/* End of .relative.z-10 wrapper */}
 
