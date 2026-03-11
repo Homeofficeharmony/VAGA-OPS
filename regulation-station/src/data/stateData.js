@@ -98,6 +98,7 @@ export const STATES = {
     audio: {
       title: 'Theta Emergence',
       range: 'Theta · 4–8 Hz',
+      description: 'Deep theta tones lift you gently out of stillness.',
       tracks: [
         { label: 'Theta Emergence', duration: '30:00', carrierHz: 180, beatHz: 5, mood: 'Lifting' },
         { label: 'Deep Warm Drone', duration: '20:00', carrierHz: 174, beatHz: 4, mood: 'Settling' },
@@ -232,6 +233,7 @@ export const STATES = {
     audio: {
       title: 'Alpha Anchor',
       range: 'Alpha · 8–13 Hz',
+      description: 'Alpha waves slow the racing mind to a workable pace.',
       tracks: [
         { label: 'Alpha Anchor',    duration: '25:00', carrierHz: 200, beatHz: 10, mood: 'Steadying' },
         { label: 'Focused Rain',    duration: '35:00', carrierHz: 210, beatHz: 12, mood: 'Narrowing' },
@@ -365,6 +367,7 @@ export const STATES = {
     audio: {
       title: 'Gamma Forge',
       range: 'Gamma · 30–44 Hz',
+      description: 'Gamma frequencies sustain peak cognitive clarity and deep focus.',
       tracks: [
         { label: 'Gamma Forge',    duration: '90:00', carrierHz: 200, beatHz: 40, mood: 'Peak' },
         { label: 'Flow Carrier',   duration: '60:00', carrierHz: 220, beatHz: 40, mood: 'Momentum' },
