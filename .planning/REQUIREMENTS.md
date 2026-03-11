@@ -10,9 +10,9 @@ Requirements for v1.0 Visual & Experience Refresh. Each maps to roadmap phases.
 ### Visual Atmosphere
 
 - [ ] **VATM-01**: User sees a color field that transitions from state accent toward a "settled" hue as immersion progresses
-- [ ] **VATM-02**: User sees organic particles in the background that respond to breath phase (slow on exhale, quicken on inhale)
+- [x] **VATM-02**: User sees organic particles in the background that respond to breath phase (slow on exhale, quicken on inhale)
 - [ ] **VATM-03**: User experiences a visual glow/celebration moment at session completion before the check-in appears
-- [ ] **VATM-04**: User sees a distinct visual environment per state (frozen=cool mist, anxious=warm amber haze, flow=soft green field)
+- [x] **VATM-04**: User sees a distinct visual environment per state (frozen=cool mist, anxious=warm amber haze, flow=soft green field)
 
 ### Content Variety
 
@@ -75,9 +75,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | VATM-01 | Phase 4 | Pending |
-| VATM-02 | Phase 4 | Pending |
+| VATM-02 | Phase 4 | Complete |
 | VATM-03 | Phase 4 | Pending |
-| VATM-04 | Phase 4 | Pending |
+| VATM-04 | Phase 4 | Complete |
 | CVAR-01 | Phase 2 | Complete |
 | CVAR-02 | Phase 2 | Complete |
 | CVAR-03 | Phase 2 | Complete |
