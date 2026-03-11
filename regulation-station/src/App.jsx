@@ -24,6 +24,7 @@ import TeamPanel from './components/TeamPanel'
 import StreakMilestone from './components/StreakMilestone'
 import WeeklyConsistency from './components/WeeklyConsistency'
 import WeeklyIntelligenceCard from './components/WeeklyIntelligenceCard'
+import ShiftTrajectoryChart from './components/ShiftTrajectoryChart'
 import FirstVisitExperience from './components/FirstVisitExperience'
 import TacticalAdvisor from './components/TacticalAdvisor'
 import MissionControl from './components/MissionControl'
@@ -391,6 +392,8 @@ export default function App() {
                   <WeeklyConsistency sessions={sessions} />
                 )}
 
+                <ShiftTrajectoryChart sessions={sessions} />
+
                 <WeeklyIntelligenceCard sessions={sessions} />
               </div>
             )}
@@ -590,6 +593,7 @@ export default function App() {
           <PostResetCheckin
             accentHex={checkinPending.accentHex}
             source={checkinPending.source}
+            activationBefore={checkinPending.activationBefore}
             onRate={({ outcome, shift, activationAfter }) => {
               logSession({
                 state: checkinPending.state,

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { getActivationComparison } from '../lib/chartData'
 
 const SHIFT_BUTTONS = [
   { label: 'Worse',       outcome: 'worse',      shift: -1 },
@@ -14,37 +15,133 @@ const SOURCE_LABEL = {
 
 const ACTIVATION_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
-export default function PostResetCheckin({ accentHex, source, onRate }) {
+// Bar chart SVG showing before/after activation levels.
+// Points: Array<{ x: 'Before'|'After', y: number }>
+// accentHex: state color from App.jsx
+function ActivationBars({ points, accentHex }) {
+  if (!points || points.length !== 2) return null
+
+  const MAX_BAR_H = 60
+  const BAR_W = 32
+  const GAP = 8
+  const LABEL_Y_TOP = 12      // y for value label above bar
+  const BAR_Y_BASE = 76       // y for bottom of bars
+  const AXIS_LABEL_Y = 86     // y for Before/After label
+
+  const totalGroupW = BAR_W * 2 + GAP
+  const groupX = (140 - totalGroupW) / 2  // center group in 140-wide viewBox
+
+  return (
+    <svg
+      viewBox="0 0 140 90"
+      width="100%"
+      aria-label="Activation before and after reset"
+    >
+      {points.map((pt, i) => {
+        const barH = Math.max(2, (pt.y / 10) * MAX_BAR_H)
+        const barX = groupX + i * (BAR_W + GAP)
+        const barY = BAR_Y_BASE - barH
+        const fillOpacity = i === 0 ? 0.4 : 1.0
+
+        return (
+          <g key={pt.x}>
+            {/* Bar */}
+            <rect
+              x={barX}
+              y={barY}
+              width={BAR_W}
+              height={barH}
+              rx={4}
+              fill={accentHex}
+              fillOpacity={fillOpacity}
+            />
+            {/* Value label above bar */}
+            <text
+              x={barX + BAR_W / 2}
+              y={barY - 4}
+              textAnchor="middle"
+              fontFamily="'JetBrains Mono', monospace"
+              fontSize="10"
+              fontWeight="bold"
+              fill={accentHex}
+            >
+              {pt.y}
+            </text>
+            {/* Before/After label below bar */}
+            <text
+              x={barX + BAR_W / 2}
+              y={AXIS_LABEL_Y}
+              textAnchor="middle"
+              fontFamily="'JetBrains Mono', monospace"
+              fontSize="9"
+              fill="var(--text-muted)"
+            >
+              {pt.x}
+            </text>
+          </g>
+        )
+      })}
+    </svg>
+  )
+}
+
+export default function PostResetCheckin({ accentHex, source, activationBefore, onRate }) {
   const [step, setStep] = useState('shift')
+  const [compPoints, setCompPoints] = useState(null)
 
   // Use a ref so the auto-dismiss timeout always has access to the
   // latest collected data without stale closure issues.
-  const collectedRef = useRef({ outcome: null, shift: null })
+  const collectedRef = useRef({ outcome: null, shift: null, activationAfter: null })
 
   const timerRef = useRef(null)
 
-  // 22-second auto-dismiss covers both steps.
-  // On timeout, fires with whatever was collected (step 1 may be complete).
+  // 22-second auto-dismiss covers all steps.
+  // On timeout, fires with whatever was collected.
   useEffect(() => {
     timerRef.current = setTimeout(() => {
-      onRate({ ...collectedRef.current, activationAfter: null })
+      onRate({
+        outcome: collectedRef.current.outcome,
+        shift: collectedRef.current.shift,
+        activationAfter: collectedRef.current.activationAfter,
+      })
     }, 22000)
     return () => clearTimeout(timerRef.current)
   }, [onRate])
 
   const handleShift = ({ outcome, shift }) => {
-    collectedRef.current = { outcome, shift }
+    collectedRef.current = { ...collectedRef.current, outcome, shift }
     setStep('activation')
   }
 
   const handleActivation = (activationAfter) => {
-    clearTimeout(timerRef.current)
-    onRate({ ...collectedRef.current, activationAfter })
+    collectedRef.current = { ...collectedRef.current, activationAfter }
+
+    // Try to build comparison points
+    const points = getActivationComparison({
+      activationBefore,
+      activationAfter,
+      state: undefined,
+    })
+
+    if (points.length === 2) {
+      // Show result step briefly before dismissing
+      setCompPoints(points)
+      setStep('result')
+    } else {
+      // No activationBefore — dismiss immediately as before
+      clearTimeout(timerRef.current)
+      onRate({ ...collectedRef.current, activationAfter })
+    }
   }
 
   const handleSkipActivation = () => {
     clearTimeout(timerRef.current)
     onRate({ ...collectedRef.current, activationAfter: null })
+  }
+
+  const handleDone = () => {
+    clearTimeout(timerRef.current)
+    onRate({ ...collectedRef.current })
   }
 
   return (
@@ -69,7 +166,7 @@ export default function PostResetCheckin({ accentHex, source, onRate }) {
         </p>
       )}
 
-      {step === 'shift' ? (
+      {step === 'shift' && (
         <>
           <p className="font-mono text-sm font-semibold tracking-widest uppercase mb-3" style={{ color: accentHex }}>
             How do you feel now?
@@ -99,7 +196,9 @@ export default function PostResetCheckin({ accentHex, source, onRate }) {
             ))}
           </div>
         </>
-      ) : (
+      )}
+
+      {step === 'activation' && (
         <>
           <p className="font-mono text-sm font-semibold tracking-widest uppercase mb-1" style={{ color: accentHex }}>
             Energy level now?
@@ -139,6 +238,38 @@ export default function PostResetCheckin({ accentHex, source, onRate }) {
             onMouseLeave={(e) => { e.currentTarget.style.color = accentHex + '40' }}
           >
             skip
+          </button>
+        </>
+      )}
+
+      {step === 'result' && compPoints && (
+        <>
+          <p className="font-mono text-[9px] tracking-widest uppercase mb-2" style={{ color: accentHex + '80' }}>
+            Regulation shift
+          </p>
+          <ActivationBars points={compPoints} accentHex={accentHex} />
+          <p
+            className="font-mono text-[10px] tracking-widest text-center mt-1 mb-3"
+            style={{ color: accentHex + '90' }}
+          >
+            Activation: {compPoints[0].y} &rarr; {compPoints[1].y}
+          </p>
+          <button
+            onClick={handleDone}
+            className="w-full py-2 rounded-lg text-xs font-mono font-semibold tracking-widest uppercase transition-all duration-200 border"
+            style={{
+              borderColor: accentHex,
+              color: accentHex,
+              backgroundColor: accentHex + '14',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = accentHex + '28'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = accentHex + '14'
+            }}
+          >
+            Done
           </button>
         </>
       )}
