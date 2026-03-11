@@ -86,6 +86,13 @@ export default function App() {
   const [breathCycles, setBreathCycles] = useState(0)
   const [activeTab, setActiveTab] = useState('regulate')
 
+  const [breathPhase, setBreathPhase] = useState('inhale')
+
+  // Reset breathPhase when immersion closes
+  useEffect(() => {
+    if (!isImmersive) setBreathPhase('inhale')
+  }, [isImmersive])
+
   // Unified checkin queue: { source: 'stealth'|'panic', accentHex, state }
   const [checkinPending, setCheckinPending] = useState(null)
 
@@ -247,7 +254,7 @@ export default function App() {
           isImmersive={isImmersive}
           ambientMode={ambientMode}
           selectedState={selectedState}
-          breathPhase="inhale"
+          breathPhase={breathPhase}
         />
         {/* State-adaptive breath-synced pulse (z-[1], between neural bg and content) */}
         <ImmersionBackground isImmersive={isImmersive} selectedState={selectedState} />
@@ -526,6 +533,7 @@ export default function App() {
           open={isImmersive}
           stateData={stateData}
           ambientEngine={ambientEngine}
+          onBreathPhaseChange={setBreathPhase}
           onComplete={({ activationAfter, notes, startedAt, resetCompleted }) => {
             logSession({
               state: selectedState,
