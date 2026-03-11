@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Checkpoint: Task 2 human-verify for 05-01 ActivationBars chart"
-last_updated: "2026-03-11T09:17:46.700Z"
+stopped_at: Completed 05-02-PLAN.md (shift trajectory chart)
+last_updated: "2026-03-11T09:18:17.805Z"
 last_activity: 2026-03-10 — Completed plan 01-01 (grain utility + content rotation hook)
 progress:
   total_phases: 6
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 10
-  completed_plans: 9
+  completed_plans: 10
   percent: 8
 ---
 
@@ -58,6 +58,7 @@ Progress: [█░░░░░░░░░] 8%
 | Phase 04-atmospheric-effects P02 | 7 | 2 tasks | 3 files |
 | Phase 04-atmospheric-effects P03 | 5 | 1 tasks | 2 files |
 | Phase 05-data-visualization P01 | 2 | 1 tasks | 2 files |
+| Phase 05-data-visualization P02 | 2 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -90,6 +91,7 @@ Recent decisions affecting current work:
 - [Phase 04-atmospheric-effects]: Ambient mode: useEffect watching isImmersive clears ambientMode — single guard for all immersion entry paths
 - [Phase 04-atmospheric-effects]: Ambient mode is NOT added to anyOverlayOpen — runs behind dashboard, PanicButton stays visible
 - [Phase 05-data-visualization]: Use accentHex prop directly for ActivationBars fills — correct state color already available from App.jsx without importing state string into PostResetCheckin
+- [Phase 05-data-visualization]: ShiftTrajectoryChart: Y range fixed -1..2, state-agnostic color (var(--text-primary)), no wrapper guard — empty state internal to component
 
 ### Pending Todos
 
@@ -115,6 +117,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T09:17:46.698Z
-Stopped at: Checkpoint: Task 2 human-verify for 05-01 ActivationBars chart
+Last session: 2026-03-11T09:18:17.803Z
+Stopped at: Completed 05-02-PLAN.md (shift trajectory chart)
 Resume file: None

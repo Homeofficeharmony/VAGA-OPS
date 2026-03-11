@@ -24,7 +24,7 @@ Requirements for v1.0 Visual & Experience Refresh. Each maps to roadmap phases.
 ### Data Visualization
 
 - [x] **DVIZ-01**: User sees a visual before/after activation comparison in the post-reset check-in
-- [ ] **DVIZ-02**: User can view a shift trajectory chart showing regulation effectiveness over time
+- [x] **DVIZ-02**: User can view a shift trajectory chart showing regulation effectiveness over time
 
 ### Audio Visualization
 
@@ -83,7 +83,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CVAR-03 | Phase 2 | Complete |
 | CVAR-04 | Phase 2 | Complete |
 | DVIZ-01 | Phase 5 | Complete |
-| DVIZ-02 | Phase 5 | Pending |
+| DVIZ-02 | Phase 5 | Complete |
 | AVIZ-01 | Phase 3 | Complete |
 | AVIZ-02 | Phase 3 | Complete |
 | STUX-01 | Phase 6 | Pending |
