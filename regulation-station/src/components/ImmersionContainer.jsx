@@ -5,6 +5,23 @@ import { useHaptics } from '../hooks/useHaptics'
 import { useHeartTap } from '../hooks/useHeartTap'
 import { useContentRotation } from '../hooks/useContentRotation'
 
+// ── Color-field transition utility ────────────────────────────────────
+function lerpHex(hexA, hexB, t) {
+  const parse = (h) => [
+    parseInt(h.slice(1, 3), 16),
+    parseInt(h.slice(3, 5), 16),
+    parseInt(h.slice(5, 7), 16),
+  ]
+  const [ar, ag, ab] = parse(hexA)
+  const [br, bg, bb] = parse(hexB)
+  const r = Math.round(ar + (br - ar) * t)
+  const g = Math.round(ag + (bg - ag) * t)
+  const b = Math.round(ab + (bb - ab) * t)
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
+}
+
+const SETTLED_HUE = '#1a1f1a'
+
 const BREATH_TIMING = {
   frozen:  { inhale: 4000, hold: 0,    exhale: 8000 },
   anxious: { inhale: 4000, hold: 2000, exhale: 8000 },
@@ -566,8 +583,16 @@ export default function ImmersionContainer({ open, stateData, ambientEngine, onC
   // ── PHASE: STABILIZE ─────────────────────────────────────────────────
   if (phase === 'stabilize') {
     const phrases = GROUNDING_PHRASES[stateData.id] ?? GROUNDING_PHRASES.flow
+    const easedPct = Math.pow(stabilizePct, 0.5)
+    const bgField = lerpHex(accent, SETTLED_HUE, easedPct)
     return wrapper(
       <div className="relative w-full flex flex-col items-center text-center">
+        {/* Color-field: radial gradient that shifts from accent toward settled neutral */}
+        <div
+          aria-hidden
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: `radial-gradient(ellipse at 50% 60%, ${bgField}18 0%, transparent 65%)` }}
+        />
 
         {/* Session timer — top left */}
         <div
@@ -651,7 +676,15 @@ export default function ImmersionContainer({ open, stateData, ambientEngine, onC
   }
 
   // ── PHASE: INTEGRATE ─────────────────────────────────────────────────
+  const integrateField = lerpHex(accent, SETTLED_HUE, 1)
   return wrapper(
+    <div className="relative w-full flex flex-col items-center text-center">
+      {/* Color-field persists at fully settled hue through integrate phase */}
+      <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: `radial-gradient(ellipse at 50% 60%, ${integrateField}18 0%, transparent 65%)` }}
+      />
     <div
       className="relative w-full max-w-[260px] flex flex-col items-center text-center space-y-5"
       style={{ animation: 'fadeIn 0.9s ease both' }}
@@ -692,6 +725,7 @@ export default function ImmersionContainer({ open, stateData, ambientEngine, onC
       <p className="font-mono text-[9px] tracking-widest uppercase" style={{ color: 'var(--text-muted)' }}>
         Closes in {30 - integElapsed}s
       </p>
+    </div>
     </div>
   )
 }
