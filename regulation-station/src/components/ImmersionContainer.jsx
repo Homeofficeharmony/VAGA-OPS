@@ -4,6 +4,7 @@ import { useCompletionTone } from '../hooks/useCompletionTone'
 import { useHaptics } from '../hooks/useHaptics'
 import { useHeartTap } from '../hooks/useHeartTap'
 import { useContentRotation } from '../hooks/useContentRotation'
+import CompletionBurst from './CompletionBurst'
 
 // ── Color-field transition utility ────────────────────────────────────
 function lerpHex(hexA, hexB, t) {
@@ -286,6 +287,7 @@ export default function ImmersionContainer({ open, stateData, ambientEngine, onC
   const [visible, setVisible]         = useState(false)
   const [showCalibration, setShowCalibration] = useState(false)
   const [calibratedTiming, setCalibratedTiming] = useState(null)
+  const [showBurst, setShowBurst]     = useState(false)
 
   const startedAtRef    = useRef(null)
   const playToneRef     = useRef(null)
@@ -332,6 +334,7 @@ export default function ImmersionContainer({ open, stateData, ambientEngine, onC
     setIntegElapsed(0)
     setShowCalibration(false)
     setCalibratedTiming(null)
+    setShowBurst(false)
     resetTap()
     activationRef.current = 5
     startedAtRef.current = new Date().toISOString()
@@ -349,6 +352,7 @@ export default function ImmersionContainer({ open, stateData, ambientEngine, onC
           clearInterval(countId)
           playToneRef.current?.()
           hapticCompleteRef.current?.()
+          setShowBurst(true)
           setTimeout(() => setPhase('integrate'), 800)
           return total
         }
@@ -685,6 +689,8 @@ export default function ImmersionContainer({ open, stateData, ambientEngine, onC
         className="absolute inset-0 pointer-events-none"
         style={{ background: `radial-gradient(ellipse at 50% 60%, ${integrateField}18 0%, transparent 65%)` }}
       />
+      {/* Completion burst — plays for 1.2s then auto-removes */}
+      {showBurst && <CompletionBurst accentHex={accent} onComplete={() => setShowBurst(false)} />}
     <div
       className="relative w-full max-w-[260px] flex flex-col items-center text-center space-y-5"
       style={{ animation: 'fadeIn 0.9s ease both' }}
