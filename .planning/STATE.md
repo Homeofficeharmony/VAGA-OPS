@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 07-01-PLAN.md
-last_updated: "2026-03-11T23:42:10.191Z"
+stopped_at: Completed 07-02-PLAN.md
+last_updated: "2026-03-11T23:44:35.526Z"
 last_activity: 2026-03-10 — Completed plan 01-01 (grain utility + content rotation hook)
 progress:
   total_phases: 8
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 13
-  completed_plans: 12
+  completed_plans: 13
   percent: 8
 ---
 
@@ -61,6 +61,7 @@ Progress: [█░░░░░░░░░] 8%
 | Phase 05-data-visualization P02 | 2 | 2 tasks | 2 files |
 | Phase 06-animation-polish P01 | 15 | 3 tasks | 2 files |
 | Phase 07-breath-signal-wire P01 | 1 | 3 tasks | 3 files |
+| Phase 07-breath-signal-wire P02 | 1 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -102,6 +103,7 @@ Recent decisions affecting current work:
 - [Phase 06-animation-polish]: gradient background snapping accepted — CSS spec limitation, border-color and box-shadow still interpolate smoothly
 - [Phase 07-breath-signal-wire]: onBreathPhaseChange uses optional chaining — backward-compatible with all existing ImmersionContainer call sites
 - [Phase 07-breath-signal-wire]: speedMultRef lerp factor 0.025 at 60fps reaches 95% of target in ~1.9s — within locked 1-2s ramp spec
+- [Phase 07-breath-signal-wire]: No audio.hz field added to stateData.js — outer badge div removed instead; Tier 1 badge already displays Hz via carrierHz/beatHz
 
 ### Pending Todos
 
@@ -127,6 +129,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T23:42:10.189Z
-Stopped at: Completed 07-01-PLAN.md
+Last session: 2026-03-11T23:44:35.523Z
+Stopped at: Completed 07-02-PLAN.md
 Resume file: None
