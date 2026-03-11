@@ -28,8 +28,8 @@ Requirements for v1.0 Visual & Experience Refresh. Each maps to roadmap phases.
 
 ### Audio Visualization
 
-- [ ] **AVIZ-01**: User sees the audio play controls glow/pulse at the actual binaural beat frequency
-- [ ] **AVIZ-02**: User sees a real-time frequency visualization driven by the actual audio output via AnalyserNode
+- [x] **AVIZ-01**: User sees the audio play controls glow/pulse at the actual binaural beat frequency
+- [x] **AVIZ-02**: User sees a real-time frequency visualization driven by the actual audio output via AnalyserNode
 
 ### State & Interaction
 
@@ -84,8 +84,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CVAR-04 | Phase 2 | Complete |
 | DVIZ-01 | Phase 5 | Pending |
 | DVIZ-02 | Phase 5 | Pending |
-| AVIZ-01 | Phase 3 | Pending |
-| AVIZ-02 | Phase 3 | Pending |
+| AVIZ-01 | Phase 3 | Complete |
+| AVIZ-02 | Phase 3 | Complete |
 | STUX-01 | Phase 6 | Pending |
 | STUX-02 | Phase 4 | Pending |
 
