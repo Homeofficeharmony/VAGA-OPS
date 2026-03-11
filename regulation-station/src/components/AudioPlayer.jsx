@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAudioEngine } from '../hooks/useAudioEngine'
-import LissajousVisualizer from './LissajousVisualizer'
+import FrequencyBars from './FrequencyBars'
 import { grainOverlayStyle } from '../utils/grain'
 
 const accentColor = {
@@ -42,7 +42,7 @@ export default function AudioPlayer({ stateData }) {
 
   const track = audio.tracks[activeTrack]
 
-  const { playing, play, pause, volume, setVolume, supported } =
+  const { playing, play, pause, volume, setVolume, supported, analyserRef } =
     useAudioEngine({ carrierHz: track.carrierHz, beatHz: track.beatHz })
 
   useEffect(() => {
@@ -171,12 +171,7 @@ export default function AudioPlayer({ stateData }) {
               borderBottom: `1px solid ${color}18`,
             }}
           >
-            <LissajousVisualizer
-              playing={playing}
-              carrierHz={track.carrierHz}
-              beatHz={track.beatHz}
-              color={color}
-            />
+            <FrequencyBars playing={playing} analyserRef={analyserRef} color={color} />
             {/* Vignette — fades canvas edges to match panel */}
             <div
               aria-hidden
@@ -266,10 +261,14 @@ export default function AudioPlayer({ stateData }) {
               <div className="relative flex items-center justify-center">
                 {playing && (
                   <div
-                    className="absolute w-16 h-16 rounded-full animate-pulse-slow pointer-events-none"
+                    className="absolute w-16 h-16 rounded-full pointer-events-none"
                     style={{
                       border: `1px solid ${color}30`,
                       boxShadow: `0 0 0 4px ${color}08`,
+                      animationName: 'beatPulse',
+                      animationDuration: `${(1 / track.beatHz).toFixed(4)}s`,
+                      animationTimingFunction: 'ease-in-out',
+                      animationIterationCount: 'infinite',
                     }}
                   />
                 )}
