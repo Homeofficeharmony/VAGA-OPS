@@ -111,6 +111,10 @@ Plans:
   1. During an immersion session, background particles visibly change speed when breath transitions between inhale and exhale phases
   2. `breathPhase` in App.jsx is a live state value (not hardcoded `"inhale"`) updated by ImmersionContainer via callback
   3. AudioPlayer Hz badge and description show real values from `audio.range` rather than rendering blank
+**Plans:** 2 plans
+Plans:
+- [ ] 07-01-PLAN.md — breathPhase signal wire (ImmersionContainer callback + App.jsx state + ParticleField lerp)
+- [ ] 07-02-PLAN.md — AudioPlayer Hz badge removal + stateData.js description fields
 
 ### Phase 8: Immersion Activation Capture
 **Goal**: Immersion sessions capture a pre-session activation level so ActivationBars fires for all session paths, not just stealth/panic resets
@@ -135,5 +139,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 4. Atmospheric Effects | 1/3 | In Progress|  |
 | 5. Data Visualization | 1/2 | In Progress|  |
 | 6. Animation Polish | 1/1 | Complete   | 2026-03-11 |
-| 7. Breath Phase Signal Wire | 0/1 | Pending |  |
+| 7. Breath Phase Signal Wire | 0/2 | Pending |  |
 | 8. Immersion Activation Capture | 0/1 | Pending |  |
