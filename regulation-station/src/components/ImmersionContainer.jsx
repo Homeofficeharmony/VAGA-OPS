@@ -484,11 +484,12 @@ export default function ImmersionContainer({ open, stateData, ambientEngine, onC
   // ── SHARED WRAPPER ────────────────────────────────────────────────────
   const wrapper = (children) => (
     <div
-      className="fixed inset-0 z-[55] flex flex-col items-center justify-center px-6 select-none"
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center px-6 select-none"
       style={{
         backgroundColor: 'var(--bg-base)',
         opacity: visible ? 1 : 0,
         transition: 'opacity 1s ease',
+        pointerEvents: visible ? 'auto' : 'none',
       }}
     >
       <AmbientBg accent={accent} />
