@@ -63,8 +63,8 @@ function ExitButton({ onClose, accent }) {
   return (
     <button
       onClick={onClose}
-      className="fixed top-5 right-6 font-mono text-[10px] tracking-[0.22em] uppercase transition-colors duration-200 focus:outline-none"
-      style={{ color: accent + '50', zIndex: 99999, pointerEvents: 'auto', WebkitAppRegion: 'no-drag', cursor: 'pointer' }}
+      className="absolute top-5 right-6 font-mono text-[10px] tracking-[0.22em] uppercase transition-colors duration-200 focus:outline-none"
+      style={{ color: accent + '50', cursor: 'pointer' }}
       onMouseEnter={e => e.currentTarget.style.color = accent + 'cc'}
       onMouseLeave={e => e.currentTarget.style.color = accent + '50'}
       title="Exit immersion (Esc)"
@@ -497,8 +497,7 @@ export default function ImmersionContainer({ open, stateData, ambientEngine, onC
       style={{
         backgroundColor: 'var(--bg-base)',
         opacity: visible ? 1 : 0,
-        transition: 'opacity 1s ease',
-        pointerEvents: visible ? 'auto' : 'none',
+        transition: 'opacity 300ms ease',
       }}
     >
       <AmbientBg accent={accent} />

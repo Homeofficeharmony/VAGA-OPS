@@ -41,11 +41,8 @@ import MissionControl from './components/MissionControl'
 import ImmersionContainer from './components/ImmersionContainer'
 import NeuralBackground from './components/NeuralBackground'
 import ImmersionBackground from './components/ImmersionBackground'
-import BreathingOrb from './components/BreathingOrb'
 import VagusLogSidebar from './components/VagusLogSidebar'
 import AmbientSoundscape from './components/AmbientSoundscape'
-import RegulationDepthMeter from './components/RegulationDepthMeter'
-import StealthReset from './components/StealthReset'
 
 // Other
 import FirstVisitExperience from './components/FirstVisitExperience'
@@ -65,7 +62,6 @@ export default function App() {
       setIsImmersive(true)
       setAmbientMode(false)
       setShowDashboard(false)
-      setBreathCycles(0)
       const data = STATES[state]
       ambientEngine.autoStartForState?.(state, data)
     } else if (!state) {
@@ -85,9 +81,7 @@ export default function App() {
   const [todayIntention, setTodayIntention] = useState('')
   const [activeNav, setActiveNav] = useState('dashboard')
 
-  // eslint-disable-next-line no-unused-vars
   const [showDashboard, setShowDashboard] = useState(false)
-  const [breathCycles, setBreathCycles] = useState(0)
 
   const [breathPhase, setBreathPhase] = useState('inhale')
   useEffect(() => {
@@ -251,24 +245,7 @@ export default function App() {
         />
         <ImmersionBackground isImmersive={isImmersive} selectedState={selectedState} />
 
-        {/* ═══ IMMERSIVE MODE ═══ */}
-        {isImmersive && (
-          <div className="relative z-10 flex-1 flex flex-col items-center justify-center">
-            <BreathingOrb
-              isImmersive={isImmersive}
-              stateData={stateData}
-              onCycleComplete={() => setBreathCycles(c => c + 1)}
-            />
-            {stateData && (
-              <div className="flex flex-col items-center mb-6 z-20 relative">
-                <RegulationDepthMeter cycles={breathCycles} accentHex={stateData.accentHex} />
-              </div>
-            )}
-            <div className="opacity-30 hover:opacity-100 transition-all duration-1000 w-full max-w-3xl px-4">
-              <StateSelector selected={selectedState} onSelect={handleStateSelect} />
-            </div>
-          </div>
-        )}
+        {/* ═══ IMMERSIVE MODE — ImmersionContainer handles all breathing UI ═══ */}
 
         {/* ═══ DASHBOARD MODE ═══ */}
         {!isImmersive && (
@@ -468,89 +445,96 @@ export default function App() {
         />
 
         {/* Panic Button — floating, hidden in dashboard (inline in right panel instead) */}
-        <PanicButton
-          onOpen={() => setPanicOpen(true)}
-          accentHex={stateData?.accentHex}
-          hidden={anyOverlayOpen || !isImmersive}
-        />
-
-        <PanicReset
-          open={panicOpen}
-          accentHex={stateData?.accentHex}
-          onComplete={({ activationBefore = null, startedAt = null } = {}) => {
-            setPanicOpen(false)
-            setCheckinPending({
-              source: 'panic',
-              accentHex: stateData?.accentHex ?? '#52b87e',
-              state: selectedState,
-              activationBefore,
-              startedAt,
-              protocolUsed: 'emergency-reset',
-            })
-          }}
-          onClose={() => setPanicOpen(false)}
-        />
-
-        {selectedState === 'flow' && stateData && (
-          <FlowLock
-            open={flowLockOpen}
-            accentHex={stateData.accentHex}
-            todayIntention={todayIntention}
-            onComplete={(flowMinutes) => {
-              setFlowLockOpen(false)
-              if (flowMinutes > 0) {
-                logSession({ state: 'flow', type: 'flow', flowMinutes, resetCompleted: false })
-              }
-            }}
-            onClose={() => setFlowLockOpen(false)}
+        {!isImmersive && (
+          <PanicButton
+            onOpen={() => setPanicOpen(true)}
+            accentHex={stateData?.accentHex}
+            hidden={anyOverlayOpen}
           />
         )}
 
-        {stateData && (
-          <FocusMode
-            open={focusOpen}
-            stateData={stateData}
-            elapsed={resetElapsed}
-            running={resetRunning}
-            onTogglePlay={handleTogglePlay}
-            onExit={() => setFocusOpen(false)}
-          />
-        )}
+        {/* Dashboard-only overlays (hidden in immersion) */}
+        {!isImmersive && (
+          <>
+            <PanicReset
+              open={panicOpen}
+              accentHex={stateData?.accentHex}
+              onComplete={({ activationBefore = null, startedAt = null } = {}) => {
+                setPanicOpen(false)
+                setCheckinPending({
+                  source: 'panic',
+                  accentHex: stateData?.accentHex ?? '#52b87e',
+                  state: selectedState,
+                  activationBefore,
+                  startedAt,
+                  protocolUsed: 'emergency-reset',
+                })
+              }}
+              onClose={() => setPanicOpen(false)}
+            />
 
-        {checkinPending && (
-          <PostResetCheckin
-            accentHex={checkinPending.accentHex}
-            source={checkinPending.source}
-            activationBefore={checkinPending.activationBefore}
-            onRate={({ outcome, shift, activationAfter }) => {
-              logSession({
-                state: checkinPending.state,
-                type: checkinPending.source,
-                durationSec: checkinPending.source === 'panic' ? 30 : 60,
-                resetCompleted: true,
-                outcome,
-                shift,
-                activationBefore: checkinPending.activationBefore ?? null,
-                activationAfter: activationAfter ?? null,
-                startedAt: checkinPending.startedAt ?? null,
-                protocolUsed: checkinPending.protocolUsed ?? null,
-              })
-              setCheckinPending(null)
-            }}
-          />
-        )}
+            {selectedState === 'flow' && stateData && (
+              <FlowLock
+                open={flowLockOpen}
+                accentHex={stateData.accentHex}
+                todayIntention={todayIntention}
+                onComplete={(flowMinutes) => {
+                  setFlowLockOpen(false)
+                  if (flowMinutes > 0) {
+                    logSession({ state: 'flow', type: 'flow', flowMinutes, resetCompleted: false })
+                  }
+                }}
+                onClose={() => setFlowLockOpen(false)}
+              />
+            )}
 
-        <RuptureModal
-          open={ruptureOpen}
-          onClose={() => setRuptureOpen(false)}
-          onEmergencyReset={() => {
-            setRuptureOpen(false)
-            setSelectedState('anxious')
-            setPanicOpen(true)
-          }}
-        />
-        <ShortcutHelp open={shortcutHelpOpen} onClose={() => setShortcutHelpOpen(false)} />
-        <StreakMilestone streak={streak} />
+            {stateData && (
+              <FocusMode
+                open={focusOpen}
+                stateData={stateData}
+                elapsed={resetElapsed}
+                running={resetRunning}
+                onTogglePlay={handleTogglePlay}
+                onExit={() => setFocusOpen(false)}
+              />
+            )}
+
+            {checkinPending && (
+              <PostResetCheckin
+                accentHex={checkinPending.accentHex}
+                source={checkinPending.source}
+                activationBefore={checkinPending.activationBefore}
+                onRate={({ outcome, shift, activationAfter }) => {
+                  logSession({
+                    state: checkinPending.state,
+                    type: checkinPending.source,
+                    durationSec: checkinPending.source === 'panic' ? 30 : 60,
+                    resetCompleted: true,
+                    outcome,
+                    shift,
+                    activationBefore: checkinPending.activationBefore ?? null,
+                    activationAfter: activationAfter ?? null,
+                    startedAt: checkinPending.startedAt ?? null,
+                    protocolUsed: checkinPending.protocolUsed ?? null,
+                  })
+                  setCheckinPending(null)
+                }}
+              />
+            )}
+
+            <RuptureModal
+              open={ruptureOpen}
+              onClose={() => setRuptureOpen(false)}
+              onEmergencyReset={() => {
+                setRuptureOpen(false)
+                setSelectedState('anxious')
+                setPanicOpen(true)
+              }}
+            />
+            <ShortcutHelp open={shortcutHelpOpen} onClose={() => setShortcutHelpOpen(false)} />
+            <StreakMilestone streak={streak} />
+          </>
+        )}
       </div>
     </ThemeProvider>
   )
