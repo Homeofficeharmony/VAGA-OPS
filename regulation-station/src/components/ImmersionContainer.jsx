@@ -443,8 +443,17 @@ export default function ImmersionContainer({ open, stateData, ambientEngine, onC
   }, [open, phase, handleComplete])
 
   const handleEarlyClose = useCallback(() => {
-    ambientEngine?.stop()
-    onClose()
+    try {
+      console.log("Triggering early close...")
+      if (ambientEngine?.stop) ambientEngine.stop()
+    } catch (e) {
+      console.error("Audio engine stop error during exit:", e)
+    }
+    try {
+      if (onClose) onClose()
+    } catch (e) {
+      console.error("onClose error during exit:", e)
+    }
   }, [ambientEngine, onClose])
 
   if (!open || !stateData) return null
