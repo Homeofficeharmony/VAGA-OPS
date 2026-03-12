@@ -141,6 +141,7 @@
   letter-spacing: 1px;
   color: rgba(57, 255, 20, 0.6);
   text-transform: uppercase;
+  z-index: 10;
 }
 
 .stop-button {
@@ -156,6 +157,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   padding: 0.5rem 1rem;
+  z-index: 10;
 }
 
 .stop-button:hover {
