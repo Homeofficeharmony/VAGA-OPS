@@ -63,7 +63,7 @@ function ExitButton({ onClose, accent }) {
   return (
     <button
       onClick={onClose}
-      className="fixed top-5 right-6 font-mono text-[10px] tracking-[0.22em] uppercase transition-colors duration-200 focus:outline-none z-10"
+      className="fixed top-5 right-6 font-mono text-[10px] tracking-[0.22em] uppercase transition-colors duration-200 focus:outline-none z-[60]"
       style={{ color: accent + '50' }}
       onMouseEnter={e => e.currentTarget.style.color = accent + 'cc'}
       onMouseLeave={e => e.currentTarget.style.color = accent + '50'}
