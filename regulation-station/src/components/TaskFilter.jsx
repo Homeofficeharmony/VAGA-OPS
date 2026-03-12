@@ -73,7 +73,7 @@ export default function TaskFilter({ stateData }) {
           style={{
             color: isCalibrated ? '#111318' : color,
             borderColor: isCalibrated ? color : color + '50',
-            backgroundColor: isCalibrated ? color : color + '10'
+            backgroundColor: isCalibrated ? color : color + '10',
           }}
         >
           {isCalibrated ? optimalStatus : 'Shed Load'}
@@ -81,189 +81,135 @@ export default function TaskFilter({ stateData }) {
       </div>
 
       <div
-        className="bg-[#111318] border rounded-xl p-5 transition-all duration-500"
+        className="bg-[#111318] border rounded-xl p-5 transition-all duration-500 relative flex flex-col items-center justify-center min-h-[400px] overflow-hidden"
         style={{ borderColor: isCalibrated ? color + '60' : '#22262f' }}
       >
-        {/* Load Level Meter */}
-        <div className="mb-5">
-          <div className="flex justify-between items-end mb-2">
-            <span className="font-mono text-[10px] tracking-widest uppercase text-slate-400">
+        {/* Background Grid/Glow for atmosphere */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          background: `radial-gradient(circle at center, ${color}05 0%, transparent 60%)`
+        }} />
+
+        {/* Load Level Meter (Top Left) */}
+        <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-start pointer-events-none">
+          <div className="flex flex-col">
+            <span className="font-mono text-[10px] tracking-widest uppercase text-slate-500 mb-1">
               {meterLabel}
             </span>
-            <span
-              className="font-mono text-[10px] tracking-widest uppercase transition-colors duration-500"
-              style={{ color: isCalibrated ? color : fullColor }}
+            <div className="flex gap-1 h-1 w-32">
+              {Array.from({ length: totalCount }).map((_, i) => {
+                const isActive = i < remainingCount
+                return (
+                  <div
+                    key={i}
+                    className="flex-1 rounded-full transition-all duration-500"
+                    style={{
+                      backgroundColor: isActive
+                        ? (isCalibrated ? color : fullColor + 'aa')
+                        : '#1e232e'
+                    }}
+                  />
+                )
+              })}
+            </div>
+          </div>
+
+          <button
+              onClick={handleReset}
+              className="font-mono text-[10px] tracking-widest uppercase transition-colors pointer-events-auto"
+              style={{ color: shedIds.size > 0 ? '#6b7280' : 'transparent' }}
             >
-              {isCalibrated ? optimalStatus : fullStatus}
-            </span>
-          </div>
-          <div className="flex gap-1 h-1.5">
-            {Array.from({ length: totalCount }).map((_, i) => {
-              const isActive = i < remainingCount
-              return (
-                <div
-                  key={i}
-                  className="flex-1 rounded-full transition-all duration-300"
-                  style={{
-                    backgroundColor: isActive
-                      ? (isCalibrated ? color : fullColor + 'cc')
-                      : '#22262f'
-                  }}
-                />
-              )
-            })}
-          </div>
+              Restore All
+          </button>
         </div>
 
-        {/* Rationale + directive note */}
-        <div
-          className={`rounded-lg px-4 py-3 border-l-2 bg-[#1a1d24] transition-all duration-500 overflow-hidden ${
-            isCalibrated ? 'h-0 py-0 mb-0 opacity-0 border-transparent' : 'mb-5 opacity-100'
-          }`}
-          style={{ borderColor: color }}
-        >
-          {capacity.rationale && (
-            <p className="text-sm text-slate-300 leading-relaxed mb-2">
-              {capacity.rationale}
-            </p>
-          )}
-          <div className="font-mono text-[10px] tracking-widest uppercase" style={{ color: color + '90' }}>
-            {tasks.note}
-          </div>
-        </div>
 
-        {/* Task list */}
-        <div className="space-y-2.5">
-          {visibleItems.map((task) => {
+        {/* The Constellation */}
+        <div className="relative w-64 h-64 mt-6 flex items-center justify-center">
+          
+          {/* Central Core */}
+          <div 
+            className="absolute z-10 w-28 h-28 rounded-full border border-dashed flex flex-col items-center justify-center text-center p-3 transition-all duration-700"
+            style={{ 
+              borderColor: isCalibrated ? color : '#333a45',
+              backgroundColor: isCalibrated ? color + '15' : '#15181e',
+              boxShadow: isCalibrated ? `0 0 30px ${color}30, inset 0 0 20px ${color}20` : 'none',
+              transform: isCalibrated ? 'scale(1.1)' : 'scale(1)'
+            }}
+          >
+             {isCalibrated ? (
+                <>
+                  <div className="text-xl mb-1">{visibleItems.find(t => !shedIds.has(t.id))?.icon}</div>
+                  <div className="font-mono text-[9px] uppercase tracking-widest" style={{ color }}>{optimalStatus}</div>
+                  <div className="text-[10px] text-slate-200 mt-1 leading-tight line-clamp-2">
+                    {visibleItems.find(t => !shedIds.has(t.id))?.label}
+                  </div>
+                </>
+             ) : (
+                <>
+                  <div className="font-mono text-[10px] uppercase tracking-widest" style={{ color: fullColor }}>
+                    {fullStatus}
+                  </div>
+                  {expandedWhy ? (
+                    <div className="text-[10px] text-slate-300 mt-1.5 leading-tight absolute inset-1 flex items-center justify-center p-2 bg-[#15181e] rounded-full fade-in">
+                       {visibleItems.find(t => t.id === expandedWhy)?.label}
+                    </div>
+                  ) : (
+                    <div className="text-[9px] text-slate-500 mt-2">
+                       Hover node.<br/>Click to shed.
+                    </div>
+                  )}
+                </>
+             )}
+          </div>
+
+          {/* Orbiting Nodes */}
+          {visibleItems.map((task, i) => {
             const isShed = shedIds.has(task.id)
             const isSoleRemaining = isCalibrated && !isShed
-            const isWhyOpen = expandedWhy === task.id
+            
+            // Do not render shed items or the final item (it's in the center)
+            if (isShed || isSoleRemaining) return null
 
-            if (isShed && isCalibrated) return null
+            // Calculate position along a circle
+            // Start at top (-90deg), distribute evenly
+            const activeItems = visibleItems.filter(t => !shedIds.has(t.id))
+            const activeIndex = activeItems.findIndex(t => t.id === task.id)
+            if (activeIndex === -1) return null
+
+            const angleStep = (Math.PI * 2) / activeItems.length
+            const angle = (activeIndex * angleStep) - (Math.PI / 2)
+            const radius = 105 // Orbit distance
+            
+            const x = Math.cos(angle) * radius
+            const y = Math.sin(angle) * radius
 
             return (
-              <div
+              <button
                 key={task.id}
-                className={`rounded-xl border transition-all duration-500 transform overflow-hidden ${
-                  isShed
-                    ? 'opacity-0 scale-95 max-h-0 border-transparent'
-                    : 'opacity-100 scale-100 max-h-48'
-                } ${isSoleRemaining ? 'shadow-lg' : ''}`}
+                onClick={() => handleShed(task.id)}
+                onMouseEnter={() => setExpandedWhy(task.id)}
+                onMouseLeave={() => setExpandedWhy(null)}
+                className="absolute w-10 h-10 rounded-full flex flex-col items-center justify-center transition-all duration-500 border hover:scale-110 z-20 group"
                 style={{
-                  borderColor: isSoleRemaining ? color : '#22262f',
-                  backgroundColor: isSoleRemaining ? color + '12' : '#15181e',
+                  transform: `translate(${x}px, ${y}px)`,
+                  borderColor: expandedWhy === task.id ? color : '#2a2f3a',
+                  backgroundColor: expandedWhy === task.id ? color + '20' : '#1a1d24',
+                  boxShadow: expandedWhy === task.id ? `0 0 15px ${color}40` : '0 4px 6px rgba(0,0,0,0.3)'
                 }}
               >
-                {/* Main row */}
-                <div className="flex items-center gap-3 px-4 py-3.5">
-                  {/* Icon */}
-                  <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center text-base flex-shrink-0 border"
-                    style={{
-                      borderColor: isSoleRemaining ? color + '50' : '#2a2f3a',
-                      backgroundColor: isSoleRemaining ? color + '15' : '#1a1d24',
-                    }}
-                  >
-                    {task.icon}
-                  </div>
-
-                  {/* Label + why toggle */}
-                  <div className="flex-1 min-w-0">
-                    <div
-                      className={`text-sm font-medium leading-snug transition-colors ${
-                        isSoleRemaining ? 'text-slate-100' : 'text-slate-200'
-                      }`}
-                    >
-                      {task.label}
-                    </div>
-                    {task.estimatedDurationMin && (
-                      <span className="font-mono text-[9px] text-charcoal-600 mt-0.5 block">
-                        ~{task.estimatedDurationMin} min
-                      </span>
-                    )}
-                    {isSoleRemaining && capacity.calibratedNote && (
-                      <div
-                        className="text-[11px] mt-0.5 leading-snug"
-                        style={{ color }}
-                      >
-                        {capacity.calibratedNote}
-                      </div>
-                    )}
-                    {!isSoleRemaining && task.why && (
-                      <button
-                        onClick={() => setExpandedWhy(isWhyOpen ? null : task.id)}
-                        className="font-mono text-[9px] tracking-widest uppercase mt-0.5 transition-colors"
-                        style={{ color: isWhyOpen ? color : '#4a5568' }}
-                      >
-                        {isWhyOpen ? '▴ why this' : '▾ why this'}
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Release button */}
-                  {!isSoleRemaining && !isShed && (
-                    <button
-                      onClick={() => handleShed(task.id)}
-                      className="flex-shrink-0 font-mono text-[10px] font-semibold tracking-widest uppercase px-3 py-1.5 rounded-lg border transition-all duration-200"
-                      style={{ borderColor: '#3a404d', color: '#5a6272' }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = color + '80'
-                        e.currentTarget.style.color = color
-                        e.currentTarget.style.backgroundColor = color + '12'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = '#3a404d'
-                        e.currentTarget.style.color = '#5a6272'
-                        e.currentTarget.style.backgroundColor = 'transparent'
-                      }}
-                      title="Release this task from your focus"
-                    >
-                      Release
-                    </button>
-                  )}
-
-                  {/* Calibrated indicator */}
-                  {isSoleRemaining && (
-                    <div
-                      className="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0"
-                      style={{ borderColor: color }}
-                    >
-                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
-                    </div>
-                  )}
-                </div>
-
-                {/* Expandable why row */}
-                {isWhyOpen && task.why && !isSoleRemaining && (
-                  <div
-                    className="px-4 pb-3 pt-0 text-[12px] leading-relaxed text-slate-400 border-t"
-                    style={{ borderColor: '#1e2330' }}
-                  >
-                    {task.why}
-                  </div>
-                )}
-              </div>
+                <span className="text-lg group-hover:drop-shadow-md transition-all">{task.icon}</span>
+              </button>
             )
           })}
         </div>
 
-        {/* Footer */}
-        <div className="mt-5 pt-4 border-t border-charcoal-800 flex items-center justify-between">
-          <span className="font-mono text-[10px] tracking-widest uppercase text-charcoal-500">
-            {meterLabel}: {remainingCount} / {totalCount}
-          </span>
-          {shedIds.size > 0 && (
-            <button
-              onClick={handleReset}
-              className="font-mono text-[10px] tracking-widest uppercase transition-colors"
-              style={{ color: '#6b7280' }}
-              onMouseEnter={(e) => (e.target.style.color = '#9ca3af')}
-              onMouseLeave={(e) => (e.target.style.color = '#6b7280')}
-            >
-              Restore All
-            </button>
-          )}
+        {/* Note / Directive at bottom */}
+        <div className="mt-8 text-center max-w-sm relative z-10 h-10 flex items-center justify-center">
+            <p className="font-mono text-[10px] tracking-widest uppercase transition-colors duration-500" style={{ color: isCalibrated ? color : color + '90' }}>
+              {isCalibrated ? capacity.calibratedNote : tasks.note}
+            </p>
         </div>
+
       </div>
     </section>
   )

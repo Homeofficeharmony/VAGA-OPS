@@ -9,9 +9,10 @@
 :root,
 [data-theme="dark"] {
   /* Structural */
-  --bg-base:       #0f1410;
-  --bg-panel:      #161d15;
-  --bg-panel-alt:  #1d261b;
+  /* Added alpha values to let the global background glow bleed through */
+  --bg-base:       #0f1410f2;
+  --bg-panel:      #161d15ee;
+  --bg-panel-alt:  #1d261bee;
   --border:        #263024;
   --border-subtle: #1e2a1c;
 
@@ -27,9 +28,9 @@
 }
 
 [data-theme="light"] {
-  --bg-base:       #f5ede4;
-  --bg-panel:      #ede4db;
-  --bg-panel-alt:  #e5dbd0;
+  --bg-base:       #f5ede4f5;
+  --bg-panel:      #ede4dbf2;
+  --bg-panel-alt:  #e5dbd0f2;
   --border:        #c8b8a8;
   --border-subtle: #d8c8b8;
 
@@ -43,9 +44,9 @@
 }
 
 [data-theme="pastel"] {
-  --bg-base:       #e8ede9;
-  --bg-panel:      #d8e5dc;
-  --bg-panel-alt:  #ccd8d1;
+  --bg-base:       #e8ede9f2;
+  --bg-panel:      #d8e5dcf0;
+  --bg-panel-alt:  #ccd8d1f0;
   --border:        #a8c4b4;
   --border-subtle: #b8d0c4;
 
@@ -66,12 +67,14 @@
     margin: 0;
     min-height: 100vh;
     background-color: var(--bg-base);
+    background-image: radial-gradient(circle at top center, color-mix(in srgb, var(--current-state-color, transparent) 12%, transparent) 0%, transparent 80%);
+    background-attachment: fixed;
     color: var(--text-primary);
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.8s ease, background-image 0.8s ease, color 0.3s ease;
   }
-  #root { min-height: 100vh; }
+  #root { min-height: 100vh; height: 100vh; }
 }
 
 /* ── Utilities ─────────────────────────────────────────────── */
@@ -79,6 +82,11 @@
 @layer utilities {
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+  .scrollbar-thin { scrollbar-width: thin; scrollbar-color: #263024 transparent; }
+  .scrollbar-thin::-webkit-scrollbar { width: 4px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: #263024; border-radius: 2px; }
 
   /* Glow — uses CSS vars, adapts per theme */
   .glow-green { box-shadow: 0 0 20px color-mix(in srgb, var(--accent-flow) 35%, transparent), 0 0 60px color-mix(in srgb, var(--accent-flow) 12%, transparent); }

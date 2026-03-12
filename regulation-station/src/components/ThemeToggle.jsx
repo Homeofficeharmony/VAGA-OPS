@@ -9,28 +9,28 @@ const THEMES = [
 export default function ThemeToggle() {
   const { theme, setTheme } = useTheme()
 
+  const current = THEMES.find(t => t.key === theme) ?? THEMES[0]
+  const nextIndex = (THEMES.findIndex(t => t.key === theme) + 1) % THEMES.length
+  const next = THEMES[nextIndex]
+
   return (
-    <div
-      className="flex items-center rounded-md overflow-hidden"
-      style={{ border: '1px solid var(--border)' }}
+    <button
+      onClick={() => setTheme(next.key)}
+      title={`Switch to ${next.label}`}
+      className="flex items-center justify-center rounded-full transition-all duration-200"
+      style={{
+        width: '72px',
+        height: '30px',
+        backgroundColor: '#161d15',
+        border: '1px solid #263024',
+        color: '#7a9b7c',
+        fontSize: '11px',
+        fontWeight: 500,
+        fontFamily: 'Inter, sans-serif',
+        gap: '4px',
+      }}
     >
-      {THEMES.map(({ key, icon, label }, i) => (
-        <button
-          key={key}
-          onClick={() => setTheme(key)}
-          title={label}
-          className="font-mono text-[11px] px-2 py-1 transition-all duration-200"
-          style={{
-            background: theme === key
-              ? 'color-mix(in srgb, var(--accent-flow) 18%, transparent)'
-              : 'var(--bg-panel)',
-            color: theme === key ? 'var(--accent-flow)' : 'var(--text-muted)',
-            borderRight: i < THEMES.length - 1 ? '1px solid var(--border)' : 'none',
-          }}
-        >
-          {icon}
-        </button>
-      ))}
-    </div>
+      {current.icon} {current.label}
+    </button>
   )
 }

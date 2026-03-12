@@ -1,60 +1,63 @@
 import { useState, useEffect, useRef } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
 import { STATES } from './data/stateData'
 import { ThemeProvider } from './context/ThemeContext'
+
+// Layout components
 import Header from './components/Header'
 import StateSelector from './components/StateSelector'
-import StealthReset from './components/StealthReset'
-import TaskFilter from './components/TaskFilter'
-import AudioPlayer from './components/AudioPlayer'
 import StatusBar from './components/StatusBar'
+
+// Left panel
+import ProtocolSteps from './components/ProtocolSteps'
+import AudioPlayerMini from './components/AudioPlayerMini'
+import AmbientPanel from './components/AmbientPanel'
+
+// Center panel
+import TodayIntention from './components/TodayIntention'
+import TaskFilter from './components/TaskFilter'
+import DailySummary from './components/DailySummary'
+import TacticalAdvisor from './components/TacticalAdvisor'
+import QuickActions from './components/QuickActions'
+import WeeklyIntelligenceCard from './components/WeeklyIntelligenceCard'
+
+// Right panel
+import StateIndex from './components/StateIndex'
+import SessionLogPanel from './components/SessionLogPanel'
+import JournalEntry from './components/JournalEntry'
+import TipCard from './components/TipCard'
+
+// Overlays
 import PostResetCheckin from './components/PostResetCheckin'
 import RuptureModal from './components/RuptureModal'
 import FocusMode from './components/FocusMode'
 import PanicButton from './components/PanicButton'
 import PanicReset from './components/PanicReset'
-import DailySummary from './components/DailySummary'
-import StateAssist from './components/StateAssist'
 import FlowLock from './components/FlowLock'
-import { useSessionLog } from './hooks/useSessionLog'
-import { useStreak } from './hooks/useStreak'
-import HRVIndicator from './components/HRVIndicator'
 import ShortcutHelp from './components/ShortcutHelp'
-import TodayIntention from './components/TodayIntention'
-import TeamPanel from './components/TeamPanel'
 import StreakMilestone from './components/StreakMilestone'
-import WeeklyConsistency from './components/WeeklyConsistency'
-import WeeklyIntelligenceCard from './components/WeeklyIntelligenceCard'
-import ShiftTrajectoryChart from './components/ShiftTrajectoryChart'
-import FirstVisitExperience from './components/FirstVisitExperience'
-import TacticalAdvisor from './components/TacticalAdvisor'
 import MissionControl from './components/MissionControl'
-import RegulationDepthMeter from './components/RegulationDepthMeter'
-import TabBar from './components/TabBar'
 
-// New Immersive Components
+// Immersive mode
 import ImmersionContainer from './components/ImmersionContainer'
 import NeuralBackground from './components/NeuralBackground'
 import ImmersionBackground from './components/ImmersionBackground'
 import BreathingOrb from './components/BreathingOrb'
 import VagusLogSidebar from './components/VagusLogSidebar'
 import AmbientSoundscape from './components/AmbientSoundscape'
-import { useAmbientEngine } from './hooks/useAmbientEngine'
+import RegulationDepthMeter from './components/RegulationDepthMeter'
+import StealthReset from './components/StealthReset'
 
-const TAB_VARIANTS = {
-  initial: { opacity: 0, y: 12 },
-  animate: { opacity: 1, y: 0 },
-  exit:    { opacity: 0, y: -8 },
-}
-const TAB_TRANSITION = { duration: 0.28, ease: 'easeOut' }
+// Other
+import FirstVisitExperience from './components/FirstVisitExperience'
+import { useSessionLog } from './hooks/useSessionLog'
+import { useStreak } from './hooks/useStreak'
+import { useAmbientEngine } from './hooks/useAmbientEngine'
 
 export default function App() {
   const [selectedState, setSelectedState] = useState(null)
   const stateData = selectedState ? STATES[selectedState] : null
   const hasEnteredImmersion = useRef(false)
 
-  // Only auto-immerse on the FIRST state selection in a session.
-  // After that, switching states just updates the dashboard.
   const handleStateSelect = (state) => {
     setSelectedState(state)
     if (state && !hasEnteredImmersion.current) {
@@ -80,22 +83,18 @@ export default function App() {
   const [missionOpen, setMissionOpen] = useState(false)
   const [shortcutHelpOpen, setShortcutHelpOpen] = useState(false)
   const [todayIntention, setTodayIntention] = useState('')
+  const [activeNav, setActiveNav] = useState('dashboard')
 
-  // Auto-immersion: track whether user is in focused regulation vs dashboard
+  // eslint-disable-next-line no-unused-vars
   const [showDashboard, setShowDashboard] = useState(false)
   const [breathCycles, setBreathCycles] = useState(0)
-  const [activeTab, setActiveTab] = useState('regulate')
 
   const [breathPhase, setBreathPhase] = useState('inhale')
-
-  // Reset breathPhase when immersion closes
   useEffect(() => {
     if (!isImmersive) setBreathPhase('inhale')
   }, [isImmersive])
 
-  // Unified checkin queue: { source: 'stealth'|'panic', accentHex, state }
   const [checkinPending, setCheckinPending] = useState(null)
-
   const [resetElapsed, setResetElapsed] = useState(0)
   const [resetRunning, setResetRunning] = useState(false)
 
@@ -115,14 +114,11 @@ export default function App() {
     return () => { document.body.style.overflow = '' }
   }, [isImmersive])
 
-  // Guard against audio doubling: clear ambient mode when entering immersion
   useEffect(() => {
-    if (isImmersive) {
-      setAmbientMode(false)
-    }
+    if (isImmersive) setAmbientMode(false)
   }, [isImmersive])
 
-  // Drive focus-mode timer when focusOpen and resetRunning
+  // Focus-mode timer
   useEffect(() => {
     if (resetRunning) {
       intervalRef.current = setInterval(() => {
@@ -141,7 +137,6 @@ export default function App() {
     return () => clearInterval(intervalRef.current)
   }, [resetRunning])
 
-  // Reset timer when state changes
   useEffect(() => {
     setResetRunning(false)
     setResetElapsed(0)
@@ -177,11 +172,8 @@ export default function App() {
 
       const mod = e.metaKey || e.ctrlKey
 
-      // Cmd/Ctrl combos
       if (mod && e.shiftKey && (e.key === 'r' || e.key === 'R')) {
-        e.preventDefault()
-        setPanicOpen(true)
-        return
+        e.preventDefault(); setPanicOpen(true); return
       }
       if (mod && e.key === '1') { e.preventDefault(); handleStateSelect('frozen'); return }
       if (mod && e.key === '2') { e.preventDefault(); handleStateSelect('anxious'); return }
@@ -192,7 +184,6 @@ export default function App() {
         return
       }
 
-      // Plain shortcuts (no modifier)
       if (mod) return
       if (e.key === '1') handleStateSelect('frozen')
       if (e.key === '2') handleStateSelect('anxious')
@@ -205,8 +196,7 @@ export default function App() {
         if (stateData) setFocusOpen((v) => !v)
       }
       if (e.key === '?' || e.key === '/') {
-        setShortcutHelpOpen(v => !v)
-        return
+        setShortcutHelpOpen(v => !v); return
       }
       if (e.key === 'Escape') {
         setRuptureOpen(false)
@@ -241,10 +231,13 @@ export default function App() {
   return (
     <ThemeProvider>
       <div
-        className="min-h-screen font-sans relative transition-colors duration-1000"
+        className="h-screen flex flex-col font-sans relative transition-colors duration-1000"
         style={{
           backgroundColor: isImmersive ? 'transparent' : 'var(--bg-base)',
-          color: 'var(--text-primary)'
+          color: 'var(--text-primary)',
+          overflow: 'hidden',
+          '--current-state-color': stateData ? stateData.accentHex : 'transparent',
+          '--theme-accent': stateData ? stateData.accentHex : 'var(--text-muted)',
         }}
         data-calm={selectedState === 'frozen' || selectedState === 'anxious' ? 'true' : undefined}
       >
@@ -256,139 +249,87 @@ export default function App() {
           selectedState={selectedState}
           breathPhase={breathPhase}
         />
-        {/* State-adaptive breath-synced pulse (z-[1], between neural bg and content) */}
         <ImmersionBackground isImmersive={isImmersive} selectedState={selectedState} />
 
-        <div className={`relative z-10 transition-all duration-1000 ${isImmersive ? 'xl:pr-[17rem]' : ''}`}>
-          <Header
-            streak={streak}
-            sessions={sessions}
-            onRuptureClick={() => setRuptureOpen(true)}
-            isImmersive={isImmersive}
-            selectedState={selectedState}
-            onToggleImmersive={() => setIsImmersive((v) => !v)}
-            onShortcutHelp={() => setShortcutHelpOpen(v => !v)}
-          />
-
-          <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 pb-24">
-
-            {/* Breathing Orb + Depth Meter — visible in immersion mode */}
+        {/* ═══ IMMERSIVE MODE ═══ */}
+        {isImmersive && (
+          <div className="relative z-10 flex-1 flex flex-col items-center justify-center">
             <BreathingOrb
               isImmersive={isImmersive}
               stateData={stateData}
               onCycleComplete={() => setBreathCycles(c => c + 1)}
             />
-            {isImmersive && stateData && (
+            {stateData && (
               <div className="flex flex-col items-center mb-6 z-20 relative">
-                <RegulationDepthMeter
-                  cycles={breathCycles}
-                  accentHex={stateData.accentHex}
-                />
+                <RegulationDepthMeter cycles={breathCycles} accentHex={stateData.accentHex} />
               </div>
             )}
+            <div className="opacity-30 hover:opacity-100 transition-all duration-1000 w-full max-w-3xl px-4">
+              <StateSelector selected={selectedState} onSelect={handleStateSelect} />
+            </div>
+          </div>
+        )}
 
-            <AnimatePresence mode="wait" initial={false}>
-            {/* ── REGULATE TAB ─────────────────────────────────── */}
-            {activeTab === 'regulate' && !isImmersive && (
-              <motion.div key="regulate" variants={TAB_VARIANTS} initial="initial" animate="animate" exit="exit" transition={TAB_TRANSITION}>
-                {/* Clean page title */}
-                <div className="mb-8">
-                  <p className="text-2xl font-semibold leading-tight" style={{ color: 'var(--text-primary)' }}>
-                    Where are you right now?
-                  </p>
-                  <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-                    Select your state. We'll do the rest.
-                  </p>
-                </div>
+        {/* ═══ DASHBOARD MODE ═══ */}
+        {!isImmersive && (
+          <>
+            {/* Top Nav */}
+            <Header
+              isImmersive={isImmersive}
+              onShortcutHelp={() => setShortcutHelpOpen(v => !v)}
+              activeNav={activeNav}
+              onNavChange={setActiveNav}
+            />
 
-                {/* State Assist — 2-question widget */}
-                <StateAssist
-                  visible={!selectedState}
-                  onSelectState={handleStateSelect}
-                />
+            {/* State Selector Strip */}
+            <StateSelector selected={selectedState} onSelect={handleStateSelect} />
 
-                {/* State selector */}
-                <div className="mb-6 relative z-20">
-                  <StateSelector selected={selectedState} onSelect={handleStateSelect} isImmersive={false} />
-                </div>
+            {/* ═══ 3-COLUMN BODY ═══ */}
+            <div className="flex flex-1 min-h-0" style={{ backgroundColor: '#0f1410' }}>
 
-                {/* Status bar */}
-                {stateData && (
-                  <div className="mb-6 relative z-20">
-                    <StatusBar selectedState={selectedState} stateData={stateData} />
-                  </div>
-                )}
-
-                {/* Ambient Mode toggle — only shows when state is selected */}
-                {stateData && (
-                  <div className="mb-4">
-                    <button
-                      onClick={handleAmbientToggle}
-                      className="w-full py-3 px-4 rounded-2xl font-mono text-[10px] tracking-[0.24em] uppercase focus:outline-none transition-all duration-300 flex items-center justify-between"
-                      style={{
-                        border: `1px solid ${ambientMode ? stateData.accentHex + '50' : 'var(--border)'}`,
-                        backgroundColor: ambientMode ? stateData.accentHex + '12' : 'var(--bg-panel)',
-                        color: ambientMode ? stateData.accentHex : 'var(--text-muted)',
-                      }}
-                    >
-                      <span>{ambientMode ? '◉ Ambient On' : '○ Ambient Mode'}</span>
-                      <span style={{ opacity: 0.5, fontSize: '9px' }}>A</span>
-                    </button>
-                  </div>
-                )}
-
-                {/* Protocol — only shows when state is selected */}
-                {stateData && (
-                  <div className="space-y-6">
-                    <StealthReset
-                      stateData={stateData}
-                      onComplete={({ activationBefore = null, startedAt = null } = {}) => setCheckinPending({
-                        source: 'stealth',
-                        accentHex: stateData.accentHex,
-                        state: selectedState,
-                        activationBefore,
-                        startedAt,
-                        protocolUsed: stateData.reset.id,
-                      })}
-                    />
-                    <TaskFilter stateData={stateData} />
-                  </div>
-                )}
-
-                {/* Empty state */}
-                {!stateData && (
-                  <div className="flex flex-col items-center justify-center py-16 text-center">
-                    <div className="w-12 h-12 rounded-full border-2 border-dashed border-charcoal-600 flex items-center justify-center mb-4 animate-pulse">
-                      <div className="w-2 h-2 rounded-full bg-charcoal-600" />
+              {/* ── LEFT PANEL (280px) ── */}
+              <aside
+                className="hidden lg:flex flex-col gap-4 overflow-y-auto scrollbar-thin"
+                style={{
+                  width: '280px',
+                  flexShrink: 0,
+                  backgroundColor: '#0d110e',
+                  borderRight: '1px solid #1e2b1f',
+                  padding: '24px 20px',
+                }}
+              >
+                {stateData ? (
+                  <>
+                    <ProtocolSteps stateData={stateData} />
+                    <AudioPlayerMini stateData={stateData} />
+                    <AmbientPanel engine={ambientEngine} stateData={stateData} />
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center justify-center flex-1 text-center">
+                    <div className="w-10 h-10 rounded-full border-2 border-dashed flex items-center justify-center mb-3 animate-pulse" style={{ borderColor: '#263024' }}>
+                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#263024' }} />
                     </div>
-                    <p className="font-mono text-[11px] tracking-widest uppercase text-charcoal-500">
-                      Pick how you're feeling to begin
+                    <p className="font-mono text-[10px] tracking-widest uppercase" style={{ color: '#4a6b4c' }}>
+                      Select a state
                     </p>
                   </div>
                 )}
-              </motion.div>
-            )}
+              </aside>
 
-            {/* Immersion mode: show state selector faded */}
-            {isImmersive && (
-              <div className="mb-4 relative z-20 opacity-30 hover:opacity-100 transition-all duration-1000">
-                <StateSelector selected={selectedState} onSelect={handleStateSelect} isImmersive={true} />
-              </div>
-            )}
-
-            {/* ── INSIGHTS TAB ─────────────────────────────────── */}
-            {activeTab === 'insights' && !isImmersive && (
-              <motion.div key="insights" variants={TAB_VARIANTS} initial="initial" animate="animate" exit="exit" transition={TAB_TRANSITION} className="space-y-6">
-                <div className="mb-2">
-                  <p className="text-2xl font-semibold leading-tight" style={{ color: 'var(--text-primary)' }}>
-                    Your patterns
-                  </p>
-                  <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-                    Track your nervous system over time.
-                  </p>
-                </div>
-
+              {/* ── CENTER PANEL (flex) ── */}
+              <main
+                className="flex-1 flex flex-col gap-2.5 overflow-y-auto scrollbar-thin"
+                style={{
+                  backgroundColor: '#0f1410',
+                  padding: '16px 24px',
+                }}
+              >
                 <TodayIntention onIntentionSet={setTodayIntention} />
+
+                {stateData && (
+                  <TaskFilter stateData={stateData} />
+                )}
+
                 <DailySummary sessions={sessions} />
 
                 <TacticalAdvisor
@@ -404,112 +345,86 @@ export default function App() {
                   }}
                 />
 
-                {sessions.length > 0 && (
-                  <WeeklyConsistency sessions={sessions} />
+                {stateData && (
+                  <QuickActions
+                    onFocus={() => setFocusOpen(true)}
+                    onImmersive={() => setIsImmersive(true)}
+                    onRupture={() => setRuptureOpen(true)}
+                    stateData={stateData}
+                  />
                 )}
-
-                <ShiftTrajectoryChart sessions={sessions} />
 
                 <WeeklyIntelligenceCard sessions={sessions} />
-              </motion.div>
-            )}
 
-            {/* ── TOOLS TAB ────────────────────────────────────── */}
-            {activeTab === 'tools' && !isImmersive && (
-              <motion.div key="tools" variants={TAB_VARIANTS} initial="initial" animate="animate" exit="exit" transition={TAB_TRANSITION} className="space-y-6">
-                <div className="mb-2">
-                  <p className="text-2xl font-semibold leading-tight" style={{ color: 'var(--text-primary)' }}>
-                    Tools
-                  </p>
-                  <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-                    Advanced regulation tools and settings.
-                  </p>
+                {/* Mobile-only: show left/right panel content below */}
+                <div className="lg:hidden space-y-3 mt-2">
+                  {stateData && (
+                    <>
+                      <ProtocolSteps stateData={stateData} />
+                      <AudioPlayerMini stateData={stateData} />
+                      <AmbientPanel engine={ambientEngine} stateData={stateData} />
+                    </>
+                  )}
+                  <StateIndex selectedState={selectedState} />
+                  <SessionLogPanel sessions={sessions} />
+                  <JournalEntry />
+                  {stateData && <TipCard stateData={stateData} selectedState={selectedState} />}
                 </div>
+              </main>
 
-                {/* Mission Control */}
+              {/* ── RIGHT PANEL (280px) ── */}
+              <aside
+                className="hidden lg:flex flex-col gap-4 overflow-y-auto scrollbar-thin"
+                style={{
+                  width: '280px',
+                  flexShrink: 0,
+                  backgroundColor: '#0d110e',
+                  borderLeft: '1px solid #1e2b1f',
+                  padding: '24px 20px',
+                }}
+              >
+                <StateIndex selectedState={selectedState} />
+                <SessionLogPanel sessions={sessions} />
+                <JournalEntry />
+                {stateData && <TipCard stateData={stateData} selectedState={selectedState} />}
+
+                {/* Inline Panic Button */}
                 <button
-                  onClick={() => setMissionOpen(true)}
-                  className="w-full py-3 px-4 rounded-2xl font-mono text-[10px] tracking-[0.24em] uppercase focus:outline-none transition-all duration-200 flex items-center justify-between"
-                  style={{ border: '1px solid var(--border)', backgroundColor: 'var(--bg-panel)', color: 'var(--text-muted)' }}
+                  onClick={() => setPanicOpen(true)}
+                  className="flex items-center justify-center gap-2 rounded-[10px] py-3.5 transition-all duration-200"
+                  style={{
+                    backgroundColor: '#52b87e18',
+                    border: '1px solid #52b87e50',
+                    color: '#52b87e',
+                  }}
                   onMouseEnter={e => {
-                    e.currentTarget.style.borderColor = '#52b87e40'
-                    e.currentTarget.style.color = '#52b87e'
-                    e.currentTarget.style.backgroundColor = '#52b87e07'
+                    e.currentTarget.style.backgroundColor = '#52b87e28'
+                    e.currentTarget.style.borderColor = '#52b87e80'
                   }}
                   onMouseLeave={e => {
-                    e.currentTarget.style.borderColor = 'var(--border)'
-                    e.currentTarget.style.color = 'var(--text-muted)'
-                    e.currentTarget.style.backgroundColor = 'var(--bg-panel)'
+                    e.currentTarget.style.backgroundColor = '#52b87e18'
+                    e.currentTarget.style.borderColor = '#52b87e50'
                   }}
                 >
-                  <span>⊙ Mission Control</span>
-                  <span style={{ opacity: 0.5 }}>M</span>
+                  <span className="text-sm">⚡</span>
+                  <span className="text-[13px] font-semibold">Breathe · Reset Now</span>
                 </button>
+              </aside>
+            </div>
 
-                {/* Focus / Flow Lock buttons */}
-                {stateData && (
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setFocusOpen(true)}
-                      className="flex-1 font-mono text-[10px] tracking-widest uppercase px-4 py-3 rounded-2xl border transition-all duration-200"
-                      style={{
-                        borderColor: stateData.accentHex + '50',
-                        color: stateData.accentHex,
-                        backgroundColor: stateData.accentHex + '0d',
-                      }}
-                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = stateData.accentHex + '1a' }}
-                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = stateData.accentHex + '0d' }}
-                    >
-                      ⊡ Focus Mode
-                    </button>
-                    {selectedState === 'flow' && (
-                      <button
-                        onClick={() => setFlowLockOpen(true)}
-                        className="flex-1 font-mono text-[10px] tracking-widest uppercase px-4 py-3 rounded-2xl border transition-all duration-200"
-                        style={{
-                          borderColor: stateData.accentHex + '80',
-                          color: stateData.accentHex,
-                          backgroundColor: stateData.accentHex + '18',
-                        }}
-                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = stateData.accentHex + '28' }}
-                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = stateData.accentHex + '18' }}
-                      >
-                        ⊞ Flow Lock
-                      </button>
-                    )}
-                  </div>
-                )}
+            {/* Bottom Status Bar */}
+            <StatusBar
+              selectedState={selectedState}
+              onShortcutHelp={() => setShortcutHelpOpen(v => !v)}
+            />
+          </>
+        )}
 
-                {/* Audio Player */}
-                {stateData && <AudioPlayer stateData={stateData} />}
-
-                {/* HRV Monitor */}
-                <HRVIndicator selectedState={selectedState} onAcceptSuggestion={handleStateSelect} />
-
-                {/* Team */}
-                <TeamPanel />
-
-                {/* Keyboard Shortcuts */}
-                <button
-                  onClick={() => setShortcutHelpOpen(true)}
-                  className="w-full py-2.5 px-4 rounded-2xl font-mono text-[10px] tracking-widest uppercase transition-all duration-200 text-left"
-                  style={{ border: '1px solid var(--border)', backgroundColor: 'var(--bg-panel)', color: 'var(--text-muted)' }}
-                >
-                  ? Keyboard shortcuts
-                </button>
-              </motion.div>
-            )}
-            </AnimatePresence>
-          </main>
-        </div> {/* End of .relative.z-10 wrapper */}
-
-        {/* Floating elements tied to Immersive Mode */}
+        {/* ═══ Floating elements for Immersive Mode ═══ */}
         <VagusLogSidebar isImmersive={isImmersive} streak={streak} sessions={sessions} />
         <AmbientSoundscape isImmersive={isImmersive} stateData={stateData} engine={ambientEngine} />
 
-        {/* ── Fixed overlays ───────────────────────────────────── */}
-
-        {/* Mission Control — z-[60], above ImmersionContainer (z-[55]) */}
+        {/* ═══ Fixed overlays ═══ */}
         <MissionControl
           open={missionOpen}
           ambientEngine={ambientEngine}
@@ -528,13 +443,12 @@ export default function App() {
           onClose={() => setMissionOpen(false)}
         />
 
-        {/* Guided Immersion Container — 3-phase regulated experience */}
         <ImmersionContainer
           open={isImmersive}
           stateData={stateData}
           ambientEngine={ambientEngine}
           onBreathPhaseChange={setBreathPhase}
-          onComplete={({ activationAfter, notes, startedAt, resetCompleted }) => {
+          onComplete={({ activationAfter, startedAt, resetCompleted }) => {
             logSession({
               state: selectedState,
               type: 'stealth',
@@ -553,14 +467,13 @@ export default function App() {
           onClose={() => setIsImmersive(false)}
         />
 
-        {/* Panic Button — always visible unless a full-screen overlay is open */}
+        {/* Panic Button — floating, hidden in dashboard (inline in right panel instead) */}
         <PanicButton
           onOpen={() => setPanicOpen(true)}
           accentHex={stateData?.accentHex}
-          hidden={anyOverlayOpen}
+          hidden={anyOverlayOpen || !isImmersive}
         />
 
-        {/* Panic Reset — 30-sec breath overlay */}
         <PanicReset
           open={panicOpen}
           accentHex={stateData?.accentHex}
@@ -578,7 +491,6 @@ export default function App() {
           onClose={() => setPanicOpen(false)}
         />
 
-        {/* Flow Lock — 90-min deep work overlay */}
         {selectedState === 'flow' && stateData && (
           <FlowLock
             open={flowLockOpen}
@@ -594,7 +506,6 @@ export default function App() {
           />
         )}
 
-        {/* FocusMode — existing 60-sec overlay */}
         {stateData && (
           <FocusMode
             open={focusOpen}
@@ -606,7 +517,6 @@ export default function App() {
           />
         )}
 
-        {/* Unified PostResetCheckin */}
         {checkinPending && (
           <PostResetCheckin
             accentHex={checkinPending.accentHex}
@@ -641,15 +551,6 @@ export default function App() {
         />
         <ShortcutHelp open={shortcutHelpOpen} onClose={() => setShortcutHelpOpen(false)} />
         <StreakMilestone streak={streak} />
-
-        {/* Bottom tab navigation */}
-        <TabBar
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          accentHex={stateData?.accentHex}
-          hidden={isImmersive}
-        />
-
       </div>
     </ThemeProvider>
   )

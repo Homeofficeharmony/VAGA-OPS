@@ -1,88 +1,72 @@
-import { useState, useEffect, useRef } from 'react'
+import { useTheme } from '../context/ThemeContext'
 
-const accentColor = {
-  red: '#c4604a',
-  amber: '#c8a040',
-  green: '#52b87e',
+const STATE_LABEL = {
+  frozen: 'Dorsal vagal (shutdown)',
+  anxious: 'Sympathetic (alert)',
+  flow: 'Ventral vagal (flow)',
 }
 
-const stateMessages = {
-  frozen: 'Protocol active — low-activation mode. Execute without deliberation.',
-  anxious: 'Regulation in progress — narrow focus, one task.',
-  flow: 'Optimal state — protect the window. No interruptions.',
+const STATE_COLOR = {
+  frozen: '#c4604a',
+  anxious: '#c8a040',
+  flow: '#52b87e',
 }
 
-const TIP_INTERVAL_MS = 9000
-const FADE_MS = 400
-
-export default function StatusBar({ selectedState, stateData }) {
-  const tips = stateData?.tips ?? []
-  // Cycle: 0 = static message, 1..N = tips
-  const total = tips.length + 1
-  const [index, setIndex] = useState(0)
-  const [visible, setVisible] = useState(true)
-  const timerRef = useRef(null)
-
-  // Reset on state change
-  useEffect(() => {
-    setIndex(0)
-    setVisible(true)
-  }, [selectedState])
-
-  useEffect(() => {
-    if (total <= 1) return
-    timerRef.current = setInterval(() => {
-      setVisible(false)
-      setTimeout(() => {
-        setIndex((i) => (i + 1) % total)
-        setVisible(true)
-      }, FADE_MS)
-    }, TIP_INTERVAL_MS)
-    return () => clearInterval(timerRef.current)
-  }, [total, selectedState])
-
-  if (!selectedState) return null
-
-  const color = accentColor[stateData.accent]
-  const isStaticMsg = index === 0
-  const displayText = isStaticMsg ? stateMessages[selectedState] : tips[index - 1]
+export default function StatusBar({ selectedState, onShortcutHelp }) {
+  const { theme } = useTheme()
+  const color = STATE_COLOR[selectedState] ?? '#52b87e'
+  const label = STATE_LABEL[selectedState] ?? 'No state selected'
+  const themeLabel = theme === 'dark' ? 'Dark theme' : theme === 'light' ? 'Light theme' : 'Pastel theme'
 
   return (
-    <div
-      className="rounded-xl px-5 py-3 flex items-center gap-4 border"
+    <footer
+      className="flex items-center justify-between"
       style={{
-        borderColor: color + '30',
-        backgroundColor: color + '08',
+        height: '28px',
+        backgroundColor: '#090d0a',
+        borderTop: '1px solid #1e2b1f',
+        padding: '0 24px',
+        flexShrink: 0,
       }}
     >
-      <div
-        className="flex-shrink-0 w-2 h-2 rounded-full animate-pulse"
-        style={{ backgroundColor: color }}
-      />
-      <div className="flex-1 min-w-0">
-        <span
-          className="text-sm leading-relaxed transition-opacity duration-300"
-          style={{ color: color + 'cc', opacity: visible ? 1 : 0 }}
-        >
-          {displayText}
+      {/* Left — nervous system status */}
+      <div className="flex items-center gap-3">
+        <div
+          className="w-1.5 h-1.5 rounded-full"
+          style={{ backgroundColor: color }}
+        />
+        <span className="text-[10px]" style={{ color: '#7a9b7c' }}>
+          Nervous system: {label}
         </span>
       </div>
-      <div className="flex-shrink-0 flex items-center gap-2">
-        {!isStaticMsg && (
-          <span
-            className="font-mono text-[9px] tracking-widest uppercase transition-opacity duration-300"
-            style={{ color: color + '50', opacity: visible ? 1 : 0 }}
-          >
-            TIP {index}/{tips.length}
-          </span>
-        )}
-        <div
-          className="flex-shrink-0 font-mono text-[10px] tracking-widest uppercase"
-          style={{ color: color + '60' }}
-        >
-          {stateData.polyvagalNote.split('—')[0].trim()}
-        </div>
+
+      {/* Center — connectivity + theme */}
+      <div className="hidden sm:flex items-center gap-4">
+        <span className="text-[10px]" style={{ color: '#4a6b4c' }}>
+          Offline mode
+        </span>
+        <span className="text-[10px]" style={{ color: '#263024' }}>·</span>
+        <span className="text-[10px]" style={{ color: '#4a6b4c' }}>
+          {themeLabel}
+        </span>
       </div>
-    </div>
+
+      {/* Right — version + shortcuts */}
+      <div className="flex items-center gap-2">
+        <span
+          className="font-mono text-[9px]"
+          style={{ color: '#4a6b4c' }}
+        >
+          v1.0
+        </span>
+        <button
+          onClick={onShortcutHelp}
+          className="text-[10px] focus:outline-none"
+          style={{ color: '#4a6b4c' }}
+        >
+          ? shortcuts
+        </button>
+      </div>
+    </footer>
   )
 }

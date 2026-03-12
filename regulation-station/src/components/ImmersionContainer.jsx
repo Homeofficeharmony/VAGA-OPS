@@ -85,8 +85,30 @@ function AmbientBg({ accent }) {
   )
 }
 
-// The breathing orb — used during stabilize
-function BreathOrb({ accent, orbScale, bloomScale, bloomOpacity, timing, isExhale, breathPhase }) {
+// The breathing orb — blended orbital point and expansive core
+function BreathOrb({ accent, orbScale, bloomScale, bloomOpacity, timing, isExhale, breathPhase, phaseProgress }) {
+  // Calculate angle for the orbiting point.
+  // Inhale: 0 to 180 degrees (top to bottom on right side).
+  // Exhale: 180 to 360 degrees (bottom to top on left side).
+  // Hold: stationary at 180 (bottom).
+  let angle = 0;
+  if (breathPhase === 'inhale') {
+    angle = phaseProgress * Math.PI; // 0 to PI
+  } else if (breathPhase === 'hold') {
+    angle = Math.PI; // Stay at bottom
+  } else {
+    angle = Math.PI + (phaseProgress * Math.PI); // PI to 2PI
+  }
+
+  // Orbit radius
+  const R = 90;
+  // Center point
+  const C = 100;
+  
+  // Adjusted so 0 is at the top (subtract PI/2)
+  const x = C + R * Math.cos(angle - Math.PI / 2);
+  const y = C + R * Math.sin(angle - Math.PI / 2);
+
   return (
     <div className="relative flex items-center justify-center" style={{ width: 200, height: 200 }}>
       {/* Outward bloom on exhale */}
@@ -99,32 +121,47 @@ function BreathOrb({ accent, orbScale, bloomScale, bloomOpacity, timing, isExhal
           opacity: bloomOpacity,
         }}
       />
-      {/* Glow halo */}
+      {/* Central glowing core (breathes) */}
       <div
-        className="absolute inset-0 rounded-full"
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
         style={{
+          width: 80, height: 80,
           backgroundColor: accent + '0c',
           boxShadow: `0 0 ${Math.round(40 + orbScale * 24)}px ${Math.round(10 + orbScale * 14)}px ${accent}16`,
           transform: `scale(${orbScale})`,
           transition: `transform ${isExhale ? timing.exhale : (breathPhase === 'hold' ? 100 : timing.inhale)}ms ease-in-out`,
         }}
       />
-      {/* Main ring */}
+      {/* Inner stable track */}
       <div
-        className="absolute inset-6 rounded-full border"
+        className="absolute inset-[35%] rounded-full opacity-60"
         style={{
-          borderColor: accent + (isExhale ? 'bb' : '55'),
-          backgroundColor: accent + (isExhale ? '12' : '06'),
-          transform: `scale(${orbScale})`,
-          transition: `transform ${isExhale ? timing.exhale : (breathPhase === 'hold' ? 100 : timing.inhale)}ms ease-in-out, border-color 0.6s ease, background-color 0.6s ease`,
+          border: `1px solid ${accent}40`,
+          boxShadow: `inset 0 0 10px ${accent}20`
         }}
       />
-      {/* Inner core */}
+      
+      {/* Main outer track (orbital path) */}
       <div
-        className="absolute inset-[35%] rounded-full"
+        className="absolute rounded-full pointer-events-none"
         style={{
-          background: `radial-gradient(circle, ${accent}50 0%, ${accent}1a 60%, transparent 100%)`,
-          boxShadow: `0 0 10px ${accent}35`,
+          width: R * 2, height: R * 2,
+          border: `1px solid var(--border)`,
+          opacity: 0.3,
+          strokeDasharray: '2 6',
+        }}
+      />
+      
+      {/* Traveling point (Singularity) */}
+      <div
+        className="absolute rounded-full"
+        style={{
+          width: 8, height: 8,
+          backgroundColor: accent,
+          boxShadow: `0 0 12px 4px ${accent}60`,
+          left: x - 4, // center the 8px dot
+          top: y - 4,
+          transition: 'left 0.1s linear, top 0.1s linear' // smooth micro-ticks
         }}
       />
     </div>
@@ -351,6 +388,7 @@ export default function ImmersionContainer({ open, stateData, ambientEngine, onC
       setBreathElapsed(prev => {
         if (prev + 1 >= total) {
           clearInterval(countId)
+          ambientEngine?.stop()
           playToneRef.current?.()
           hapticCompleteRef.current?.()
           setShowBurst(true)
@@ -404,6 +442,11 @@ export default function ImmersionContainer({ open, stateData, ambientEngine, onC
     return () => clearInterval(id)
   }, [open, phase, handleComplete])
 
+  const handleEarlyClose = useCallback(() => {
+    ambientEngine?.stop()
+    onClose()
+  }, [ambientEngine, onClose])
+
   if (!open || !stateData) return null
 
   const accent = stateData.accentHex
@@ -449,7 +492,7 @@ export default function ImmersionContainer({ open, stateData, ambientEngine, onC
       }}
     >
       <AmbientBg accent={accent} />
-      <ExitButton onClose={onClose} accent={accent} />
+      <ExitButton onClose={handleEarlyClose} accent={accent} />
       {children}
     </div>
   )
@@ -627,10 +670,11 @@ export default function ImmersionContainer({ open, stateData, ambientEngine, onC
           timing={timing}
           isExhale={isExhale}
           breathPhase={breathPhase}
+          phaseProgress={phaseProgress}
         />
 
-        {/* Phase label + countdown */}
-        <div className="mt-8 mb-2 flex flex-col items-center gap-1">
+        {/* Phase label + countdown - Moved to Bottom */}
+        <div className="fixed bottom-16 left-0 right-0 flex flex-col items-center gap-1">
           <p
             className="font-mono text-[11px] tracking-[0.28em] uppercase"
             style={{

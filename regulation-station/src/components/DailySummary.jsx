@@ -1,64 +1,57 @@
 import { getDailyStats } from '../hooks/useSessionLog'
 
-function shiftArrow(avgShift) {
-  if (avgShift == null) return null
-  if (avgShift > 0.5) return '↑'
-  if (avgShift >= -0.5) return '→'
-  return '↓'
+function shiftDisplay(avgShift) {
+  if (avgShift == null) return '—'
+  if (avgShift > 0) return `↑ ${avgShift.toFixed(1)}`
+  if (avgShift < 0) return `↓ ${Math.abs(avgShift).toFixed(1)}`
+  return '→ 0'
 }
 
 export default function DailySummary({ sessions }) {
   const { resetCount, avgShift, flowMinutes } = getDailyStats(sessions)
 
-  const arrow = shiftArrow(avgShift)
-
-  if (resetCount === 0) {
-    return (
-      <div
-        className="flex items-center gap-4 rounded-lg px-4 py-2 mb-4 border"
-        style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg-panel)' }}
-      >
-        <span className="font-mono text-[10px] tracking-widest uppercase text-charcoal-500">
-          Today
-        </span>
-        <span className="font-mono text-[11px]" style={{ color: 'var(--text-muted)' }}>
-          No resets yet today — first one is the hardest.
-        </span>
-      </div>
-    )
-  }
-
   return (
     <div
-      className="flex items-center gap-4 rounded-lg px-4 py-2 mb-4 border"
-      style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg-panel)' }}
+      className="flex items-center rounded-[10px]"
+      style={{
+        backgroundColor: 'var(--bg-panel)',
+        border: '1px solid var(--border)',
+        padding: '10px 14px',
+        gap: '12px',
+      }}
     >
-      <span className="font-mono text-[10px] tracking-widest uppercase text-charcoal-500">
-        Today
-      </span>
-      <div className="flex items-center gap-3 font-mono text-[11px]">
-        <span style={{ color: 'var(--text-secondary)' }}>
-          {resetCount} reset{resetCount !== 1 ? 's' : ''}
+      {/* Resets */}
+      <div className="flex-1 flex flex-col items-center gap-1">
+        <span className="text-[18px] font-bold" style={{ color: '#52b87e' }}>
+          {resetCount}
         </span>
-        {arrow && (
-          <>
-            <span className="text-charcoal-700">·</span>
-            <span
-              style={{ color: 'var(--text-secondary)' }}
-              title="avg activation change after resets"
-            >
-              Shift: <span style={{ color: 'var(--accent-flow)' }}>{arrow}</span>
-            </span>
-          </>
-        )}
-        {flowMinutes > 0 && (
-          <>
-            <span className="text-charcoal-700">·</span>
-            <span style={{ color: 'var(--text-secondary)' }}>
-              <span style={{ color: 'var(--accent-flow)' }}>{flowMinutes}m</span> flow
-            </span>
-          </>
-        )}
+        <span className="text-[10px]" style={{ color: '#7a9b7c' }}>
+          Resets today
+        </span>
+      </div>
+
+      <div style={{ width: '1px', height: '36px', backgroundColor: '#263024' }} />
+
+      {/* Avg shift */}
+      <div className="flex-1 flex flex-col items-center gap-1">
+        <span className="text-[18px] font-bold" style={{ color: '#52b87e' }}>
+          {shiftDisplay(avgShift)}
+        </span>
+        <span className="text-[10px]" style={{ color: '#7a9b7c' }}>
+          Avg shift
+        </span>
+      </div>
+
+      <div style={{ width: '1px', height: '36px', backgroundColor: '#263024' }} />
+
+      {/* Flow minutes */}
+      <div className="flex-1 flex flex-col items-center gap-1">
+        <span className="text-[18px] font-bold" style={{ color: '#52b87e' }}>
+          {flowMinutes > 0 ? `${flowMinutes}m` : '—'}
+        </span>
+        <span className="text-[10px]" style={{ color: '#7a9b7c' }}>
+          Flow minutes
+        </span>
       </div>
     </div>
   )

@@ -1,0 +1,164 @@
+.orb-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 3. AURA FIELD */
+.aura-field {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 600px;
+  height: 600px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(57, 255, 20, 0.15) 0%, rgba(57, 255, 20, 0.05) 30%, transparent 70%);
+  border-radius: 50%;
+  z-index: 0;
+  pointer-events: none;
+  animation: aura-breathe 19s infinite ease-in-out;
+  filter: blur(20px);
+}
+
+@keyframes aura-breathe {
+  0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.5; }
+  21% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; } /* 4s Inhale */
+  58% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.9; } /* 7s Hold */
+  100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.5; } /* 8s Exhale */
+}
+
+/* 2. ENERGY RING */
+.energy-ring-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 320px;
+  height: 320px;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
+.energy-ring-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg); /* Start at top */
+  filter: drop-shadow(0 0 8px rgba(57, 255, 20, 0.8));
+}
+
+.ring-background {
+  fill: none;
+  stroke: rgba(57, 255, 20, 0.1);
+  stroke-width: 4px;
+}
+
+.ring-progress {
+  fill: none;
+  stroke: var(--neon-green);
+  stroke-width: 4px;
+  stroke-linecap: round;
+  /* Stroke dash offset handled by animation */
+  animation-name: ring-draw;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes ring-draw {
+  0% { stroke-dashoffset: 879.6; } /* 2*pi*140 */
+  100% { stroke-dashoffset: 0; }
+}
+
+/* 1. CORE ORB */
+.core-orb {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #a3ffaf 0%, #39ff14 40%, #0c570b 100%);
+  box-shadow: 
+    0 0 30px rgba(57, 255, 20, 0.6),
+    inset 0 0 20px rgba(255, 255, 255, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+  transition: transform 4s ease-out, box-shadow 4s ease-out; /* defaults, overridden by phase */
+}
+
+.core-orb.inhale {
+  transform: scale(1.3);
+  box-shadow: 
+    0 0 80px rgba(57, 255, 20, 0.9),
+    inset 0 0 30px rgba(255, 255, 255, 0.7);
+  transition: transform 4s cubic-bezier(0.4, 0, 0.2, 1), 
+              box-shadow 4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.core-orb.hold {
+  transform: scale(1.3); /* remain expanded */
+  box-shadow: 
+    0 0 60px rgba(57, 255, 20, 0.7),
+    inset 0 0 30px rgba(255, 255, 255, 0.6);
+  transition: transform 7s linear, box-shadow 7s linear;
+}
+
+.core-orb.exhale {
+  transform: scale(0.8);
+  box-shadow: 
+    0 0 20px rgba(57, 255, 20, 0.3),
+    inset 0 0 10px rgba(255, 255, 255, 0.3);
+  transition: transform 8s cubic-bezier(0.4, 0, 0.2, 1), 
+              box-shadow 8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* UI ELEMENTS */
+.orb-content {
+  text-align: center;
+  color: #040905;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+.phase-text {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 0.2rem;
+}
+
+.timer-text {
+  font-size: 2.5rem;
+  font-weight: 300;
+}
+
+.cycle-counter {
+  position: absolute;
+  top: 2rem;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  color: rgba(57, 255, 20, 0.6);
+  text-transform: uppercase;
+}
+
+.stop-button {
+  position: absolute;
+  bottom: 3rem;
+  background: transparent;
+  border: none;
+  color: rgba(57, 255, 20, 0.5);
+  font-family: inherit;
+  font-size: 1rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0.5rem 1rem;
+}
+
+.stop-button:hover {
+  color: var(--neon-green);
+  text-shadow: 0 0 8px rgba(57, 255, 20, 0.8);
+}

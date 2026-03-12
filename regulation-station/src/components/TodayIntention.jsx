@@ -37,11 +37,11 @@ export default function TodayIntention({ onIntentionSet }) {
       <div className="mb-4 flex items-center gap-2 flex-wrap">
         <span className="font-mono text-[10px] tracking-widest uppercase text-charcoal-500 shrink-0">Today</span>
         <span
-          className="font-mono text-[11px] px-3 py-1 rounded-full border truncate max-w-xs"
+          className="font-mono text-[11px] px-3 py-1 rounded-full border truncate max-w-xs transition-colors duration-1000"
           style={{
-            color: 'var(--accent-flow)',
-            borderColor: 'color-mix(in srgb, var(--accent-flow) 30%, transparent)',
-            backgroundColor: 'color-mix(in srgb, var(--accent-flow) 8%, transparent)',
+            color: 'var(--theme-accent)',
+            borderColor: 'color-mix(in srgb, var(--theme-accent) 40%, transparent)',
+            backgroundColor: 'color-mix(in srgb, var(--theme-accent) 8%, transparent)',
           }}
           title={intention}
         >
@@ -78,17 +78,17 @@ export default function TodayIntention({ onIntentionSet }) {
           placeholder="What's one thing you want to accomplish today?"
           className="flex-1 bg-transparent border-b text-sm font-mono focus:outline-none transition-colors"
           style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }}
-          onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--accent-flow)' }}
+          onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--theme-accent)' }}
           onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border)' }}
         />
         <button
           onClick={submit}
           disabled={!draft.trim()}
-          className="font-mono text-[10px] tracking-widest uppercase px-3 py-1 rounded-lg border transition-all duration-200 disabled:opacity-30 shrink-0"
+          className="font-mono text-[10px] tracking-widest uppercase px-3 py-1 rounded-lg border transition-all duration-1000 disabled:opacity-30 shrink-0"
           style={{
-            color: 'var(--accent-flow)',
-            borderColor: 'color-mix(in srgb, var(--accent-flow) 40%, transparent)',
-            backgroundColor: 'color-mix(in srgb, var(--accent-flow) 8%, transparent)',
+            color: 'var(--theme-accent)',
+            borderColor: 'color-mix(in srgb, var(--theme-accent) 40%, transparent)',
+            backgroundColor: 'color-mix(in srgb, var(--theme-accent) 8%, transparent)',
           }}
         >
           Set
