@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useAudioEngine } from '../hooks/useAudioEngine'
 
 // State-specific breath patterns: [inhale, hold, exhale, hold2] in seconds
 const BREATH_PATTERNS = {
@@ -71,12 +72,31 @@ export default function BreathePage({
 }) {
   const [isRunning, setIsRunning] = useState(false)
   const [tipIndex, setTipIndex] = useState(() => Math.floor(Math.random() * 50))
+  const [hasPlayed, setHasPlayed] = useState(false)
   const { phase, secondsLeft, patternLabel } = useBreathCycle(stateKey, isRunning)
 
-  // Reset running state when state changes
+  const audioEngine = useAudioEngine({
+    carrierHz: stateData?.audio?.carrierHz ?? 200,
+    beatHz: stateData?.audio?.beatHz ?? 10,
+  })
+
+  // Reset running state + stop audio when state changes
   useEffect(() => {
     setIsRunning(false)
+    audioEngine.pause?.()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stateKey])
+
+  // Play / pause binaural audio with orb session
+  useEffect(() => {
+    if (isRunning) {
+      audioEngine.play?.()
+      setHasPlayed(true)
+    } else {
+      audioEngine.pause?.()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isRunning])
 
   useEffect(() => {
     if (!stateData?.tips?.length) return
@@ -143,6 +163,18 @@ export default function BreathePage({
           style={{ width: '260px', height: '260px' }}
           aria-label={isRunning ? 'Pause breathing guide' : 'Start breathing guide'}
         >
+          {/* Idle pulse ring — animates gently when orb is not running */}
+          {!isRunning && (
+            <div
+              className="absolute rounded-full orb-idle pointer-events-none"
+              style={{
+                width: '260px',
+                height: '260px',
+                border: `1px solid ${stateData.accentHex}18`,
+              }}
+            />
+          )}
+
           {/* Outer pulse ring */}
           <div
             className="absolute rounded-full"
@@ -235,6 +267,20 @@ export default function BreathePage({
         >
           {patternLabel}
         </p>
+
+        {/* Audio indicator */}
+        {audioEngine.supported && (
+          <div className="flex items-center gap-1.5 mt-1">
+            <span style={{ fontSize: '13px', opacity: audioEngine.playing ? 1 : 0.3, transition: 'opacity 0.4s' }}>
+              🎧
+            </span>
+            {!hasPlayed && (
+              <span className="font-mono text-[9px] tracking-wide" style={{ color: 'var(--text-muted)', opacity: 0.5 }}>
+                binaural audio plays on start
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Actions */}

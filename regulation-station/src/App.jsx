@@ -61,6 +61,16 @@ export default function App() {
     }
   }
 
+  const [stateWash, setStateWash] = useState(false)
+  const prevStateRef = useRef(null)
+  useEffect(() => {
+    if (selectedState && prevStateRef.current && selectedState !== prevStateRef.current) {
+      setStateWash(true)
+      setTimeout(() => setStateWash(false), 550)
+    }
+    prevStateRef.current = selectedState
+  }, [selectedState])
+
   const [ruptureOpen, setRuptureOpen] = useState(false)
   const [focusOpen, setFocusOpen] = useState(false)
   const [panicOpen, setPanicOpen] = useState(false)
@@ -354,16 +364,18 @@ export default function App() {
             <PanicReset
               open={panicOpen}
               accentHex={stateData?.accentHex}
-              onComplete={({ activationBefore = null, startedAt = null } = {}) => {
+              onComplete={() => {
                 setPanicOpen(false)
-                setCheckinPending({
-                  source: 'panic',
-                  accentHex: stateData?.accentHex ?? '#52b87e',
-                  state: selectedState,
-                  activationBefore,
-                  startedAt,
-                  protocolUsed: 'emergency-reset',
-                })
+                setTimeout(() => {
+                  setCheckinPending({
+                    source: 'panic',
+                    accentHex: stateData?.accentHex ?? '#52b87e',
+                    state: selectedState,
+                    activationBefore: null,
+                    startedAt: null,
+                    protocolUsed: 'emergency-reset',
+                  })
+                }, 1500)
               }}
               onClose={() => setPanicOpen(false)}
             />
@@ -429,6 +441,14 @@ export default function App() {
             <ShortcutHelp open={shortcutHelpOpen} onClose={() => setShortcutHelpOpen(false)} />
             <StreakMilestone streak={streak} />
           </>
+        )}
+
+        {/* State transition color wash */}
+        {stateWash && stateData && (
+          <div
+            className="fixed inset-0 pointer-events-none z-[300] state-wash"
+            style={{ background: stateData.accentHex }}
+          />
         )}
       </div>
     </ThemeProvider>

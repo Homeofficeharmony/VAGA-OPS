@@ -670,17 +670,38 @@ export default function ImmersionContainer({ open, stateData, ambientEngine, onC
           </div>
         )}
 
-        {/* Breath orb */}
-        <BreathOrb
-          accent={accent}
-          orbScale={orbScale}
-          bloomScale={bloomScale}
-          bloomOpacity={bloomOpacity}
-          timing={timing}
-          isExhale={isExhale}
-          breathPhase={breathPhase}
-          phaseProgress={phaseProgress}
-        />
+        {/* Breath orb + progress arc */}
+        <div className="relative flex items-center justify-center" style={{ width: 240, height: 240 }}>
+          <BreathOrb
+            accent={accent}
+            orbScale={orbScale}
+            bloomScale={bloomScale}
+            bloomOpacity={bloomOpacity}
+            timing={timing}
+            isExhale={isExhale}
+            breathPhase={breathPhase}
+            phaseProgress={phaseProgress}
+          />
+          {/* Thin arc sweeping 0→360° over the full session duration */}
+          <svg
+            className="absolute inset-0 pointer-events-none"
+            width="240" height="240"
+            aria-hidden="true"
+          >
+            <circle cx="120" cy="120" r="112" fill="none" stroke={accent} strokeWidth="1.5" opacity="0.10" />
+            <circle
+              cx="120" cy="120" r="112"
+              fill="none"
+              stroke={accent}
+              strokeWidth="1.5"
+              opacity="0.32"
+              strokeLinecap="round"
+              strokeDasharray={`${2 * Math.PI * 112}`}
+              strokeDashoffset={`${2 * Math.PI * 112 * (1 - stabilizePct)}`}
+              className="progress-ring"
+            />
+          </svg>
+        </div>
 
         {/* Phase label + countdown - Moved to Bottom */}
         <div className="fixed bottom-16 left-0 right-0 flex flex-col items-center gap-1">

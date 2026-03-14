@@ -95,18 +95,7 @@ export default function PostResetCheckin({ accentHex, source, activationBefore, 
 
   const timerRef = useRef(null)
 
-  // 22-second auto-dismiss covers all steps.
-  // On timeout, fires with whatever was collected.
-  useEffect(() => {
-    timerRef.current = setTimeout(() => {
-      onRate({
-        outcome: collectedRef.current.outcome,
-        shift: collectedRef.current.shift,
-        activationAfter: collectedRef.current.activationAfter,
-      })
-    }, 22000)
-    return () => clearTimeout(timerRef.current)
-  }, [onRate])
+  // No auto-dismiss — user closes manually via rating or skip
 
   const handleShift = ({ outcome, shift }) => {
     collectedRef.current = { ...collectedRef.current, outcome, shift }
@@ -195,6 +184,15 @@ export default function PostResetCheckin({ accentHex, source, activationBefore, 
               </button>
             ))}
           </div>
+          <button
+            onClick={() => { clearTimeout(timerRef.current); onRate({ outcome: null, shift: 0, activationAfter: null }) }}
+            className="mt-2 w-full text-[9px] font-mono tracking-widest uppercase transition-colors"
+            style={{ color: accentHex + '35' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = accentHex + '65' }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = accentHex + '35' }}
+          >
+            skip
+          </button>
         </>
       )}
 

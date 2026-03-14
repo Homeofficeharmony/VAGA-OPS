@@ -243,3 +243,20 @@
   50%  { transform: scale(1.8); opacity: 0.6; }
   100% { transform: scale(3.2); opacity: 0; }
 }
+
+/* Idle orb breathing (BreathePage — no session active) */
+@keyframes orbIdleBreathe {
+  0%, 100% { transform: scale(0.93); opacity: 0.35; }
+  50%       { transform: scale(1.06); opacity: 0.75; }
+}
+.orb-idle {
+  animation: orbIdleBreathe 6s ease-in-out infinite;
+}
+
+/* State transition color wash */
+@keyframes stateWash {
+  0%   { opacity: 0; }
+  18%  { opacity: 0.13; }
+  100% { opacity: 0; }
+}
+.state-wash { animation: stateWash 0.55s ease forwards; }

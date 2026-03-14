@@ -58,14 +58,28 @@ export default function StateSelectorPage({ selected, onSelect }) {
         })}
       </div>
 
-      {/* Quiz link */}
-      <button
-        onClick={() => setShowAssist(true)}
-        className="text-[12px] mt-8 underline underline-offset-4 transition-opacity hover:opacity-80"
-        style={{ color: 'var(--text-muted)' }}
-      >
-        Not sure? Take the quiz →
-      </button>
+      {/* Quiz CTA — prominent card when no state selected, subtle link otherwise */}
+      {!selected ? (
+        <button
+          onClick={() => setShowAssist(true)}
+          className="mt-6 w-full max-w-sm py-3.5 rounded-2xl text-[13px] font-medium transition-all duration-200 hover:opacity-90"
+          style={{
+            backgroundColor: 'var(--bg-panel)',
+            border: '1px solid var(--border)',
+            color: 'var(--text-muted)',
+          }}
+        >
+          Not sure? Quick quiz →
+        </button>
+      ) : (
+        <button
+          onClick={() => setShowAssist(true)}
+          className="text-[12px] mt-8 underline underline-offset-4 transition-opacity hover:opacity-80"
+          style={{ color: 'var(--text-muted)' }}
+        >
+          Not sure? Take the quiz →
+        </button>
+      )}
 
       {showAssist && (
         <StateAssist onDismiss={() => setShowAssist(false)} />
