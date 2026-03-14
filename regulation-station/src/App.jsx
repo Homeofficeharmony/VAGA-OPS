@@ -2,29 +2,16 @@ import { useState, useEffect, useRef } from 'react'
 import { STATES } from './data/stateData'
 import { ThemeProvider } from './context/ThemeContext'
 
-// Layout components
+// Layout
 import Header from './components/Header'
-import StateSelector from './components/StateSelector'
-import StatusBar from './components/StatusBar'
+import BottomNav from './components/BottomNav'
 
-// Left panel
-import ProtocolSteps from './components/ProtocolSteps'
-import AudioPlayerMini from './components/AudioPlayerMini'
-import AmbientPanel from './components/AmbientPanel'
-
-// Center panel
-import TodayIntention from './components/TodayIntention'
-import TaskFilter from './components/TaskFilter'
-import DailySummary from './components/DailySummary'
-import TacticalAdvisor from './components/TacticalAdvisor'
-import QuickActions from './components/QuickActions'
-import WeeklyIntelligenceCard from './components/WeeklyIntelligenceCard'
-
-// Right panel
-import StateIndex from './components/StateIndex'
-import SessionLogPanel from './components/SessionLogPanel'
-import JournalEntry from './components/JournalEntry'
-import TipCard from './components/TipCard'
+// Pages
+import StateSelectorPage from './components/StateSelectorPage'
+import BreathePage from './components/BreathePage'
+import ListenPage from './components/ListenPage'
+import HistoryPage from './components/HistoryPage'
+import TasksPage from './components/TasksPage'
 
 // Overlays
 import PostResetCheckin from './components/PostResetCheckin'
@@ -41,32 +28,36 @@ import MissionControl from './components/MissionControl'
 import ImmersionContainer from './components/ImmersionContainer'
 import NeuralBackground from './components/NeuralBackground'
 import ImmersionBackground from './components/ImmersionBackground'
-import VagusLogSidebar from './components/VagusLogSidebar'
 import AmbientSoundscape from './components/AmbientSoundscape'
 
-// Other
+// Onboarding
 import FirstVisitExperience from './components/FirstVisitExperience'
-import { useSessionLog } from './hooks/useSessionLog'
+
+import { useSessionLog, getDailyStats } from './hooks/useSessionLog'
 import { useStreak } from './hooks/useStreak'
 import { useAmbientEngine } from './hooks/useAmbientEngine'
 
 export default function App() {
-  const [selectedState, setSelectedState] = useState(null)
+  const [selectedState, setSelectedState] = useState(
+    () => localStorage.getItem('vaga-last-state') || null
+  )
   const stateData = selectedState ? STATES[selectedState] : null
-  const hasEnteredImmersion = useRef(false)
+
+  const [activePage, setActivePage] = useState(() => {
+    const lastState = localStorage.getItem('vaga-last-state')
+    return lastState ? 'breathe' : 'state-select'
+  })
 
   const handleStateSelect = (state) => {
     setSelectedState(state)
-    if (state && !hasEnteredImmersion.current) {
-      hasEnteredImmersion.current = true
-      setIsImmersive(true)
-      setAmbientMode(false)
-      setShowDashboard(false)
+    if (state) {
+      localStorage.setItem('vaga-last-state', state)
+      setActivePage('breathe')
       const data = STATES[state]
       ambientEngine.autoStartForState?.(state, data)
-    } else if (!state) {
-      setIsImmersive(false)
-      setAmbientMode(false)
+    } else {
+      localStorage.removeItem('vaga-last-state')
+      setActivePage('state-select')
     }
   }
 
@@ -78,10 +69,7 @@ export default function App() {
   const [ambientMode, setAmbientMode] = useState(false)
   const [missionOpen, setMissionOpen] = useState(false)
   const [shortcutHelpOpen, setShortcutHelpOpen] = useState(false)
-  const [todayIntention, setTodayIntention] = useState('')
-  const [activeNav, setActiveNav] = useState('dashboard')
-
-  const [showDashboard, setShowDashboard] = useState(false)
+  const [todayIntention] = useState('')
 
   const [breathPhase, setBreathPhase] = useState('inhale')
   useEffect(() => {
@@ -102,7 +90,7 @@ export default function App() {
 
   const intervalRef = useRef(null)
 
-  // Scroll lock while immersion mode is active
+  // Scroll lock while immersion is active
   useEffect(() => {
     document.body.style.overflow = isImmersive ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
@@ -184,13 +172,13 @@ export default function App() {
       if (e.key === '3') handleStateSelect('flow')
       if (e.key === 'a' || e.key === 'A') handleAmbientToggle()
       if (e.key === 'r' || e.key === 'R') setRuptureOpen(true)
-      if (e.key === 'i' || e.key === 'I') setIsImmersive(v => !v)
-      if (e.key === 'm' || e.key === 'M') setMissionOpen(v => !v)
+      if (e.key === 'i' || e.key === 'I') { if (selectedState) setIsImmersive((v) => !v) }
+      if (e.key === 'm' || e.key === 'M') setMissionOpen((v) => !v)
       if (e.key === 'f' || e.key === 'F') {
         if (stateData) setFocusOpen((v) => !v)
       }
       if (e.key === '?' || e.key === '/') {
-        setShortcutHelpOpen(v => !v); return
+        setShortcutHelpOpen((v) => !v); return
       }
       if (e.key === 'Escape') {
         setRuptureOpen(false)
@@ -235,8 +223,7 @@ export default function App() {
         }}
         data-calm={selectedState === 'frozen' || selectedState === 'anxious' ? 'true' : undefined}
       >
-
-        {/* Immersive Neural Background */}
+        {/* Ambient backgrounds */}
         <NeuralBackground
           isImmersive={isImmersive}
           ambientMode={ambientMode}
@@ -245,160 +232,68 @@ export default function App() {
         />
         <ImmersionBackground isImmersive={isImmersive} selectedState={selectedState} />
 
-        {/* ═══ IMMERSIVE MODE — ImmersionContainer handles all breathing UI ═══ */}
-
-        {/* ═══ DASHBOARD MODE ═══ */}
+        {/* ═══ NORMAL MODE ═══ */}
         {!isImmersive && (
           <>
-            {/* Top Nav */}
             <Header
-              isImmersive={isImmersive}
-              onShortcutHelp={() => setShortcutHelpOpen(v => !v)}
-              activeNav={activeNav}
-              onNavChange={setActiveNav}
+              onShortcutHelp={() => setShortcutHelpOpen((v) => !v)}
+              accentHex={stateData?.accentHex ?? '#52b87e'}
             />
 
-            {/* State Selector Strip */}
-            <StateSelector selected={selectedState} onSelect={handleStateSelect} />
-
-            {/* ═══ 3-COLUMN BODY ═══ */}
-            <div className="flex flex-1 min-h-0" style={{ backgroundColor: '#0f1410' }}>
-
-              {/* ── LEFT PANEL (280px) ── */}
-              <aside
-                className="hidden lg:flex flex-col gap-4 overflow-y-auto scrollbar-thin"
-                style={{
-                  width: '280px',
-                  flexShrink: 0,
-                  backgroundColor: '#0d110e',
-                  borderRight: '1px solid #1e2b1f',
-                  padding: '24px 20px',
-                }}
-              >
-                {stateData ? (
-                  <>
-                    <ProtocolSteps stateData={stateData} />
-                    <AudioPlayerMini stateData={stateData} />
-                    <AmbientPanel engine={ambientEngine} stateData={stateData} />
-                  </>
-                ) : (
-                  <div className="flex flex-col items-center justify-center flex-1 text-center">
-                    <div className="w-10 h-10 rounded-full border-2 border-dashed flex items-center justify-center mb-3 animate-pulse" style={{ borderColor: '#263024' }}>
-                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#263024' }} />
-                    </div>
-                    <p className="font-mono text-[10px] tracking-widest uppercase" style={{ color: '#4a6b4c' }}>
-                      Select a state
-                    </p>
-                  </div>
-                )}
-              </aside>
-
-              {/* ── CENTER PANEL (flex) ── */}
-              <main
-                className="flex-1 flex flex-col gap-2.5 overflow-y-auto scrollbar-thin"
-                style={{
-                  backgroundColor: '#0f1410',
-                  padding: '16px 24px',
-                }}
-              >
-                <TodayIntention onIntentionSet={setTodayIntention} />
-
-                {stateData && (
-                  <TaskFilter stateData={stateData} />
-                )}
-
-                <DailySummary sessions={sessions} />
-
-                <TacticalAdvisor
-                  sessions={sessions}
-                  onAction={(action) => {
-                    if (action === 'immersion') {
-                      if (selectedState) setIsImmersive(true)
-                    } else if (action === 'panic') {
-                      setPanicOpen(true)
-                    } else if (action === 'flow') {
-                      handleStateSelect('flow')
-                    }
-                  }}
+            {/* Scrollable page area */}
+            <div
+              className="flex-1 overflow-y-auto scrollbar-thin"
+              style={{ backgroundColor: 'var(--bg-base)' }}
+            >
+              {activePage === 'state-select' && (
+                <StateSelectorPage
+                  selected={selectedState}
+                  onSelect={handleStateSelect}
                 />
+              )}
 
-                {stateData && (
-                  <QuickActions
-                    onFocus={() => setFocusOpen(true)}
-                    onImmersive={() => setIsImmersive(true)}
-                    onRupture={() => setRuptureOpen(true)}
-                    stateData={stateData}
-                  />
-                )}
+              {activePage === 'breathe' && (
+                <BreathePage
+                  stateData={stateData}
+                  stateKey={selectedState}
+                  onBeginReset={() => { if (selectedState) setIsImmersive(true) }}
+                  onPanicReset={() => setPanicOpen(true)}
+                  onChangeState={() => setActivePage('state-select')}
+                  onOpenMission={() => setMissionOpen(true)}
+                  onFlowLock={() => setFlowLockOpen(true)}
+                  todayResets={getDailyStats(sessions).resetCount}
+                />
+              )}
 
-                <WeeklyIntelligenceCard sessions={sessions} />
+              {activePage === 'listen' && (
+                <ListenPage
+                  stateData={stateData}
+                  ambientEngine={ambientEngine}
+                  onSelectState={() => setActivePage('state-select')}
+                />
+              )}
 
-                {/* Mobile-only: show left/right panel content below */}
-                <div className="lg:hidden space-y-3 mt-2">
-                  {stateData && (
-                    <>
-                      <ProtocolSteps stateData={stateData} />
-                      <AudioPlayerMini stateData={stateData} />
-                      <AmbientPanel engine={ambientEngine} stateData={stateData} />
-                    </>
-                  )}
-                  <StateIndex selectedState={selectedState} />
-                  <SessionLogPanel sessions={sessions} />
-                  <JournalEntry />
-                  {stateData && <TipCard stateData={stateData} selectedState={selectedState} />}
-                </div>
-              </main>
+              {activePage === 'tasks' && (
+                <TasksPage stateData={stateData} />
+              )}
 
-              {/* ── RIGHT PANEL (280px) ── */}
-              <aside
-                className="hidden lg:flex flex-col gap-4 overflow-y-auto scrollbar-thin"
-                style={{
-                  width: '280px',
-                  flexShrink: 0,
-                  backgroundColor: '#0d110e',
-                  borderLeft: '1px solid #1e2b1f',
-                  padding: '24px 20px',
-                }}
-              >
-                <StateIndex selectedState={selectedState} />
-                <SessionLogPanel sessions={sessions} />
-                <JournalEntry />
-                {stateData && <TipCard stateData={stateData} selectedState={selectedState} />}
-
-                {/* Inline Panic Button */}
-                <button
-                  onClick={() => setPanicOpen(true)}
-                  className="flex items-center justify-center gap-2 rounded-[10px] py-3.5 transition-all duration-200"
-                  style={{
-                    backgroundColor: '#52b87e18',
-                    border: '1px solid #52b87e50',
-                    color: '#52b87e',
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.backgroundColor = '#52b87e28'
-                    e.currentTarget.style.borderColor = '#52b87e80'
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.backgroundColor = '#52b87e18'
-                    e.currentTarget.style.borderColor = '#52b87e50'
-                  }}
-                >
-                  <span className="text-sm">⚡</span>
-                  <span className="text-[13px] font-semibold">Breathe · Reset Now</span>
-                </button>
-              </aside>
+              {activePage === 'history' && (
+                <HistoryPage sessions={sessions} streak={streak} />
+              )}
             </div>
 
-            {/* Bottom Status Bar */}
-            <StatusBar
-              selectedState={selectedState}
-              onShortcutHelp={() => setShortcutHelpOpen(v => !v)}
+            {/* Bottom Nav */}
+            <BottomNav
+              activePage={activePage}
+              onNavigate={setActivePage}
+              stateData={stateData}
+              hasState={!!selectedState}
+              onNeedsState={() => setActivePage('state-select')}
             />
           </>
         )}
 
-        {/* ═══ Floating elements for Immersive Mode ═══ */}
-        <VagusLogSidebar isImmersive={isImmersive} streak={streak} sessions={sessions} />
+        {/* ═══ Ambient soundscape (persistent across pages) ═══ */}
         <AmbientSoundscape isImmersive={isImmersive} stateData={stateData} engine={ambientEngine} />
 
         {/* ═══ Fixed overlays ═══ */}
@@ -444,7 +339,7 @@ export default function App() {
           onClose={() => setIsImmersive(false)}
         />
 
-        {/* Panic Button — floating, hidden in dashboard (inline in right panel instead) */}
+        {/* Panic Button — visible on all non-immersive pages */}
         {!isImmersive && (
           <PanicButton
             onOpen={() => setPanicOpen(true)}
@@ -453,7 +348,7 @@ export default function App() {
           />
         )}
 
-        {/* Dashboard-only overlays (hidden in immersion) */}
+        {/* Page overlays */}
         {!isImmersive && (
           <>
             <PanicReset

@@ -218,6 +218,22 @@
   animation: stateBreathe 6s ease-in-out infinite;
 }
 
+/* ── Page layout ──────────────────────────────────────────── */
+.page-content {
+  min-height: calc(100vh - 52px - 64px); /* viewport - header - bottom nav */
+  padding-bottom: 80px; /* clear the fixed bottom nav */
+}
+
+.page-enter {
+  animation: fadeInUp 0.35s ease both;
+}
+
+/* ── Breathing orb (BreathePage) ───────────────────────────── */
+@keyframes orbBreathe {
+  0%,  100% { transform: scale(1);    opacity: 0.85; }
+  50%        { transform: scale(1.18); opacity: 1;    }
+}
+
 .glow-breathe {
   animation: glowBreathe 4s ease-in-out infinite;
 }
